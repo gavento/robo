@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Plocha</title>
+    <script src="closure-library/closure/goog/base.js"></script>
+    <script src="jquery-1.7.2.min.js"></script>
+    <script src="plocha.js"></script>
+    <style>
+      table.gameBoard { background-color: #000; border-spacing: 0; padding: 35px; }
+      tr.gameBoard { margin: 0; padding: 0; }
+      td.gameBoard { margin: 0; padding: 0; width: 68px; height: 68px; display: inline-block; }
+      div.gameBoardTiles { position: absolute; }
+      div.gameBoardTile { position: absolute; }
+      div.gameBoardElements { position: absolute; width: 100%; height: 100%; }
+    </style>
+  </head>
+  <body>
+    <table class='gameBoard' id='board0'></table>
+    <pre id='log'>Log:
+</pre>
+  </body>
+</html>
