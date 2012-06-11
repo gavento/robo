@@ -22,6 +22,9 @@ function dirNum(dir) {
     return 0;
 }
 
+var dirX = [0, +1, 0, -1];
+var dirY = [-1, 0, +1, 0];
+
 function getDefault(obj, attribute, val) {
     if (obj == undefined || obj[attribute] == undefined)
 	return val;
@@ -45,6 +48,7 @@ function registerEntityType(type, constructor) {
 function Entity(par) {
     this.x = getDefault(par, "x", 0);
     this.y = getDefault(par, "y", 0);
+    this.board = getDefault(par, "board", undefined);
     this.img = null;
     this.type = '#';
     this.zlevel = 0;
@@ -76,14 +80,14 @@ function Conveyor(par) {
     this.img = new Image();
     this.img.src = 'i/conveyor-' + this.dir + '.png';
     this.zlevel = 10;
-    this.phases = [20];
+    this.boardPhases = [20];
     this.activate = function(phase) {
-	var tile = board.tiles[[this.x, this.y]];
-	for (i in tile) {
-	    var e = tile[i];
-//	    if (e.movable())
-//		e.schedulePush(this.dir);
-	}
+	log("Activate Conveyor in "+phase);
+	self = this;
+	this.board.tiles[[this.x, this.y]].forEach(function(e) {
+	    if (e.movable())
+		self.board.schedulePush(e, self.dir);
+	})
     }
 }
 goog.inherits(Conveyor, Tile);
@@ -94,7 +98,7 @@ function ExpressConveyor(par) {
     this.img = new Image();
     this.img.src = 'i/express-conveyor-' + this.dir + '.png';
     this.zlevel = 10;
-    this.phases = [19, 21];
+    this.boardPhases = [19, 21];
 }
 goog.inherits(ExpressConveyor, Conveyor);
 registerEntityType('E', ExpressConveyor);
@@ -110,17 +114,28 @@ registerEntityType('H', Hole);
 
 function Crusher(par) {
     goog.base(this, par);
-    this.zlevel = 0;
+    this.zlevel = 200;
     this.img = new Image();
     this.img.src = 'i/crusher.png';
+    this.boardPhases = [30];
+    this.activate = function(phase) {
+	log("Activate Crusher in "+phase);
+	var tile = this.board.tiles[[this.x, this.y]];
+	for (i in tile) {
+	    var e = tile[i];
+	    if (e instanceof Robot)
+		e.damage(1);
+	}
+    }
 }
-goog.inherits(Hole, Tile);
-registerEntityType('H', Hole);
+goog.inherits(Crusher, Tile);
+registerEntityType('X', Crusher);
 
 function Robot(par) {
     goog.base(this, par);
     this.zlevel = 50;
     this.dir = dirNum(getDefault(par, "dir", 0));
+    this.player = getDefault(par, "player", "unknown");
     this.imgs = {}
     for (var dir = 0; dir < 4; dir++) {
 	this.imgs[dir] = new Image();
@@ -128,6 +143,9 @@ function Robot(par) {
     }
     this.drawDiv = function(div) {
 	div.appendChild(this.imgs[this.dir])
+    }
+    this.damage = function(damage) {
+	log("Robot "+this.player+" took "+damage+" damage.");
     }
 }
 goog.inherits(Robot, Entity);
@@ -163,6 +181,50 @@ function GameBoard(name) {
     this.h = 1;
     /* string name */
     this.name = name;
+    /* scheduled pushes, WIP */
+    this.pushes = [];
+
+    this.activateBoard = function() {
+	byPhase = {}
+	for (var x = 0; x < this.w; x++)
+	    for (var y = 0; y < this.h; y++) {
+		this.tiles[[x, y]].forEach(function(e) {
+		    e.boardPhases.forEach(function(phase) {
+			byPhase[phase] = getDefault(byPhase, phase, []);
+			byPhase[phase].push(e); 
+		    })
+		})
+	    }
+	var phases = Object.keys(byPhase);
+	phases.sort();
+	var self = this;
+	phases.forEach(function(phase) {
+	    byPhase[phase].forEach(function(e) {
+		e.activate(phase);
+	    })
+	    self.resolvePushes();
+	})
+    }
+
+    /* Think this through! */
+    this.schedulePush = function(what, dir) {
+	this.pushes.push([what,dir]);
+    }
+    this.resolvePushes = function() {
+	self = this;
+	this.pushes.forEach(function(push) {
+	    var e = push[0];
+	    log("Push from "+e.x+","+e.y+" in dir "+push[1]);
+	    var t = self.tiles[[e.x, e.y]];
+	    var i = t.indexOf(e);
+	    t.splice(i, 1);
+	    e.x += dirX[push[1]];
+	    e.y += dirY[push[1]];
+	    self.tiles[[e.x, e.y]].push(e);
+	})
+	this.pushes = [];
+    }
+
 
     /* viewing as table */
     /* [x,y] : <td> */
@@ -215,17 +277,33 @@ function GameBoard(name) {
     }
     this.loadJSONEntity = function(ent) {
 	var type = entityTypesRepo[ent.t];
-	if (type)
+	if (type) {
+	    ent.board = this;
 	    return new type(ent);
+	}
 	log("Unknownt entity type '" + ent.t + "'");
 	return undefined;
     }
 }
 
+
+/******************************
+ * Experiments
+ */
+
+var b;
+
+function activateBoard() {
+    b.activateBoard();
+    var t = $('#board0')[0];
+    b.drawTable(t);
+}
+
 $(document).ready(function() {
     log('Document ready ...');
-    var b = new GameBoard();
+    b = new GameBoard();
     b.loadJSON(JSON.stringify({name: "Testik", width: 6, height: 3, tiles: [
+	{ x: 2, y: 1, t: "X"},
 	{ x: 0, y: 0, t: "H"},
 	{ x: 1, y: 0, t: "C", dir: "E" },
 	{ x: 2, y: 0, t: "E", dir: "S" },
@@ -233,10 +311,11 @@ $(document).ready(function() {
 	{ x: 1, y: 2, t: "H"},
 	{ x: 2, y: 2, t: "H"},
 	{ x: 1, y: 0, t: "Robot", dir: "S", player: "Player 1"},
-
 	{ x: 5, y: 0, t: "Flag", number: 1},
 	{ x: 5, y: 0, t: "C", dir: "W" },
-	{ x: 4, y: 0, t: "C", dir: "S" },
+	{ x: 4, y: 0, t: "C", dir: "W" },
+	{ x: 3, y: 0, t: "C", dir: "S" },
+	{ x: 3, y: 1, t: "C", dir: "E" },
 	{ x: 4, y: 1, t: "C", dir: "E" },
 	{ x: 5, y: 1, t: "C", dir: "N" }
     ]})); 
@@ -245,3 +324,4 @@ $(document).ready(function() {
     b.resetTable(t);
     b.drawTable(t);
 });
+
