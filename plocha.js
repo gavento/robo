@@ -322,7 +322,8 @@ $(document).ready(function() {
     b = new GameBoard();
     b.loadJSON(JSON.stringify({name: "Testik", width: 6, height: 4, tiles: [
 	{ x: 2, y: 1, t: "X"},
-	{ x: 0, y: 0, t: "H"},
+	{ x: 0, y: 1, t: "H"},
+	{ x: 1, y: 1, t: "H"},
 	{ x: 1, y: 0, t: "C", dir: "E" },
 	{ x: 2, y: 0, t: "E", dir: "S" },
 	{ x: 2, y: 1, t: "E", dir: "S" },
