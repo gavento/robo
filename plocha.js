@@ -54,7 +54,7 @@ function GroundTile(tilerec) {
     goog.base(this);
     this.zlevel = 0;
     this.img = new Image();
-    this.img.src = 'ground.png';
+    this.img.src = 'i/ground.png';
 }
 goog.inherits(GroundTile, Tile);
 registerTileType('G', GroundTile);
@@ -64,7 +64,7 @@ function ConveyorTile(tilerec) {
     goog.base(this);
     this.dir = dirNum(tilerec.dir);
     this.img = new Image();
-    this.img.src = 'conveyor-' + this.dir + '.png';
+    this.img.src = 'i/conveyor-' + this.dir + '.png';
     this.zlevel = 10;
     this.phases = [20];
     this.activate = function(phase) {
@@ -79,7 +79,7 @@ function HoleTile(tilerec) {
     goog.base(this);
     this.zlevel = 2;
     this.img = new Image();
-    this.img.src = 'hole.png';
+    this.img.src = 'i/hole.png';
 }
 goog.inherits(HoleTile, Tile);
 registerTileType('H', HoleTile);
@@ -114,16 +114,37 @@ function RobotEntity(rec) {
     goog.base(this);
     this.type = 'Robot';
     this.zlevel = 0;
-    this.dir = 0;
-    this.img = new Image();
-    this.img.src = 'robo.png';
+    this.dir = rec.dir;
+    this.imgs = {}
+    for (var dir = 0; dir < 4; dir++) {
+	this.imgs[dir] = new Image();
+	this.imgs[dir].src = 'i/robo-'+dir+'.png';
+    }
+    this.drawDiv = function(div) {
+	div.innerHTML = "";
+	div.appendChild(this.imgs[this.dir])
+    }
 }
-goog.inherits(GroundTile, Tile);
-registerTileType('G', GroundTile);
+goog.inherits(RobotEntity, Entity);
+registerEntityType('Robot', RobotEntity);
+
+function FlagEntity(rec) {
+    goog.base(this);
+    this.type = 'Flag';
+    this.zlevel = 10;
+    this.number = 0;
+    this.drawDiv = function(div) {
+	div.innerHTML = "";
+	div.appendChild(this.imgs[this.dir])
+    }
+}
+goog.inherits(RobotEntity, Entity);
+registerEntityType('Robot', RobotEntity);
 
 
-
-
+/********************************
+ * Game board
+ */
 
 function GameBoard(name) {
     /* [x,y] : [ Tiles ] */
@@ -133,6 +154,8 @@ function GameBoard(name) {
 	    return [ HoleTile() ];
 	return this.tiles[[x, y]];
     }
+    /* [x,y] : [ Entities ] */
+    this.entities = {};
     /* all coordinates within 0..w-1, 0..h-1 */
     this.w = 1;
     this.h = 1;
@@ -170,7 +193,6 @@ function GameBoard(name) {
 		this.drawTableTile(x, y)
     }
     this.drawTableTile = function(x, y) {
-	log(""+x+y+this.tiles[[x,y]]);
 	var tilesDiv = this.tableTiles[[x,y]];
 	tilesDiv.innerHTML = "";
 	var ts = this.tiles[[x, y]];
@@ -193,18 +215,31 @@ function GameBoard(name) {
 	this.h = j.height;
 	var maxx = 0;
 	for (x = 0; x < this.w; x++)
-	    for (y = 0; y < this.h; y++)
+	    for (y = 0; y < this.h; y++) {
 	    	this.tiles[[x,y]] = [ new GroundTile() ]
+		this.entities[[x,y]] = [];
+	    }
 	for (i in j.tiles) {
 	    var t = j.tiles[i];
 	    this.tiles[[t.x, t.y]].push(this.loadJSONTile(t));
+	}
+	for (i in j.entities) {
+	    var e = j.entities[i];
+	    this.entities[[e.x, e.y]].push(this.loadJSONEntity(e));
 	}
     }
     this.loadJSONTile = function(tile) {
 	var type = tileTypesRepo[tile.t];
 	if (type)
 	    return new type(tile);
-	log("Unknownt type '" + tile.t + "'");
+	log("Unknownt tile type '" + tile.t + "'");
+	return undefined;
+    }
+    this.loadJSONEntity = function(ent) {
+	var type = entityTypesRepo[ent.t];
+	if (type)
+	    return new type(ent);
+	log("Unknownt entity type '" + ent.t + "'");
 	return undefined;
     }
 }
