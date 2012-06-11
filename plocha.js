@@ -32,7 +32,7 @@ function getDefault(obj, attribute, val) {
 }
 
 function log(t) {
-    $('#log').append('' + t + '\n');
+    $('#log').append('' + t + '<br>');
 }
 
 /*******************************
@@ -63,6 +63,9 @@ function Entity(par) {
     }
     /* activate in board phases */
     this.boardActivate = function(board, phase) {
+    }
+    this.clone = function() {
+	return jQuery.extend({}, this);
     }
 }
 
@@ -202,6 +205,20 @@ function GameBoard(name) {
     /* scheduled pushes, WIP */
     this.pushes = [];
 
+    this.clone = function() {
+	var b = new GameBoard(this.name);
+	b.w = this.w;
+	b.h = this.h;
+	for (var x = 0; x < this.w; x++)
+	    for (var y = 0; y < this.h; y++) {
+		b.tiles[[x, y]] = [];
+		this.tiles[[x, y]].forEach(function(e){
+		    b.tiles[[x, y]].push(e.clone());
+		})
+	    }
+	return b;
+    }
+
     this.activateBoard = function() {
 	byPhase = {}
 	for (var x = 0; x < this.w; x++)
@@ -310,11 +327,22 @@ function GameBoard(name) {
  */
 
 var b;
+var turn = 0;
+var history = [];
+
+function showBoard(board) {
+    var t = $('#board0')[0];
+    board.resetTable(t);
+    board.drawTable(t);
+}
 
 function activateBoard() {
+    log('<span class="showHistory" onmouseover="showBoard(history['+turn+'])" onmouseout="showBoard(b)">' +
+        'Turn '+turn+' (shows history)');
+    history.push(b.clone());
+    turn++;
     b.activateBoard();
-    var t = $('#board0')[0];
-    b.drawTable(t);
+    showBoard(b);
 }
 
 $(document).ready(function() {
