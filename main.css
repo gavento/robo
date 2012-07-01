@@ -1,0 +1,42 @@
+table.gameBoard {
+    background-color: #000;
+    border-spacing: 0;
+    padding: 15px;
+    margin: 10px;
+}
+
+tr.gameBoard {
+    margin: 0;
+    padding: 0;
+}
+
+td.gameBoard {
+    margin: 0;
+    padding: 0;
+    width: 68px;
+    height: 68px;
+    display: inline-block;
+    background-image: url('i/ground.png');
+}
+
+div.gameBoardEntity {
+    position: absolute;
+    width: inherit;
+    height: inherit;
+}
+
+span.flag {
+    position: relative;
+    left: 10px;
+    top: 10px;
+    padding: 1px;
+    font-weight: bold;
+    color: #22f;
+    background: #ccc;
+}
+
+.showHistory {
+    color: #700;
+    background: #ddd;
+    padding: 0 0 0 20px;
+}

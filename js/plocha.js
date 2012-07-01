@@ -74,7 +74,7 @@ function Tile(par) {
     this.movable = function() {
 	return false;
     }
-}    
+}
 goog.inherits(Tile, Entity);
 
 function Conveyor(par) {
@@ -346,6 +346,7 @@ function activateBoard() {
 }
 
 $(document).ready(function() {
+    $('#activate').click(activateBoard);
     log('Document ready ...');
     b = new GameBoard();
     b.loadJSON(JSON.stringify({name: "Testik", width: 6, height: 4, tiles: [
