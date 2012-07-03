@@ -1,8 +1,13 @@
+html {
+    margin: 1em;
+    font-family: sans;
+}
+
 table.gameBoard {
     background-color: #000;
     border-spacing: 0;
     padding: 15px;
-    margin: 10px;
+    float: left;
 }
 
 tr.gameBoard {
@@ -35,8 +40,47 @@ span.flag {
     background: #ccc;
 }
 
+#log { background: #edf; }
+#activate { }
+
 .showHistory {
     color: #700;
     background: #ddd;
     padding: 0 0 0 20px;
+}
+
+.card-plan-row {
+    float: left;
+    background: #ffc;
+    height: 110px;
+    width: 280px;
+}
+
+.card-plan-slot {
+    float: left;
+    background: #ddd;
+    height: 100px;
+    width: 60px;
+    margin: 5px;
+}
+
+.card-face {
+    float: left;
+    background: #555;
+    color: #ddd;
+    font-weight: bold;
+    padding: 5px;
+    height: 90px;
+    width: 50px;
+}
+
+.card-pool .card-face {
+    margin: 5px;
+}
+
+.card-pool {
+    height: 110px;
+    width: 560px;
+    float: left;
+    background: #dfd;
 }
