@@ -1,3 +1,10 @@
+/*
+ * Module Dir
+ *
+ * Convert dir to direction from (0,1,2,3)
+ * Accepts numbers (mod 4) and 'SENW'
+ */
+
 /* 
  * Main directions:
  *   0
@@ -5,11 +12,6 @@
  * 3 X 1
  *   
  *   2
- */
-
-/*
- * Convert dir to direction from (0,1,2,3)
- * Accepts numbers (mod 4) and 'SENW'
  */
 
 var Dir = {};
@@ -28,6 +30,7 @@ Dir.toDir = function (d) {
     throw "Invalid direction specification";
 }
 
+
 /*
  * Default parameters
  */
@@ -44,5 +47,4 @@ function getDefault(obj, attribute, val) {
 
 function log() {
     console.log.apply(console, arguments);
-    // $('#log').append('' + t + '<br>');
 }
