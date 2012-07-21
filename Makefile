@@ -13,14 +13,16 @@ start:
 	$(HTTP_SERVER) ./ -p $(HTTP_PORT)
 
 clean:
-	rm -rf $(BUILD)/
+	rm -rf $(BUILD_DIR)
+	rm -f build.txt
 
 build:
 	$(R_JS) -o build.js
-	rm -f $(BUILD)/style/*.styl
-	rm -fr $(BUILD)/app
-	rm -fr $(BUILD)/lib/[^srj]*
-	mv $(BUILD)/build.txt .
+	rm -f $(BUILD_DIR)/style/*.styl
+	rm -fr $(BUILD_DIR)/app
+	rm -f $(BUILD_DIR)/lib/[c]*.js
+	rm -fr $(BUILD_DIR)/lib/spinelib/
+	mv $(BUILD_DIR)/build.txt .
 
 
 

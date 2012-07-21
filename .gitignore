@@ -1,6 +1,8 @@
-node_modules/
-misc/
-build/
+/node_modules/
+/misc/
+/build/
+/src/style/main.css
+/build.txt
 
 *.swp
 *~
