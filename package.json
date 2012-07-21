@@ -1,12 +1,15 @@
 {
+  "author": "Gavento",
   "name": "robo",
+  "description": "",
   "version": "0.0.1",
+  "homepage": "",
+  "engines": {
+    "node": ">= 0.6"
+  },
   "dependencies": {
-    "serveup": "~0.0.5",
-    "hem": "~0.1.8",
-    "es5-shimify": "~0.0.1",
-    "json2ify": "~0.0.1",
-    "jqueryify": "~0.0.1",
-    "spine": "~1.0.7"
+    "http-server": ">= 0.5",
+    "requirejs": ">= 2.0",
+    "stylus": ">= 0.28"
   }
 }
