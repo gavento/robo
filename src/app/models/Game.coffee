@@ -1,8 +1,6 @@
 define (require, exports, module) ->
 
-#  require('spine')
-
   class Game extends Spine.Model
-    @configure 'Game', 'name'
+    @configure 'Game', 'name', 'board', 'players'
 
   module.exports = Game
