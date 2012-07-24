@@ -5,13 +5,17 @@ define (require, exports, module) ->
   Game = require 'cs!app/models/Game'
   Board = require 'cs!app/models/Board'
   GameView = require 'cs!app/controllers/GameView'
+  cards = require 'cs!app/models/cards'
 
   class App extends Spine.Controller
     constructor: ->
       super
-      @game = new Game name:"G1"
-      @game.board = new Board
-      @game.board.resize 7,3
+      boardD =
+        width: 4
+        height: 2
+        entities: [ {type: 'C', dir: 'S', x: 1, y: 1} ]
+
+      @game = new Game name:"G1", board: boardD
 
       @append new TestInputBox model:@game, propName:'name'
       @append new TestInputBox model:@game, propName:'name'
@@ -22,6 +26,8 @@ define (require, exports, module) ->
       @append new GameView game:@game
       @append new GameView game:@game
 
+      @c = new (cards.Card.getType "C")
+      @sc = new (cards.Card.getType "S")
 
 
   class TestInputBox extends Spine.Controller
