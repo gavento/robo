@@ -2,6 +2,7 @@ define (require, exports, module) ->
 
   Tile = require 'cs!app/models/Tile'
   entities = require 'cs!app/models/entities'
+  MultiLock = require 'cs!app/lib/MultiLock'
 
   class Board extends Spine.Model
     @configure 'Board', 'width', 'height', 'entities'
@@ -63,30 +64,40 @@ define (require, exports, module) ->
       return res
 
     allEntities: ->
-      return (t.entities for col, t of (row for x, row of @tiles).join()).join()
+      res = []
+      for t in @allTiles()
+        res = res.concat(t.entities())
+      return res
 
     entitiesByPhase: ->
       eByP = {}
       for e in @allEntities()
-        for p in e.phases
+        for p in e.getPhases()
           eByP[p] ?= []
           eByP[p].push(e)
       return eByP
 
     activateOnePhase: (fromTime=0) ->
       eByP = @entitiesByPhase()
-      phases = _.keys eByP
+      phases = (Number(k) for k in _.keys(eByP))
       phases.sort()
       for t in phases
         if t >= fromTime
           for e in eByP[t]
             e.activate(t)
-        return t + 1
+          return t + 1
       return -1
-          
+
     activateAllPhases: ->
+      # experimental
       t = 0
-      while t >= 0
-        t = @activateOnePhase t
-      
+      f = =>
+        if t >= 0
+          @lock = new MultiLock f, 5000
+          t = @activateOnePhase t
+          @lock.triggerIfUnlocked()
+        else
+          delete @lock
+      f()
+
   module.exports = Board

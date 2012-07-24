@@ -3,7 +3,7 @@ define (require, exports, module) ->
   TileView = require 'cs!app/controllers/TileView'
 
   class BoardView extends Spine.Controller
-    
+
     tag:
       'div'
 
@@ -12,7 +12,7 @@ define (require, exports, module) ->
 
     elements:
       '.TileView': "tileViews"
-      
+
     constructor: ->
       super
       throw "@board required" unless @board
@@ -20,7 +20,7 @@ define (require, exports, module) ->
       @tileH ?= 68
       @board.bind("create update", @render)
       @render()
-      
+
     render: =>
       @el.empty()
       @el.css width: (@tileW * @board.width), height: (@tileH * @board.height)

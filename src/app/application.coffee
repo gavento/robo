@@ -10,29 +10,49 @@ define (require, exports, module) ->
   class App extends Spine.Controller
     constructor: ->
       super
-      boardD =
-        width: 4
-        height: 2
-        entities: [
-          {type: 'C', dir: 'S', x: 1, y: 1},
-          {type: 'C', dir: 'E', x: 1, y: 0},
-          {type: 'E', dir: 'W', x: 0, y: 0},
-        ]
+      gameData =
+        name: "Testovaci desticka"
+        board:
+          width: 8
+          height: 2
+          entities: [
+            {type: 'C', dir: 'S', x: 0, y: 1},
+            {type: 'C', dir: 'E', x: 1, y: 1},
+            {type: 'C', dir: 'N', x: 2, y: 1},
+            {type: 'C', dir: 'W', x: 3, y: 1},
+            {type: 'C', dir: 'S', x: 4, y: 1},
+            {type: 'C', dir: 'E', x: 5, y: 1},
+            {type: 'C', dir: 'N', x: 6, y: 1},
+            {type: 'C', dir: 'W', x: 7, y: 1},
+            {type: 'E', dir: 'W', x: 0, y: 0},
+            {type: 'E', dir: 'W', x: 1, y: 0},
+            {type: 'E', dir: 'W', x: 2, y: 0},
+            {type: 'E', dir: 'S', x: 3, y: 0},
+            {type: 'E', dir: 'S', x: 4, y: 0},
+            {type: 'E', dir: 'E', x: 5, y: 0},
+            {type: 'E', dir: 'E', x: 6, y: 0},
+            {type: 'E', dir: 'E', x: 7, y: 0},
+          ]
 
-      @game = new Game name:"G1", board: boardD
+      @append "<div class='TestInputBox'><button id='button-activate'>Activate board</button></div>"
+      b = @$('#button-activate')
+      b.click( @activate )
+
+      @game = new Game gameData
 
       @append new TestInputBox model:@game, propName:'name'
       @append new TestInputBox model:@game, propName:'name'
 
       @append new TestSizeInput model:@game.board
-      @append new TestSizeInput model:@game.board
+      #@append new TestSizeInput model:@game.board
 
       @append new GameView game:@game
       @append new GameView game:@game
 
-      @c = new (cards.Card.getType "C")
-      @sc = new (cards.Card.getType "S")
 
+    activate: =>
+      @log "Activating"
+      @game.board.activateAllPhases()
 
   class TestInputBox extends Spine.Controller
     events:

@@ -1,6 +1,7 @@
 define (require, exports, module) ->
 
   SubclassTypes = require "cs!app/lib/SubclassTypes"
+  CSSSprite = require "app/lib/CSSSprite"
 
   class EntityView extends Spine.Controller
     @extend SubclassTypes
@@ -24,17 +25,40 @@ define (require, exports, module) ->
       @el.empty()
       @el.css width:@entityW, height:@entityH
       if @entity.dir
-        @el.css 'background-position-y':(@entity.dir.getNumber() * @entityH)
+        @el.css 'background-position': "0px #{(@entity.dir.getNumber() * @entityH)}px"
+
 
   class ConveyorView extends EntityView
     @registerType "C"
     attributes:
       class: 'EntityView ConveyorView'
 
-  class ExpressConveyorView extends EntityView
+    constructor: ->
+      super
+      @entity.bind "activate", @animate
+
+    animate: =>
+      unlock = undefined
+      lock = @entity.board.lock
+      if lock
+        @log "locking for ", @entity.cid
+        unlock = lock.getLock @entity.cid
+        @log "lock: ", lock
+      CSSSprite @el, 0, (@entity.dir.getNumber() * @entityH), -@entityW, 0, 40, 12, true, unlock
+
+
+  class ExpressConveyorView extends ConveyorView
     @registerType "E"
     attributes:
       class: 'EntityView ExpressConveyorView'
+
+    animate: =>
+      unlock = undefined
+      lock = @entity.board.lock
+      if lock
+        unlock = lock.getLock @entity.cid
+      CSSSprite @el, 0, (@entity.dir.getNumber() * @entityH), -@entityW, 0, 40, 6, true, unlock
+
 
   create = (attr) ->
     throw "entity required" unless attr.entity

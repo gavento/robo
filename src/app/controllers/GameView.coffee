@@ -24,6 +24,6 @@ define (require, exports, module) ->
       @append @boardView
 
     renderName: =>
-      @$('.GameViewName').html "Game #{ @game.name }"
+      @$('.GameViewName').html "Game \"#{ @game.name }\""
 
   module.exports = GameView

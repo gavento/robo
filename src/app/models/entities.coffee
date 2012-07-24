@@ -27,7 +27,11 @@ define (require, exports, module) ->
       delete @x
       delete @y
       delete @tile
+      # keep @board
 
+    activate: (phase) ->
+      console.log "activated #{@} in phase #{phase}"
+      @trigger "activate"
 
   class Robot extends Entity
     @configure 'Robot', 'name', 'dir'
@@ -44,6 +48,8 @@ define (require, exports, module) ->
     @configure 'Conveyor', 'dir'
     @registerType "C"
 
+    getPhases: -> [20]
+
     dir: (val) ->
       if not val
         return @dir
@@ -51,10 +57,11 @@ define (require, exports, module) ->
         @dir = val
       @dir = new Direction val
 
-
   class ExpressConveyor extends Conveyor
     @configure 'ExpressConveyor', 'dir'
     @registerType "E"
+
+    getPhases: -> [18, 22]
 
 
   load = (attr) ->
