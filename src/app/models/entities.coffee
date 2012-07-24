@@ -7,6 +7,7 @@ define (require, exports, module) ->
   class Entity extends Spine.Model
     @configure 'Entity'
     @extend SubclassTypes
+    @typeMap = {}
     @registerType "_"
 
     constructor: ->

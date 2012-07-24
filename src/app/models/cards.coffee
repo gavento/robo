@@ -5,6 +5,7 @@ define (require, exports, module) ->
   class Card extends Spine.Model
     @configure 'Card'
     @extend SubclassTypes
+    @typemap = {}
     @registerType "C"
 
   class SimpleCard extends Card

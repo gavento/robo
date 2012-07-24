@@ -13,7 +13,11 @@ define (require, exports, module) ->
       boardD =
         width: 4
         height: 2
-        entities: [ {type: 'C', dir: 'S', x: 1, y: 1} ]
+        entities: [
+          {type: 'C', dir: 'S', x: 1, y: 1},
+          {type: 'C', dir: 'E', x: 1, y: 0},
+          {type: 'E', dir: 'W', x: 0, y: 0},
+        ]
 
       @game = new Game name:"G1", board: boardD
 
