@@ -88,16 +88,19 @@ define (require, exports, module) ->
           return t + 1
       return -1
 
-    activateAllPhases: ->
+    activateAllPhases: (callback) ->
       # experimental
       t = 0
       f = =>
         if t >= 0
           @lock = new MultiLock f, 5000
+          unlock = @lock.getLock "Board"
           t = @activateOnePhase t
-          @lock.triggerIfUnlocked()
+          unlock()
         else
           delete @lock
+          if callback
+            callback()
       f()
 
   module.exports = Board
