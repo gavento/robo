@@ -24,6 +24,7 @@ define (require, exports, module) ->
             {type: 'C', dir: 'E', x: 5, y: 1},
             {type: 'C', dir: 'N', x: 6, y: 1},
             {type: 'C', dir: 'W', x: 7, y: 1},
+
             {type: 'E', dir: 'W', x: 0, y: 0},
             {type: 'E', dir: 'W', x: 1, y: 0},
             {type: 'E', dir: 'W', x: 2, y: 0},
@@ -32,6 +33,8 @@ define (require, exports, module) ->
             {type: 'E', dir: 'E', x: 5, y: 0},
             {type: 'E', dir: 'E', x: 6, y: 0},
             {type: 'E', dir: 'E', x: 7, y: 0},
+
+            {type: 'Robot', dir: 'W', x: 0, y: 0, image:'roombo-r.png'},
           ]
 
       @append "<div class='TestInputBox'><button id='button-activate'>Activate board</button></div>"
@@ -40,14 +43,14 @@ define (require, exports, module) ->
 
       @game = new Game gameData
 
+      @append new GameView game:@game
+      @append new GameView game:@game
+
       @append new TestInputBox model:@game, propName:'name'
       @append new TestInputBox model:@game, propName:'name'
 
       @append new TestSizeInput model:@game.board
       #@append new TestSizeInput model:@game.board
-
-      @append new GameView game:@game
-      @append new GameView game:@game
 
 
     activate: =>

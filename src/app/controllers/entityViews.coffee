@@ -41,9 +41,7 @@ define (require, exports, module) ->
       unlock = undefined
       lock = @entity.board.lock
       if lock
-        @log "locking for ", @entity.cid
         unlock = lock.getLock @entity.cid
-        @log "lock: ", lock
       CSSSprite @el, 0, (@entity.dir.getNumber() * @entityH), -@entityW, 0, 40, 12, true, unlock
 
 
