@@ -30,4 +30,8 @@ define (require, exports, module) ->
     getName: ->
       return @constructor.toName @dir
 
+    dx: -> return [0, 1, 0, -1][@dir]
+
+    dy: -> return [1, 0, -1, 0][@dir]
+
     module.exports = Direction
