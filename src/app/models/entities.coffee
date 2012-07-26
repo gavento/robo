@@ -81,6 +81,16 @@ define (require, exports, module) ->
         @dir = val
       @dir = new Direction val
 
+    activate: (phase) ->
+      super
+      tx = @x + @dir.dx()
+      ty = @y + @dir.dy()
+      target = @board.getTile tx, ty
+      if target
+        for e in @tile.entities()
+          if e.isMovable()
+            e.place target
+
   class ExpressConveyor extends Conveyor
     @configure 'ExpressConveyor', 'dir'
     @registerType "E"
