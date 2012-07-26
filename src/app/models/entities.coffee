@@ -17,17 +17,33 @@ define (require, exports, module) ->
     isMovable: -> false
     isRobot: -> false
 
-    placed: (tile) ->
+    # adds Entity to tile
+    place: (tile) ->
+      if @tile
+        @lift()
       @x = tile.x
       @y = tile.y
       @tile = tile
       @board = tile.board
+      tile.addEntity @
+      @trigger 'update'
+      @trigger 'place'
 
-    lifted: ->
+    # removes entity from @tile
+    lift: ->
+      throw 'entity not placed' unless @tile
+      @tile.delEntity @
       delete @x
       delete @y
       delete @tile
       # keep @board
+      @trigger 'update'
+      @trigger 'lift'
+
+    destroy: ->
+      if @tile
+        throw 'destroying a placed tile'
+      super
 
     activate: (phase) ->
       console.log "activated #{@} in phase #{phase}"

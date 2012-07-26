@@ -27,11 +27,15 @@ define (require, exports, module) ->
     entities: (val) ->
       if not val
         return @allEntities()
+      all = @allEntities()
+      for e in all
+        e.lift()
+        e.destroy()
       for e in val
         if e not instanceof entities.Entity
           e = entities.load e
         throw "invalid positon for #{e}" unless (e.x < @width and e.y < @height and e.x >= 0 and e.y >= 0)
-        @tiles[e.x][e.y].addEntity(e)
+        e.place @tiles[e.x][e.y]
 
     resize: (w, h) ->
       # remove old tiles

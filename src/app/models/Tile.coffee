@@ -9,19 +9,29 @@ define (require, exports, module) ->
       @_entities = []
       super
 
+    # just container utility - does not update the Entity
     addEntity: (e) ->
       throw "invalid parameter type" unless e instanceof entities.Entity
       @_entities.push(e)
-      e.placed @
+      @trigger 'update'
+
+    # just container utility - does not update the Entity
+    delEntity: (e) ->
+      throw "invalid parameter type" unless e instanceof entities.Entity
+      @_entities = (i for i in @_entities when i != e)
+      @trigger 'update'
 
     entities: (val) ->
       if not val
         return @_entities
-      for e in @_entities
+      all = @_entities.slice()
+      for e in all
+        a.lift()
         e.destroy()
       @_entities = []
       for e in val
-        @addEntity e
+        e.place @
+      @trigger 'update'
 
 
 
