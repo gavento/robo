@@ -14,7 +14,7 @@ define (require, exports, module) ->
       super
 
     getPhases: -> []
-    isPushable: -> false
+    isMovable: -> false
     isRobot: -> false
 
     placed: (tile) ->
@@ -35,13 +35,21 @@ define (require, exports, module) ->
 
   class Robot extends Entity
     @configure 'Robot', 'name', 'dir'
-    @registerType "R"
+    @registerType "Robot"
 
     constructor: ->
       super
 
-    isPushable: -> true
+    isMovable: -> true
     isRobot: -> true
+
+    dir: (val) ->
+      if not val
+        return @dir
+      if val instanceof Direction
+        @dir = val
+      @dir = new Direction val
+
 
 
   class Conveyor extends Entity

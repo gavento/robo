@@ -60,6 +60,21 @@ define (require, exports, module) ->
       CSSSprite @el, 0, (@entity.dir.getNumber() * @entityH), -@entityW, 0, 40, 6, true, unlock
 
 
+  class RobotView extends EntityView
+    @registerType "Robot"
+    attributes:
+      class: 'EntityView RobotView'
+
+    constructor: ->
+      super
+      @entity.bind "push", @animate
+
+    render: =>
+      super
+      if @entity.image
+        @el.css 'background-image': "url('img/#{@entity.image}')"
+
+
   create = (attr) ->
     throw "entity required" unless attr.entity
     con = EntityView.getType attr.entity.constructor.typeName
