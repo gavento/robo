@@ -32,6 +32,6 @@ define (require, exports, module) ->
 
     dx: -> return [0, 1, 0, -1][@dir]
 
-    dy: -> return [1, 0, -1, 0][@dir]
+    dy: -> return [-1, 0, 1, 0][@dir]
 
     module.exports = Direction
