@@ -25,14 +25,14 @@ define (require, exports, module) ->
             {type: 'C', dir: 'N', x: 6, y: 1},
             {type: 'C', dir: 'W', x: 7, y: 1},
 
-            {type: 'E', dir: 'W', x: 0, y: 0},
-            {type: 'E', dir: 'W', x: 1, y: 0},
-            {type: 'E', dir: 'W', x: 2, y: 0},
+            {type: 'E', dir: 'E', x: 0, y: 0},
+            {type: 'E', dir: 'E', x: 1, y: 0},
+            {type: 'E', dir: 'E', x: 2, y: 0},
             {type: 'E', dir: 'S', x: 3, y: 0},
             {type: 'E', dir: 'S', x: 4, y: 0},
-            {type: 'E', dir: 'E', x: 5, y: 0},
-            {type: 'E', dir: 'E', x: 6, y: 0},
-            {type: 'E', dir: 'E', x: 7, y: 0},
+            {type: 'E', dir: 'W', x: 5, y: 0},
+            {type: 'E', dir: 'W', x: 6, y: 0},
+            {type: 'E', dir: 'W', x: 7, y: 0},
 
             {type: 'Robot', dir: 'W', x: 0, y: 0, image:'roombo-r.png'},
           ]
@@ -44,10 +44,10 @@ define (require, exports, module) ->
       @game = new Game gameData
 
       @append new GameView game:@game
-      @append new GameView game:@game
+      #@append new GameView game:@game
 
-      @append new TestInputBox model:@game, propName:'name'
-      @append new TestInputBox model:@game, propName:'name'
+      #@append new TestInputBox model:@game, propName:'name'
+      #@append new TestInputBox model:@game, propName:'name'
 
       @append new TestSizeInput model:@game.board
       #@append new TestSizeInput model:@game.board
@@ -112,6 +112,5 @@ define (require, exports, module) ->
 
     submit: ->
       @model.resize @inWidth.val(), @inHeight.val()
-      @model.trigger("update")
 
   module.exports = App

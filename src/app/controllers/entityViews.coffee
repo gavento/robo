@@ -6,7 +6,6 @@ define (require, exports, module) ->
   class EntityView extends Spine.Controller
     @extend SubclassTypes
     @typeMap = {}
-    @registerType "_"
 
     tag: 'div'
 
@@ -18,14 +17,31 @@ define (require, exports, module) ->
       throw "@entity required" unless @entity
       throw "@entityW required" unless @entityW
       throw "@entityH required" unless @entityH
+      throw "@boardView required" unless @boardView
+
       @entity.bind("create update", @render)
+      @bind "release", (=> @entity.unbind @render)
+      @entity.bind("place", @place)
+      @bind "release", (=> @entity.unbind @place)
+      @entity.bind("lift", @lift)
+      @bind "release", (=> @entity.unbind @lift)
+
+      #DEBUG# @bind "release", (=> @log "releasing ", @)
       @render()
 
+    place: =>
+      @appendTo @boardView.tileViews[@entity.x][@entity.y]
+
+    lift: =>
+      @el.remove()
+
     render: =>
+      $('body').append @el
       @el.empty()
       @el.css width:@entityW, height:@entityH
       if @entity.dir
-        @el.css 'background-position': "0px #{(@entity.dir.getNumber() * @entityH)}px"
+        @el.css 'background-position': "0px #{-(@entity.dir.getNumber() * @entityH)}px"
+      @place()
 
 
   class ConveyorView extends EntityView
@@ -36,13 +52,12 @@ define (require, exports, module) ->
     constructor: ->
       super
       @entity.bind "activate", @animate
+      @bind "release", (=> @entity.unbind @animate)
 
     animate: =>
-      unlock = undefined
-      lock = @entity.board.lock
-      if lock
-        unlock = lock.getLock @entity.cid
-      CSSSprite @el, 0, (@entity.dir.getNumber() * @entityH), -@entityW, 0, 40, 12, true, unlock
+      if @entity.board.lock
+        unlock = @entity.board.lock.getLock @entity.cid
+      CSSSprite @el, 0, -(@entity.dir.getNumber() * @entityH), -@entityW, 0, 40, 12, true, unlock
 
 
   class ExpressConveyorView extends ConveyorView
@@ -51,11 +66,9 @@ define (require, exports, module) ->
       class: 'EntityView ExpressConveyorView'
 
     animate: =>
-      unlock = undefined
-      lock = @entity.board.lock
-      if lock
-        unlock = lock.getLock @entity.cid
-      CSSSprite @el, 0, (@entity.dir.getNumber() * @entityH), -@entityW, 0, 40, 6, true, unlock
+      if @entity.board.lock
+        unlock = @entity.board.lock.getLock @entity.cid
+      CSSSprite @el, 0, -(@entity.dir.getNumber() * @entityH), -@entityW, 0, 40, 6, true, unlock
 
 
   class RobotView extends EntityView
@@ -63,16 +76,13 @@ define (require, exports, module) ->
     attributes:
       class: 'EntityView RobotView'
 
-    constructor: ->
-      super
-      @entity.bind "push", @animate
-
     render: =>
       super
       if @entity.image
         @el.css 'background-image': "url('img/#{@entity.image}')"
 
 
+  # typical call: EntityView.create entity:e, entityW:w, entityH:h, boardView:b
   create = (attr) ->
     throw "entity required" unless attr.entity
     con = EntityView.getType attr.entity.constructor.typeName

@@ -57,7 +57,10 @@ define (require, exports, module) ->
       @trigger "update"
 
     getTile: (x, y) ->
-      return @tiles[x][y]
+      if x >= 0 and y >= 0 and x < @width and y < @height
+        return @tiles[x][y]
+      else
+        return undefined
 
     allTiles: ->
       res = []

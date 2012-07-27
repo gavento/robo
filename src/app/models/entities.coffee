@@ -5,7 +5,7 @@ define (require, exports, module) ->
 
 
   class Entity extends Spine.Model
-    @configure 'Entity'
+    @configure 'Entity', 'x', 'y'
     @extend SubclassTypes
     @typeMap = {}
     @registerType "_"
@@ -25,20 +25,18 @@ define (require, exports, module) ->
       @y = tile.y
       @tile = tile
       @board = tile.board
-      tile.addEntity @
-      @trigger 'update'
+      tile.placeEntity @
       @trigger 'place'
 
     # removes entity from @tile
     lift: ->
       throw 'entity not placed' unless @tile
-      @tile.delEntity @
+      @trigger 'lift'
+      @tile.liftEntity @
       delete @x
       delete @y
       delete @tile
       # keep @board
-      @trigger 'update'
-      @trigger 'lift'
 
     destroy: ->
       if @tile
@@ -46,11 +44,11 @@ define (require, exports, module) ->
       super
 
     activate: (phase) ->
-      console.log "activated #{@} in phase #{phase}"
+      #DEBUG# console.log "activated #{@} in phase #{phase}"
       @trigger "activate"
 
   class Robot extends Entity
-    @configure 'Robot', 'name', 'dir'
+    @configure 'Robot', 'x', 'y', 'name', 'dir', 'image'
     @registerType "Robot"
 
     constructor: ->
@@ -69,7 +67,7 @@ define (require, exports, module) ->
 
 
   class Conveyor extends Entity
-    @configure 'Conveyor', 'dir'
+    @configure 'Conveyor', 'x', 'y', 'dir'
     @registerType "C"
 
     getPhases: -> [20]
@@ -92,7 +90,7 @@ define (require, exports, module) ->
             e.place target
 
   class ExpressConveyor extends Conveyor
-    @configure 'ExpressConveyor', 'dir'
+    @configure 'ExpressConveyor', 'x', 'y', 'dir'
     @registerType "E"
 
     getPhases: -> [18, 22]
