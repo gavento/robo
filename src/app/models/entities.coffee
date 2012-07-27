@@ -4,6 +4,19 @@ define (require, exports, module) ->
   Direction = require "cs!app/lib/Direction"
 
 
+  typedProperty = (cls, name, type, attrName) ->
+    attrName ?= name + '_'
+    throw "prototype already contains #{name}" if cls.prototype[name]
+    throw "object already contains #{attrName}" if cls[attrName]
+    cls.prototype[name] = (val) ->
+      if val
+        if val instanceof type
+          @[attrName] = val
+        else
+          @[attrName] = new type val
+      return @[attrName]
+
+
   class Entity extends Spine.Model
     @configure 'Entity', 'x', 'y'
     @extend SubclassTypes
@@ -48,53 +61,42 @@ define (require, exports, module) ->
       @trigger "activate"
 
   class Robot extends Entity
-    @configure 'Robot', 'x', 'y', 'name', 'dir', 'image'
+    typedProperty @, 'dir', Direction
+    @configure 'Robot', 'x', 'y', 'name', 'dir', 'image', 'cards'
     @registerType "Robot"
 
     constructor: ->
       super
+      @cards ?= []
 
     isMovable: -> true
     isRobot: -> true
 
-    dir: (val) ->
-      if not val
-        return @dir
-      if val instanceof Direction
-        @dir = val
-      @dir = new Direction val
-
-
 
   class Conveyor extends Entity
+    typedProperty @, 'dir', Direction
     @configure 'Conveyor', 'x', 'y', 'dir'
     @registerType "C"
 
     getPhases: -> [20]
 
-    dir: (val) ->
-      if not val
-        return @dir
-      if val instanceof Direction
-        @dir = val
-      @dir = new Direction val
-
+    # this is VERY simple and naive
     activate: (phase) ->
       super
-      tx = @x + @dir.dx()
-      ty = @y + @dir.dy()
+      tx = @x + @dir().dx()
+      ty = @y + @dir().dy()
       target = @board.getTile tx, ty
       if target
         for e in @tile.entities()
           if e.isMovable()
-            e.place target
+            @board.afterPhase.push ->
+              e.place target
 
   class ExpressConveyor extends Conveyor
     @configure 'ExpressConveyor', 'x', 'y', 'dir'
     @registerType "E"
 
     getPhases: -> [18, 22]
-
 
   load = (attr) ->
     throw "type required" unless attr.type

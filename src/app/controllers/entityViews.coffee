@@ -40,7 +40,7 @@ define (require, exports, module) ->
       @el.empty()
       @el.css width:@entityW, height:@entityH
       if @entity.dir
-        @el.css 'background-position': "0px #{-(@entity.dir.getNumber() * @entityH)}px"
+        @el.css 'background-position': "0px #{-(@entity.dir().getNumber() * @entityH)}px"
       @place()
 
 
@@ -57,7 +57,7 @@ define (require, exports, module) ->
     animate: =>
       if @entity.board.lock
         unlock = @entity.board.lock.getLock @entity.cid
-      CSSSprite @el, 0, -(@entity.dir.getNumber() * @entityH), -@entityW, 0, 40, 12, true, unlock
+      CSSSprite @el, 0, -(@entity.dir().getNumber() * @entityH), -@entityW, 0, 40, 12, true, unlock
 
 
   class ExpressConveyorView extends ConveyorView
@@ -68,7 +68,7 @@ define (require, exports, module) ->
     animate: =>
       if @entity.board.lock
         unlock = @entity.board.lock.getLock @entity.cid
-      CSSSprite @el, 0, -(@entity.dir.getNumber() * @entityH), -@entityW, 0, 40, 6, true, unlock
+      CSSSprite @el, 0, -(@entity.dir().getNumber() * @entityH), -@entityW, 0, 40, 6, true, unlock
 
 
   class RobotView extends EntityView

@@ -90,8 +90,13 @@ define (require, exports, module) ->
       phases.sort()
       for t in phases
         if t >= fromTime
+          # FIFO of hooks to execute after phase
+          @afterPhase = []
           for e in eByP[t]
             e.activate(t)
+          while @afterPhase.length > 0
+            cb = @afterPhase.shift()
+            cb()
           return t + 1
       return -1
 
