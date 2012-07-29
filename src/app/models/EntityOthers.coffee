@@ -14,12 +14,11 @@ define (require, exports, module) ->
       super
       tx = @x + @dir().dx()
       ty = @y + @dir().dy()
-      target = @board.getTile tx, ty
-      if target
-        for e in @tile.entities()
+      if @board.inside tx, ty
+        for e in @board.tile @x, @y
           if e.isMovable()
-            @board.afterPhase.push ->
-              e.place target
+            @board.afterPhase.push =>
+              e.move x:tx, y:ty, mover: @
 
   class ExpressConveyor extends Conveyor
     @configure {name:'ExpressConveyor', subClass:true, registerAs: 'E'}

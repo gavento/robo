@@ -11,61 +11,94 @@ define (require, exports, module) ->
 
   class Board extends SimpleModel
     @configure {name: 'Board'}, 'width', 'height', 'entities'
-    @typedPropertyArray 'entities', Entity
-    # width, height - integers
-    # name - string
-    # tiles - map x -> map y -> Tile
+    # entities: [Entity]
+    # width, height: integers
+    # name: string
+    # tiles: map x -> map y -> [Entity ids]
 
     constructor: (atts) ->
-      @width ?= 0
-      @height ?= 0
-      @tiles ?= {}
+      @width_ = 0
+      @height_ = 0
+      @entities_ = []
+      @tiles_ = {}
+      @entityById_ = {}
       super atts
 
-    load: (atts) ->
-      if (atts.width and atts.width != @width) or
-          (atts.height and atts.height != @height)
-        @resize atts.width, atts.height
-      delete atts.width
-      delete atts.height
+    destroy: ->
+      @set 'entities', []
+      super
 
-      super atts
+    width: (val) ->
+      if val? and val != @width_ then @resize val, @height_
+      return @width_
 
-      for e in @entities()
-        e.place @tiles[e.x][e.y]
+    height: (val) ->
+      if val? and val != @height then @resize @width_, val
+      return @height_
 
     resize: (w, h) ->
-      # remove old tiles
-      if @width > 0 and @height > 0
-        for x in [0..(@width-1)]
-          for y in [0..(@height-1)]
-            if x >= w or y >= h
-              @tiles[x][y].destroy()
-              delete @tiles[x][y]
-      # add new tiles
-      if w > 0 and h > 0
-        for x in [0..(w-1)]
-          for y in [0..(h-1)]
-            if x >= @width or y >= @height
-              @tiles[x] ?= {}
-              @tiles[x][y] = new Tile x:x, y:y, board:@
-      @width = w
-      @height = h
-      @trigger "update"
+      if w == @width_ and h == @height_ then return
+      # remove entities outside the new size
+      es = @get('entities').slice()
+      for e in es
+        if e.x >= w or e.y >= h
+          @removeEntity e
+      @width_ = w
+      @height_ = h
+      @trigger "resize"
 
-    getTile: (x, y) ->
-      if x >= 0 and y >= 0 and x < @width and y < @height
-        return @tiles[x][y]
+    entities: (val) ->
+      if val?
+        es = @entities_.slice()
+        for e in es
+          @removeEntity e
+        for e in val
+          @addEntity e
+      return @entities_
+
+    addEntity: (e) ->
+      unless e instanceof Entity
+        e = Entity.createSubType e
+      throw "added Entity has @board defined" if e.board
+      e.board = @
+      e.bind "move", @moveEntity
+      @entities_.push e
+      @entityById_[e.get 'id'] = e
+      @tiles_[e.x] ?= {}
+      @tiles_[e.x][e.y] ?= []
+      @tiles_[e.x][e.y].push e
+      @trigger "addEntity", e
+
+    removeEntity: (e) ->
+      @trigger "removeEntity", e
+      @tiles_[e.x][e.y] = @tiles_[e.x][e.y].filter (v) -> not (v is e)
+      @entities_ = @entities_.filter (v) -> not (v is e)
+      delete @entityById_[e.get 'id']
+      e.destroy()
+
+    inside: (x, y) ->
+      return x >= 0 and y >= 0 and x < @get('width') and y < @get('height')
+
+    tile: (x, y) ->
+      if @inside x, y and @tiles_[x]? and @tiles_[x][y]?
+        return @tiles_[x][y]
       else
-        return undefined
+        return []
 
-    allTiles: ->
-      res = []
-      if @width > 0 and @height > 0
-        for x in [0..(@width-1)]
-          for y in [0..(@height-1)]
-            res.push @tiles[x][y]
-      return res
+    # internal - only for updating tiles 
+    moveEntity: (opts) =>
+      unless opts.oldX? and opts.oldY? and opts.entity?
+        throw "opts.oldX, opts.oldY and opts.entity required"
+      e = opts.entity
+      @tiles_[opts.oldX][opts.oldY] = @tiles_[opts.oldX][opts.oldY].filter (v) -> not (v is e)
+      @tiles_[e.x] ?= {}
+      @tiles_[e.x][e.y] ?= []
+      @tiles_[e.x][e.y].push e
+
+    entityById: (id) ->
+      e = @entityById_[id]
+      throw "no Entity with id=\"#{id}\"" unless e?
+      return e
 
     entitiesByPhase: ->
       eByP = {}
@@ -84,7 +117,7 @@ define (require, exports, module) ->
           # FIFO of hooks to execute after phase
           @afterPhase = []
           for e in eByP[t]
-            e.activate(t)
+            e.activate phase:t
           while @afterPhase.length > 0
             cb = @afterPhase.shift()
             cb()

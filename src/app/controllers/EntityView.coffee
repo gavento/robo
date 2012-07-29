@@ -5,7 +5,7 @@ define (require, exports, module) ->
   class EntityView extends Spine.Controller
     ST.baseClass @
     # typical create call:
-    #   EntityView.createSubType entity:e, type:e.type, entityW:w, entityH:h, boardView:b
+    #   EntityView.createSubType entity:e, type:e.type, boardView:b
 
     tag: 'div'
 
@@ -15,33 +15,34 @@ define (require, exports, module) ->
     constructor: ->
       super
       throw "@entity required" unless @entity
-      throw "@entityW required" unless @entityW
-      throw "@entityH required" unless @entityH
       throw "@boardView required" unless @boardView
 
-      @entity.bind("create update", @render)
+      @entity.bind("update", @render)
       @bind "release", (=> @entity.unbind @render)
-      @entity.bind("place", @place)
-      @bind "release", (=> @entity.unbind @place)
-      @entity.bind("lift", @lift)
-      @bind "release", (=> @entity.unbind @lift)
+      @entity.bind("move", @move)
+      @bind "release", (=> @entity.unbind @move)
 
       #DEBUG# @bind "release", (=> @log "releasing ", @)
       @render()
 
-    place: =>
-      @appendTo @boardView.tileViews[@entity.x][@entity.y]
+    # x, y default to entity.x, entity.y
+    setPosition: (x, y) ->
+      unless x? and y?
+        x = @entity.get 'x'
+        y = @entity.get 'y'
+      @el.css
+        'left': x * @boardView.tileW
+        'top': y * @boardView.tileH
 
-    lift: =>
-      @el.remove()
+    move: (opts) =>
+      @setPosition()
 
     render: =>
-      $('body').append @el
       @el.empty()
-      @el.css width:@entityW, height:@entityH
+      @el.css width: @boardView.tileW, height: @boardView.tileH
       if @entity.dir
-        @el.css 'background-position': "0px #{-(@entity.dir().getNumber() * @entityH)}px"
-      @place()
+        @el.css 'background-position': "0px #{-(@entity.get('dir').getNumber() * @boardView.tileH)}px"
+      @setPosition()
 
 
   module.exports = EntityView

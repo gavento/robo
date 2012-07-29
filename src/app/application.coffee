@@ -39,8 +39,8 @@ define (require, exports, module) ->
       b = @$('#button-activate')
       b.click( @activate )
 
-      @game = Game.fromJSON(gameData)
-
+      @game = Game.fromJSON gameData
+      @log "loaded Game: ", @game
       @append new GameView game:@game
       #@append new GameView game:@game
 
@@ -104,12 +104,15 @@ define (require, exports, module) ->
       @model.bind("update", @updateValue)
 
     updateValue: =>
-      if @inWidth.val() != @model.width
-        @inWidth.val(@model.width)
-      if @inHeight.val() != @model.height
-        @inHeight.val(@model.height)
+      w = @model.get 'width'
+      if @inWidth.val() != w
+        @inWidth.val w
+      h = @model.get 'height'
+      if @inHeight.val() != h
+        @inHeight.val h
 
     submit: ->
-      @model.resize Number(@inWidth.val()), Number(@inHeight.val())
+      @model.set 'width', Number @inWidth.val()
+      @model.set 'height', Number @inHeight.val()
 
   module.exports = App

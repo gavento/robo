@@ -9,13 +9,14 @@ define (require, exports, module) ->
     @include Spine.Events
 
     @attributes: []
-    @records = {}
 
     @configure: (opts, attributes...) ->
       throw "opts.name is required" unless opts.name?
       @className  = opts.name
       opts.baseClass ?= false
       opts.subClass ?= false
+      opts.genId ?= false
+      opts.idPrefix ?= "#{ @className }-"
       if opts.baseClass
         ST.baseClass @, {modelClass: true}
       unless opts.subClass
@@ -23,6 +24,14 @@ define (require, exports, module) ->
       if opts.registerAs?
         @registerTypeName opts.registerAs
       @attributes = @attributes.concat attributes
+      if opts.genId
+        @idCounter = 0
+        @idPrefix = opts.idPrefix
+        @newId = =>
+          idno = @idCounter++
+          return "" + @idPrefix + idno
+        @::newId = ->
+          @constructor.newId arguments...
       return @
 
     @typedProperty: -> MP.typedProperty @, arguments...
@@ -44,6 +53,9 @@ define (require, exports, module) ->
     constructor: (atts) ->
       super
       @load atts if atts
+      if not @get('id')? and @newId?
+        @set 'id', @newId()
+        #DEBUG# console.log @, " has id ", @get 'id'
 
     set: (key, value) ->
       if typeof @[key] is 'function'

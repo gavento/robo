@@ -17,10 +17,10 @@ define (require, exports, module) ->
     throw "object already contains #{attrName}" if cls[attrName]
     cls.prototype[name] = (val) ->
       if val
-        if criterium val
+        if criterium.call(@, val)
           @[attrName] = val
         else
-          @[attrName] = conversion val
+          @[attrName] = conversion.call(@, val)
       return @[attrName]
 
   # Create a accessor for an attribute, automatically converting
@@ -42,10 +42,10 @@ define (require, exports, module) ->
         throw "expected Array for #{name}" unless _.isArray val
         @[attrName] = []
         for i in val
-          if criterium i
+          if criterium.call(@, i)
             @[attrName].push(i)
           else
-            @[attrName].push(conversion i)
+            @[attrName].push(conversion.call(@, i))
       return @[attrName]
 
   module.exports =
