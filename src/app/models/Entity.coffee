@@ -28,7 +28,7 @@ define (require, exports, module) ->
 
     activate: (opts) ->
       opts ?= {}
-      console.log "activated ", @, " with opts ", opts
+      #DEBUG# console.log "activated ", @, " with opts ", opts
       opts.entity = @
       @trigger "activate", opts
 

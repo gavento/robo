@@ -15,11 +15,12 @@ define (require, exports, module) ->
       @bind "release", (=> @entity.unbind @animate)
 
     animate: =>
-      @log "animating ", @
       if @entity.board.lock
         unlock = @entity.board.lock.getLock @entity.cid
-      CSSSprite @el, 0, -(@entity.dir().getNumber() * @entityH), -@entityW, 0, 40, 12, true, unlock
+      CSSSprite @el, 0, -(@entity.dir().getNumber() * @entityH), -@entityW, 0, 60, 12, true, unlock
 
+    animationLength: ->
+      return 60 * 12
 
   class ExpressConveyorView extends ConveyorView
     @registerTypeName "E"
@@ -27,11 +28,12 @@ define (require, exports, module) ->
       class: 'EntityView ExpressConveyorView'
 
     animate: =>
-      @log "animating ", @
       if @entity.board.lock
         unlock = @entity.board.lock.getLock @entity.cid
       CSSSprite @el, 0, -(@entity.dir().getNumber() * @entityH), -@entityW, 0, 40, 6, true, unlock
 
+    animationLength: ->
+      return 40 * 6
 
   module.exports =
     ConveyorView: ConveyorView
