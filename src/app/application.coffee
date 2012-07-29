@@ -3,9 +3,7 @@ define (require, exports, module) ->
 #  require "spine"
 
   Game = require 'cs!app/models/Game'
-  Board = require 'cs!app/models/Board'
   GameView = require 'cs!app/controllers/GameView'
-  cards = require 'cs!app/models/cards'
 
   class App extends Spine.Controller
     constructor: ->
@@ -41,7 +39,7 @@ define (require, exports, module) ->
       b = @$('#button-activate')
       b.click( @activate )
 
-      @game = new Game gameData
+      @game = Game.fromJSON(gameData)
 
       @append new GameView game:@game
       #@append new GameView game:@game
@@ -49,13 +47,14 @@ define (require, exports, module) ->
       #@append new TestInputBox model:@game, propName:'name'
       #@append new TestInputBox model:@game, propName:'name'
 
-      @append new TestSizeInput model:@game.board
-      #@append new TestSizeInput model:@game.board
+      @append new TestSizeInput model:@game.board()
+      #@append new TestSizeInput model:@game.board()
 
 
     activate: =>
       @log "Activating"
-      @game.board.activateAllPhases()
+      board = @game.board()
+      board.activateAllPhases()
 
   class TestInputBox extends Spine.Controller
     events:
@@ -111,6 +110,6 @@ define (require, exports, module) ->
         @inHeight.val(@model.height)
 
     submit: ->
-      @model.resize @inWidth.val(), @inHeight.val()
+      @model.resize Number(@inWidth.val()), Number(@inHeight.val())
 
   module.exports = App

@@ -1,11 +1,17 @@
 define (require, exports, module) ->
 
-  Tile = require 'cs!app/models/Tile'
-  entities = require 'cs!app/models/entities'
+  SimpleModel = require "cs!app/lib/SimpleModel"
   MultiLock = require 'cs!app/lib/MultiLock'
+  Tile = require 'cs!app/models/Tile'
 
-  class Board extends Spine.Model
-    @configure 'Board', 'width', 'height', 'entities'
+  Entity = require 'cs!app/models/Entity'
+  require 'cs!app/models/EntityOthers'
+  require 'cs!app/models/EntityRobot'
+
+
+  class Board extends SimpleModel
+    @configure {name: 'Board'}, 'width', 'height', 'entities'
+    @typedPropertyArray 'entities', Entity
     # width, height - integers
     # name - string
     # tiles - map x -> map y -> Tile
@@ -22,19 +28,10 @@ define (require, exports, module) ->
         @resize atts.width, atts.height
       delete atts.width
       delete atts.height
+
       super atts
 
-    entities: (val) ->
-      if not val
-        return @allEntities()
-      all = @allEntities()
-      for e in all
-        e.lift()
-        e.destroy()
-      for e in val
-        if e not instanceof entities.Entity
-          e = entities.load e
-        throw "invalid positon for #{e}" unless (e.x < @width and e.y < @height and e.x >= 0 and e.y >= 0)
+      for e in @entities()
         e.place @tiles[e.x][e.y]
 
     resize: (w, h) ->
@@ -70,15 +67,9 @@ define (require, exports, module) ->
             res.push @tiles[x][y]
       return res
 
-    allEntities: ->
-      res = []
-      for t in @allTiles()
-        res = res.concat(t.entities())
-      return res
-
     entitiesByPhase: ->
       eByP = {}
-      for e in @allEntities()
+      for e in @entities()
         for p in e.getPhases()
           eByP[p] ?= []
           eByP[p].push(e)
@@ -101,7 +92,7 @@ define (require, exports, module) ->
       return -1
 
     activateAllPhases: (callback) ->
-      # experimental
+      # experimental animation locking
       t = 0
       f = =>
         if t >= 0

@@ -1,7 +1,10 @@
 define (require, exports, module) ->
 
   TileView = require 'cs!app/controllers/TileView'
-  entityViews = require 'cs!app/controllers/entityViews'
+
+  EntityView = require 'cs!app/controllers/EntityView'
+  require 'cs!app/controllers/EntityOthersView'
+  require 'cs!app/controllers/EntityRobotView'
 
   class BoardView extends Spine.Controller
 
@@ -56,8 +59,13 @@ define (require, exports, module) ->
         @tileViews[t.x][t.y] = tv
         @tilesDiv.append tv.el
 
-      for e in @board.allEntities()
-        @entityViews[e.cid] = entityViews.create entity: e, entityW: @tileW, entityH: @tileH, boardView: @
+      for e in @board.entities()
+        @entityViews[e.cid] = EntityView.createSubType
+          entity: e
+          type: e.type
+          entityW: @tileW
+          entityH: @tileH
+          boardView: @
 
 
   module.exports = BoardView

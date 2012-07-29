@@ -1,14 +1,12 @@
 define (require, exports, module) ->
 
+  SimpleModel = require "cs!app/lib/SimpleModel"
   Board = require "cs!app/models/Board"
+  Player = require "cs!app/models/Player"
 
-  class Game extends Spine.Model
-    @configure 'Game', 'name', 'board', 'players'
-
-    load: (atts) ->
-      if atts.board and atts.board not instanceof Board
-        @board = new Board atts.board
-        delete atts.board
-      super atts
+  class Game extends SimpleModel
+    @configure {name: 'Game'}, 'name', 'board', 'players'
+    @typedProperty 'board', Board
+    @typedPropertyArray 'players', Player
 
   module.exports = Game
