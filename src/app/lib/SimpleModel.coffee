@@ -45,7 +45,7 @@ define (require, exports, module) ->
       return unless objects
       if typeof objects is 'string'
         objects = JSON.parse(objects)
-      if Array.isArray(objects)
+      if Spine.isArray(objects)
         (new @(value) for value in objects)
       else
         new @(objects)
