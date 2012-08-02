@@ -15,7 +15,10 @@ define (require, exports, module) ->
     constructor: ->
       super
       throw "@entity required" unless @entity
-      throw "@boardView required" unless @boardView
+      throw "@boardView or @tileW and @tileH required" unless @boardView? or (@tileW? and @tileH?)
+      @tileW ?= @boardView.tileW
+      @tileH ?= @boardView.tileH
+      @passive ?= false
 
       @entity.bind("update", @render)
       @bind "release", (=> @entity.unbind @render)
@@ -30,18 +33,19 @@ define (require, exports, module) ->
       unless x? and y?
         x = @entity.get 'x'
         y = @entity.get 'y'
-      @el.css
-        'left': x * @boardView.tileW
-        'top': y * @boardView.tileH
+      if not @passive
+        @el.css
+          'left': x * @tileW
+          'top': y * @tileH
 
     move: (opts) =>
       @setPosition()
 
     render: =>
       @el.empty()
-      @el.css width: @boardView.tileW, height: @boardView.tileH
-      if @entity.dir
-        @el.css 'background-position': "0px #{-(@entity.get('dir').getNumber() * @boardView.tileH)}px"
+      @el.css width: @tileW, height: @tileH
+      if @entity.dir and not @passive
+        @el.css 'background-position': "0px #{-(@entity.get('dir').getNumber() * @tileH)}px"
       @setPosition()
 
 

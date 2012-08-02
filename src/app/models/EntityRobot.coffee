@@ -5,7 +5,7 @@ define (require, exports, module) ->
   Card = require "cs!app/models/Card"
 
   class Robot extends Entity
-    @configure {name:'Robot', subClass: true, registerAs: 'Robot'}, 'name', 'dir', 'image', 'cards'
+    @configure {name:'Robot', subClass: true, registerAs: 'Robot'}, 'name', 'dir', 'image', 'cards', 'health'
     @typedProperty 'dir', Direction
     @typedPropertyArray 'cards', Card
 

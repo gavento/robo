@@ -7,6 +7,8 @@ define (require, exports, module) ->
   class Game extends SimpleModel
     @configure {name: 'Game'}, 'name', 'board', 'players'
     @typedProperty 'board', Board
-    @typedPropertyArray 'players', Player
+    @typedPropertyArrayEx 'players',
+      (v) -> v instanceof Player,
+      (v) -> v.game = @; new Player v
 
   module.exports = Game

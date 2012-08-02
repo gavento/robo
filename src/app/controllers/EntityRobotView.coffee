@@ -15,13 +15,15 @@ define (require, exports, module) ->
         @el.css 'background-image': "url('img/#{@entity.image}')"
 
     move: (opts) =>
-      @log "robot moved ", @, opts
-      if opts.mover?
+      #DEBUG# @log "robot moved ", @, opts
+      if opts.mover? and not @passive
         moverView = @boardView.entityViews[opts.mover.get 'id']
-        @log "mover ", opts.mover, moverView
+        #DEBUG# @log "mover ", opts.mover, moverView
+        if @entity.board.lock
+          unlock = @entity.board.lock.getLock @entity.cid
         if moverView.animationLength
           duration = moverView.animationLength()
         @el.animate({left: @boardView.tileW * @entity.x, top: @boardView.tileH * @entity.y},
-          duration, 'linear')
+          duration, 'linear', unlock)
 
   module.exports = RobotView

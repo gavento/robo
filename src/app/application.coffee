@@ -10,6 +10,10 @@ define (require, exports, module) ->
       super
       gameData =
         name: "Testovaci desticka"
+        players: [
+          {name: 'Alice', robotIds: ['Robot-1']},
+          {name: 'Bob', robotIds: ['Robot-2', 'Robot-3']}
+          ]
         board:
           width: 8
           height: 8
@@ -86,11 +90,11 @@ define (require, exports, module) ->
             {type: 'C', dir: 'W', x: 6, y: 7},
             {type: 'C', dir: 'W', x: 7, y: 7},
 
-            {type: 'Robot', dir: 'W', x: 2, y: 2, image:'roombo-r.png'},
-            {type: 'Robot', dir: 'N', x: 2, y: 5, image:'roombo-g.png'},
-            {type: 'Robot', dir: 'S', x: 5, y: 4, image:'roombo-b.png'},
-            {type: 'Robot', dir: 'S', x: 4, y: 0, image:'roombo-y.png'},
-            {type: 'Robot', dir: 'E', x: 4, y: 1, image:'roombo-m.png'},
+            {type: 'Robot', dir: 'W', x: 2, y: 2, image:'roombo-r.png', id: 'Robot-1', health: 7, name: 'Cervenacek'},
+            {type: 'Robot', dir: 'N', x: 2, y: 5, image:'roombo-g.png', id: 'Robot-2', health: 7, name: 'Zelenik'},
+            {type: 'Robot', dir: 'S', x: 5, y: 4, image:'roombo-b.png', id: 'Robot-3', health: 7, name: 'Modracek'},
+            {type: 'Robot', dir: 'S', x: 4, y: 0, image:'roombo-y.png', id: 'Robot-4', health: 7, name: 'Zlutasek'},
+            {type: 'Robot', dir: 'E', x: 4, y: 1, image:'roombo-m.png', id: 'Robot-5', health: 7, name: 'Fialka'},
           ]
 
       @game = Game.fromJSON gameData

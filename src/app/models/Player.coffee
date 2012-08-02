@@ -1,14 +1,27 @@
 define (require, exports, module) ->
 
-  class Player extends Spine.Model
-    @configure 'Player', 'name'
-    # `robots` is stored as a name list
-    constructor: ->
-      super
-      @robots_ ?= []
-      @cards ?= []
+  SimpleModel = require 'cs!app/lib/SimpleModel'
+  Card = require 'cs!app/models/Card'
 
-#    robots: (val) ->
-#      if val
+
+  class Player extends SimpleModel
+    @configure {name: 'Player'} , 'name', 'robotIds', 'cards'
+    # `robotIds` is JSON-stored as an ID list
+    @typedPropertyArray 'cards', Card
+
+    constructor: ->
+      @robotIds ?= []
+      @cards ?= []
+      super
+      throw "Player.name required" unless @name?
+
+    robots: ->
+      throw "Player.game required to get robots" unless @game?
+      board = @game.get('board')
+      return (board.entityById(id) for id in @get('robotIds'))
+
+    addRobot: (robot) ->
+      @robotIds.push(robot.get('id'))
+
 
   module.exports = Player

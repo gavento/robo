@@ -17,7 +17,7 @@ define (require, exports, module) ->
     animate: =>
       if @entity.board.lock
         unlock = @entity.board.lock.getLock @entity.cid
-      CSSSprite @el, 0, -(@entity.dir().getNumber() * @entityH), -@entityW, 0, 60, 12, true, unlock
+      CSSSprite @el, 0, -(@entity.dir().getNumber() * @tileH), -@tileW, 0, 60, 12, true, unlock
 
     animationLength: ->
       return 60 * 12
@@ -30,7 +30,7 @@ define (require, exports, module) ->
     animate: =>
       if @entity.board.lock
         unlock = @entity.board.lock.getLock @entity.cid
-      CSSSprite @el, 0, -(@entity.dir().getNumber() * @entityH), -@entityW, 0, 40, 6, true, unlock
+      CSSSprite @el, 0, -(@entity.dir().getNumber() * @tileH), -@tileW, 0, 40, 6, true, unlock
 
     animationLength: ->
       return 40 * 6

@@ -66,8 +66,6 @@ define (require, exports, module) ->
       ev = EntityView.createSubType
         entity: entity
         type: entity.get 'type'
-        entityW: @tileW
-        entityH: @tileH
         boardView: @
       @tilesDiv.append ev.el
       @entityViews[entity.get 'id'] = ev

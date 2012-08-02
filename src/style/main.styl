@@ -30,7 +30,21 @@
   margin: 20px 10px
   padding: 10px 20px 20px 20px
 
+.GameView td
+  vertical-align: top
+
 .GameViewName
+  color: #333
+  text-shadow: 0 1px -1px #fff;
+  margin-bottom 10px
+  font-weight bold
+
+.PlayerView
+  background: #ccf
+  padding: 10px
+  margin: 10px
+
+.PlayerViewName
   color: #333
   text-shadow: 0 1px -1px #fff;
   margin-bottom 10px
@@ -49,10 +63,12 @@
   top: 0
 
 .EntityView
-  position: absolute
   width: 0px
   height: 0px
   background-attachment: fixed
+
+.BoardViewTiles .EntityView
+  position: absolute
 
 .ConveyorView
   z-index: 10
