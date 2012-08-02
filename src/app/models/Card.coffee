@@ -4,7 +4,10 @@ define (require, exports, module) ->
 
 
   class Card extends SimpleModel
-    @configure {name: 'Card', baseClass: true}, 'type'
+    @configure {name: 'Card', baseClass: true}, 'type', 'priority'
+
+    text: ->
+      return "UNDEFINED CARD"
 
 
   class SimpleCard extends Card
@@ -13,7 +16,8 @@ define (require, exports, module) ->
       (v) -> isArray v,
       (v) -> (c for c in v.split() when c) )
 
-    name: ->
+    text: ->
       return @get('commands').join(" ")
+
 
   module.exports = Card

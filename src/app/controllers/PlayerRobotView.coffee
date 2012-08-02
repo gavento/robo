@@ -1,7 +1,7 @@
 define (require, exports, module) ->
 
   EntityView = require 'cs!app/controllers/EntityView'
-
+  CardView = require 'cs!app/controllers/CardView'
 
   class PlayerRobotView extends Spine.Controller
 
@@ -14,23 +14,30 @@ define (require, exports, module) ->
       super
       throw "@robot required" unless @robot?
 
-      @robot.bind("update", @render)
-      @bind "release", (=> @robot.unbind @render)
-      #DEBUG# @bind "release", (=> @log "releasing ", @)
-      @render()
-
-    render: =>
-      @el.html("<b>#{ @robot.get 'name' }</b> with #{ @robot.get 'health' } health")
-      if @robotView then @robotView.release()
-      @log @robot
       @robotView = EntityView.createSubType
         entity: @robot
         type: @robot.get 'type'
         tileW: 68
         tileH: 68
         passive: true
+      @bind "release", (=> @robotView.release())
 
-      @el.prepend @robotView.el
+      @cardViews = []
+      for c in @robot.get 'cards'
+        cv = new CardView.createSubType
+          card: c
+          type: c.get 'type'
+        @bind "release", (=> cv.release())
 
+      @robot.bind("update", @render)
+      @bind "release", (=> @robot.unbind @render)
+      #DEBUG# @bind "release", (=> @log "releasing ", @)
+      @render()
+
+    render: =>
+      @el.html("<div class='PlayerRobotViewName'>Robot <b>\"#{ @robot.get 'name' }\"</b> with #{ @robot.get 'health' } health</div>")
+      @append @robotView
+      for cv in @cardViews
+        @append cv
 
   module.exports = PlayerRobotView

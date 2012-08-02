@@ -13,17 +13,18 @@
     paths: {
         'cs' :'lib/cs',
         'coffee-script': 'lib/coffee-script',
-	'jquery': 'lib/jquery-1.7.2',
-	'spine': 'lib/spine',
+	'text': 'lib/text',
+//	'jquery': 'lib/jquery-1.7.2',
+//	'spine': 'lib/spine',
     },
 
-    shims: {
+/*    shims: {
       'spine': {
 	deps: ['jquery'],
         exports: 'Spine',
       }
     },
-
+*/
     pragmasOnSave: {
       excludeCoffeeScript: true
     },

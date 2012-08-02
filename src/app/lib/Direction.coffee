@@ -1,5 +1,6 @@
 define (require, exports, module) ->
 
+
   class Direction
 
     @toNumber: (dir) ->
@@ -34,4 +35,8 @@ define (require, exports, module) ->
 
     dy: -> return [-1, 0, 1, 0][@dir]
 
-    module.exports = Direction
+    toJSON: ->
+      return @getName()
+
+
+  module.exports = Direction
