@@ -3,6 +3,7 @@ define (require, exports, module) ->
   Entity = require "cs!app/models/Entity"
   Direction = require "cs!app/lib/Direction"
 
+
   class Conveyor extends Entity
     @configure {name:'Conveyor', subClass:true, registerAs: 'C'}, 'dir'
     @typedProperty 'dir', Direction
@@ -20,11 +21,26 @@ define (require, exports, module) ->
             @board.afterPhase.push =>
               e.move x:tx, y:ty, mover: @
 
+
   class ExpressConveyor extends Conveyor
     @configure {name:'ExpressConveyor', subClass:true, registerAs: 'E'}
 
     getPhases: -> [18, 22]
 
+
+  class Crusher extends Entity
+    @configure {name:'Crusher', subClass:true, registerAs: 'X'}
+
+    getPhases: -> [50]
+
+    activate: (phase) ->
+      super
+      for e in @board.tile @x, @y
+        if e.isRobot()
+          e.damage {damage: 1, source: @}
+
+
   module.exports =
     Conveyor: Conveyor
     ExpressConveyor: ExpressConveyor
+    Crusher: Crusher

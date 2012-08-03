@@ -22,6 +22,7 @@ define (require, exports, module) ->
     animationLength: ->
       return 60 * 12
 
+
   class ExpressConveyorView extends ConveyorView
     @registerTypeName "E"
     attributes:
@@ -35,7 +36,28 @@ define (require, exports, module) ->
     animationLength: ->
       return 40 * 6
 
+
+  class CrusherView extends EntityView
+    @registerTypeName "X"
+    attributes:
+      class: 'EntityView CrusherView'
+
+    constructor: ->
+      super
+      @entity.bind "activate", @animate
+      @bind "release", (=> @entity.unbind @animate)
+
+    animate: =>
+      if @entity.board.lock
+        unlock = @entity.board.lock.getLock @entity.cid
+      CSSSprite @el, 0, 0, -@tileW, 0, 60, 5, true, unlock
+
+    animationLength: ->
+      return 60 * 5
+
+
   module.exports =
     ConveyorView: ConveyorView
     ExpressConveyorView: ExpressConveyorView
+    CrusherView: CrusherView
 

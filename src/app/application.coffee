@@ -9,7 +9,7 @@ define (require, exports, module) ->
     constructor: ->
       super
 
-      gameData = require 'text!app/game_conveyors.json'
+      gameData = require 'text!app/game_test.json'
       throw "Game data could not be read" unless gameData
       @game = Game.fromJSON gameData
       throw "Game not loaded" unless @game

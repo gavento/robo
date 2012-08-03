@@ -7,11 +7,11 @@ define (require, exports, module) ->
   class Player extends SimpleModel
     @configure {name: 'Player'} , 'name', 'robotIds', 'cards'
     # `robotIds` is JSON-stored as an ID list
-    @typedPropertyArray 'cards', Card
+    @typedPropertyArray 'cards', Card, 'cards_'
 
     constructor: ->
       @robotIds ?= []
-      @cards ?= []
+      @cards_ ?= []
       super
       throw "Player.name required" unless @name?
 
