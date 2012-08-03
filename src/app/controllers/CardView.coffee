@@ -2,6 +2,7 @@ define (require, exports, module) ->
 
   ST = require "cs!app/lib/SubClassTypes"
 
+
   class CardView extends Spine.Controller
     ST.baseClass @
     # typical create call:
@@ -16,13 +17,13 @@ define (require, exports, module) ->
       super
       throw "@card required" unless @card
 
-      @entity.bind("update", @render)
-      @bind "release", (=> @entity.unbind @render)
+      @card.bind("update", @render)
+      @bind "release", (=> @card.unbind @render)
       #DEBUG# @bind "release", (=> @log "releasing ", @)
       @render()
 
     render: =>
-      @el.html "<span class='CardViewPriority'>#{ @card.get 'priority' }</span><span class='CardViewText'>#{ @card.get 'text' }</span>"
+      @el.html "<div class='CardViewPriority'>#{ @card.get 'priority' }</div><div class='CardViewText'>#{ @card.get 'text' }</div>"
   
   
   class SimpleCardView extends CardView
@@ -30,5 +31,6 @@ define (require, exports, module) ->
 
     attributes:
       class: 'CardView SimpleCardView'
+
 
   module.exports = CardView

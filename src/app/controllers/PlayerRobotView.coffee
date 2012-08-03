@@ -24,9 +24,10 @@ define (require, exports, module) ->
 
       @cardViews = []
       for c in @robot.get 'cards'
-        cv = new CardView.createSubType
+        cv = CardView.createSubType
           card: c
           type: c.get 'type'
+        @cardViews.push cv
         @bind "release", (=> cv.release())
 
       @robot.bind("update", @render)
