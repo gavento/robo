@@ -23,4 +23,21 @@ define (require, exports, module) ->
     isMovable: -> true
     isRobot: -> true
 
+    step: (opts) ->
+      opts ?= {}
+      tx = @x + @get('dir').dx()
+      ty = @y + @get('dir').dy()
+      if @board.inside tx, ty
+        opts.x = tx
+        opts.y = ty
+        @move opts 
+
+    turn: (opts) ->
+      console.log @, " turns ", opts
+      throw "opts.dir required" unless opts? and opts.dir?
+      @get('dir').turnRight(opts.dir)
+      # todo: animate
+      @trigger "update"
+
+
   module.exports = Robot

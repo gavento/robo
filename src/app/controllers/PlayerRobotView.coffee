@@ -35,10 +35,16 @@ define (require, exports, module) ->
       #DEBUG# @bind "release", (=> @log "releasing ", @)
       @render()
 
+
     render: =>
       @el.html("<div class='PlayerRobotViewName'>Robot <b>\"#{ @robot.get 'name' }\"</b> with #{ @robot.get 'health' } health</div>")
       @append @robotView
       for cv in @cardViews
         @append cv
+      @append @$("<button class='PlayerRobotViewButton'>Play cards</button>")
+      @$('.PlayerRobotViewButton').click (=>
+        for c in @robot.get 'cards'
+          c.playOnRobot @robot)
+
 
   module.exports = PlayerRobotView

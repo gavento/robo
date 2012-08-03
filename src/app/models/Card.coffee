@@ -17,8 +17,8 @@ define (require, exports, module) ->
   class SimpleCard extends Card
     @configure {name: 'SimpleCard', subClass: true, registerAs: "S"}, 'commands'
     @typedPropertyEx('commands',
-      (v) -> isArray v,
-      (v) -> (c for c in v.split() when c),
+      (v) -> Spine.isArray v,
+      (v) -> (c for c in v.split(" ") when c),
       '@commands_')
 
     constructor: ->
@@ -27,6 +27,18 @@ define (require, exports, module) ->
 
     text: ->
       return @get('commands').join(" ")
+
+    playOnRobot: (robot) ->
+      console.log "Playing ", @, " on ", robot 
+      for c in @get 'commands'
+        switch c
+          when "R" then robot.turn dir:1, mover:@
+          when "L" then robot.turn dir:(-1), mover:@
+          when "U" then robot.turn dir:2, mover:@
+          when "S" then robot.step mover:@
+          when "J" then # TODO
+          when "B" then # TODO
+          else throw "unknown command"
 
 
   module.exports = Card

@@ -16,7 +16,7 @@ define (require, exports, module) ->
       @log "loaded Game: ", @game
       #@log JSON.stringify @game, null, 2
 
-      @append "<div class='TestInputBox'><button id='button-activate'>Activate board</button></div>"
+      @append "<div class='TestInputBox'><button class='button-activate'>Activate board</button></div>"
       @append new GameView game:@game
 
       @append new TestSizeInput model:@game.board()
@@ -25,11 +25,11 @@ define (require, exports, module) ->
       @append new TestInputBox model:@game, propName:'name'
       #@append new TestInputBox model:@game, propName:'name'
 
-      @append "<div class='TestInputBox'><button id='button-activate'>Activate board</button></div>"
+      @append "<div class='TestInputBox'><button class='button-activate'>Activate board</button></div>"
       @append new GameView game:@game
 
 
-      b = @$('#button-activate')
+      b = @$('.button-activate')
       b.click( @activate )
 
     activate: =>
