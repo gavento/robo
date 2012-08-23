@@ -10,9 +10,6 @@ define (require, exports, module) ->
     animFrames: 0
     animDuration: 0
 
-    animationDuration: ->
-      return @animDuration
-
     constructor: ->
       super
       @entity.bind "activate", @animate
@@ -27,7 +24,6 @@ define (require, exports, module) ->
         duration *= opts.speed
       y0 = if @entity.dir? then (@entity.dir().getNumber() * @tileH) else 0
       CSSSprite @el, 0, -y0, -@tileW, 0, @animDuration / @animFrames, @animFrames, true, unlock
-
 
 
   class ConveyorView extends SimplyAnimatedEntityView
@@ -52,6 +48,29 @@ define (require, exports, module) ->
       class: 'EntityView CrusherView'
     animFrames: 5
     animDuration: 60*5
+
+  
+  class TurnerView extends EntityView
+    animFrames: 9
+    animDuration: 450
+
+
+  class TurnerRView extends TurnerView
+    @registerTypeName "R"
+    attributes:
+      class: 'EntityView TurnerRView'
+
+
+  class TurnerLView extends TurnerView
+    @registerTypeName "L"
+    attributes:
+      class: 'EntityView TurnerLView'
+
+
+  class TurnerUView extends TurnerView
+    @registerTypeName "U"
+    attributes:
+      class: 'EntityView TurnerUView'
 
 
   module.exports =

@@ -74,9 +74,9 @@
       {
         "x": 7,
         "y": 0,
-        "type": "E",
+        "type": "L",
         "id": "Entity-7",
-        "dir": "S"
+        "dir": "N"
       },
       {
         "x": 0,
@@ -88,21 +88,21 @@
       {
         "x": 1,
         "y": 1,
-        "type": "E",
+        "type": "L",
         "id": "Entity-9",
         "dir": "S"
       },
       {
         "x": 2,
         "y": 1,
-        "type": "E",
+        "type": "R",
         "id": "Entity-10",
         "dir": "W"
       },
       {
         "x": 3,
         "y": 1,
-        "type": "C",
+        "type": "U",
         "id": "Entity-11",
         "dir": "E"
       },
@@ -480,7 +480,7 @@
         "image": "roombo-r.png",
         "health": 7,
 	"cards": [
-	  {"type": "S", "priority": 220, "commands": "L L R U" }
+	  {"type": "S", "priority": 220, "commands": "L L R S U" }
 	]
       },
       {

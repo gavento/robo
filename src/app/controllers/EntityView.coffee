@@ -14,6 +14,8 @@ define (require, exports, module) ->
     tag: 'div'
 
     animationDuration: ->
+      if @animDuration?
+        return @animDuration
       return 0
 
     attributes:
@@ -83,6 +85,7 @@ define (require, exports, module) ->
       if @passive
         return
       throw "opts.oldDir and opts.dir required" unless opts? and opts.oldDir? and opts.dir?
+      @log "rotate ", @entity, opts
 
       opts ?= {}
       duration = @guessDuration opts
@@ -100,7 +103,6 @@ define (require, exports, module) ->
             CSSSprite(@el, 0, -(oDir + i - 1) * @tileH, -@tileW, 0,
               duration / @animFrames / opts.dir, @animFrames, false, f)
         if opts.dir < 0
-          @log opts, i, @entity
           if i <= opts.dir
             CSSSprite(@el, 0, -(oDir + i) * @tileH, 0, 0, 0, 0, true, unlock)
           else
