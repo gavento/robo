@@ -38,5 +38,7 @@ define (require, exports, module) ->
     toJSON: ->
       return @getName()
 
+    copy: -> new Direction @dir
+
 
   module.exports = Direction
