@@ -108,33 +108,55 @@ define (require, exports, module) ->
           eByP[p].push(e)
       return eByP
 
-    activateOnePhase: (fromTime=0) ->
-      eByP = @entitiesByPhase()
+    # Activate all entities within ONE phase after phase `fromTime` (exclusive).
+    # Returns the actually activated phase number (pass this to the next iteration) or -1 in case
+    # of no more phases.
+    # Passes `attr` extended with `phase` and `afterHooks` to `Entity.activate`.
+    # Optionally, `eByP` can be a precomputed value of `@entitiesByPhase`.
+    activateOnePhase: (attrs, fromTime=-1, eByP) ->
+      eByP ?= @entitiesByPhase()
       phases = (Number(k) for k in _.keys(eByP))
       phases.sort()
+
       for t in phases
-        if t >= fromTime
-          # FIFO of hooks to execute after phase
-          @afterPhase = []
+        if t > fromTime
+          attrsCopy = Object.create attrs
+          # Somewhat a HACK: FIFO of hooks to execute after phase
+          attrsCopy.afterHooks = []
+          attrsCopy.phase = t
           for e in eByP[t]
-            e.activate phase:t
-          while @afterPhase.length > 0
-            cb = @afterPhase.shift()
+            e.activate attrsCopy
+          while attrsCopy.afterHooks.length > 0
+            cb = attrsCopy.afterHooks.shift()
             cb()
-          return t + 1
+          return t
       return -1
 
-    activateAllPhases: (callback) ->
-      # experimental animation locking
-      t = 0
+    # Activate the board, synchronously. Note that this does not do any locking or animation synchronization.
+    # Passes `attrs` to `activateOnePhase` and subsequently to `Entity.activate`
+    activateBoard: (attrs) ->
+      eByP = @entitiesByPhase()
+      t = -0.5
+      while t > -1
+        t = @activateOnePhase attrs, t, eByP
+
+    # Activate the board, asynchronously, with locking for animation synchronisation.
+    # For every phase, a `Multilock` is created with the given timeout (in ms, 5s default).
+    # Passes `attrs` to `activateOnePhase` and subsequently to `Entity.activate`.
+    # After all phases, `callback` is called.
+    activateBoardLocking: (attrs, callback, timeout=5000) ->
+      eByP = @entitiesByPhase()
+      t = -0.5
       f = =>
-        if t >= 0
-          @lock = new MultiLock f, 5000
-          unlock = @lock.getLock "Board"
-          t = @activateOnePhase t
+        if t > -1
+          attrsCopy = Object.create attrs
+          multilock = new MultiLock f, timeout
+          attrsCopy.lock = (args...) -> multilock.getLock args...
+          attrsCopy.timeout = timeout
+          unlock = attrsCopy.lock "Board"
+          t = @activateOnePhase attrsCopy, t, eByP
           unlock()
         else
-          delete @lock
           if callback
             callback()
       f()
