@@ -480,10 +480,7 @@
         "image": "roombo-r.png",
         "health": 7,
 	"cards": [
-	  {"type": "S", "priority": 220, "commands": "S S" },
-	  {"type": "S", "priority": 107, "commands": "L S" },
-	  {"type": "S", "priority":  42, "commands": "U" },
-	  {"type": "S", "priority": 278, "commands": "S U S U" }
+	  {"type": "S", "priority": 220, "commands": "L L R U" }
 	]
       },
       {

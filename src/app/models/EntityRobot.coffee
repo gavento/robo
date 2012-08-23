@@ -32,12 +32,17 @@ define (require, exports, module) ->
         opts.y = ty
         @move opts 
 
+    # Turning and the aliases. turn and turnRight are the same
     turn: (opts) ->
-      console.log @, " turns ", opts
-      throw "opts.dir required" unless opts? and opts.dir?
-      @get('dir').turnRight(opts.dir)
-      # todo: animate
-      @trigger "update"
+      @rotate opts
+
+    turnRight: (opts) ->
+      @turn opts
+
+    turnLeft: (opts) ->
+      optsC = Object.create opts
+      optsC.dir = -opts.dir
+      @turn optsC
 
 
   module.exports = Robot
