@@ -35,7 +35,10 @@ define (require, exports, module) ->
     activate: =>
       @log "Activating"
       board = @game.board()
-      board.activateAllPhases()
+      buttons = $('.button-activate')
+      buttons.attr "disabled", "disabled"
+      board.activateBoardLocking {}, ->
+        buttons.removeAttr "disabled"
 
   class TestInputBox extends Spine.Controller
     events:
