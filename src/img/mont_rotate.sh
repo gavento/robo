@@ -1,6 +1,6 @@
-I=turnU-single.png
+I=turnL-single.png
 SIZE=68x68
-O=turnU.png
+O=turnL.png
 
 function rotate { # in angle size out
   convert -background transparent $1 -rotate $2 -gravity center -extent $3 $4
