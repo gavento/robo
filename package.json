@@ -10,6 +10,7 @@
   "dependencies": {
     "http-server": ">= 0.5",
     "requirejs": ">= 2.0",
-    "stylus": ">= 0.28"
+    "stylus": ">= 0.28",
+    "docker": ">= 0.1.6"
   }
 }
