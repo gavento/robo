@@ -2,6 +2,7 @@ define (require, exports, module) ->
 
   EntityView = require 'cs!app/controllers/EntityView'
   CardView = require 'cs!app/controllers/CardView'
+  MultiLock = require 'cs!app/lib/MultiLock'
 
   class PlayerRobotView extends Spine.Controller
 
@@ -35,16 +36,22 @@ define (require, exports, module) ->
       #DEBUG# @bind "release", (=> @log "releasing ", @)
       @render()
 
-
     render: =>
       @el.html("<div class='PlayerRobotViewName'>Robot <b>\"#{ @robot.get 'name' }\"</b> with #{ @robot.get 'health' } health</div>")
       @append @robotView
       for cv in @cardViews
         @append cv
       @append @$("<button class='PlayerRobotViewButton'>Play cards</button>")
-      @$('.PlayerRobotViewButton').click (=>
-        for c in @robot.get 'cards'
-          c.playOnRobot @robot)
+      @$('.PlayerRobotViewButton').click =>
+        cards = @robot.get 'cards'
+        f = (cardno) =>
+          if cardno < cards.length
+            ml = new MultiLock ( => f(cardno + 1)), 5000
+            lock = (args...) => ml.getLock args...
+            unlock = lock "Card"
+            cards[cardno].playOnRobot @robot, {lock: lock}
+            unlock()
+        f 0
 
 
   module.exports = PlayerRobotView

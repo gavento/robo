@@ -4,56 +4,54 @@ define (require, exports, module) ->
   EntityView = require "cs!app/controllers/EntityView"
 
 
-  class ConveyorView extends EntityView
-    @registerTypeName "C"
-    attributes:
-      class: 'EntityView ConveyorView'
+  # A base for EntityViews with simple sprite-based animation, optionally with direction.
+  # Specify `animFrames` and `animDuration` in children.
+  class SimplyAnimatedEntityView extends EntityView
+    animFrames: 0
+    animDuration: 0
+
+    animationDuration: ->
+      return @animDuration
 
     constructor: ->
       super
       @entity.bind "activate", @animate
       @bind "release", (=> @entity.unbind @animate)
 
-    animate: =>
-      if @entity.board.lock
-        unlock = @entity.board.lock.getLock @entity.cid
-      CSSSprite @el, 0, -(@entity.dir().getNumber() * @tileH), -@tileW, 0, 60, 12, true, unlock
+    animate: (opts) =>
+      duration = 0
+      if opts.lock?
+        unlock = opts.lock @entity.cid
+        duration = @animDuration
+      if opts.speed?
+        duration *= opts.speed
+      y0 = if @entity.dir? then (@entity.dir().getNumber() * @tileH) else 0
+      CSSSprite @el, 0, -y0, -@tileW, 0, @animDuration / @animFrames, @animFrames, true, unlock
 
-    animationLength: ->
-      return 60 * 12
+
+
+  class ConveyorView extends SimplyAnimatedEntityView
+    @registerTypeName "C"
+    attributes:
+      class: 'EntityView ConveyorView'
+    animFrames: 12
+    animDuration: 60*12
 
 
   class ExpressConveyorView extends ConveyorView
     @registerTypeName "E"
     attributes:
       class: 'EntityView ExpressConveyorView'
-
-    animate: =>
-      if @entity.board.lock
-        unlock = @entity.board.lock.getLock @entity.cid
-      CSSSprite @el, 0, -(@entity.dir().getNumber() * @tileH), -@tileW, 0, 40, 6, true, unlock
-
-    animationLength: ->
-      return 40 * 6
+    animFrames: 6
+    animDuration: 40*6
 
 
-  class CrusherView extends EntityView
+  class CrusherView extends SimplyAnimatedEntityView
     @registerTypeName "X"
     attributes:
       class: 'EntityView CrusherView'
-
-    constructor: ->
-      super
-      @entity.bind "activate", @animate
-      @bind "release", (=> @entity.unbind @animate)
-
-    animate: =>
-      if @entity.board.lock
-        unlock = @entity.board.lock.getLock @entity.cid
-      CSSSprite @el, 0, 0, -@tileW, 0, 60, 5, true, unlock
-
-    animationLength: ->
-      return 60 * 5
+    animFrames: 5
+    animDuration: 60*5
 
 
   module.exports =

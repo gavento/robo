@@ -9,6 +9,9 @@ define (require, exports, module) ->
 
     tag: 'div'
 
+    animationDuration: ->
+      return 0
+
     attributes:
       class: 'EntityView'
 

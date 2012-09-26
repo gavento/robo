@@ -28,14 +28,24 @@ define (require, exports, module) ->
     text: ->
       return @get('commands').join(" ")
 
-    playOnRobot: (robot) ->
-      console.log "Playing ", @, " on ", robot 
+    playOnRobot: (robot, opts) ->
+      opts ?= {}
+      console.log "Playing ", @, " on ", robot, " with ", opts
       for c in @get 'commands'
+        oc = Object.create opts
+        oc.mover = @
         switch c
-          when "R" then robot.turn dir:1, mover:@
-          when "L" then robot.turn dir:(-1), mover:@
-          when "U" then robot.turn dir:2, mover:@
-          when "S" then robot.step mover:@
+          when "R"
+            oc.dir = 1
+            robot.turn oc
+          when "L"
+            oc.dir = -1
+            robot.turn oc
+          when "U"
+            oc.dir = 2
+            robot.turn oc
+          when "S"
+            robot.step oc
           when "J" then # TODO
           when "B" then # TODO
           else throw "unknown command"

@@ -11,15 +11,19 @@ define (require, exports, module) ->
     getPhases: -> [20]
 
     # this is VERY simple and naive
-    activate: (phase) ->
+    activate: (opts) ->
       super
       tx = @x + @dir().dx()
       ty = @y + @dir().dy()
       if @board.inside tx, ty
         for e in @board.tile @x, @y
           if e.isMovable()
-            @board.afterPhase.push =>
-              e.move x:tx, y:ty, mover: @
+            opts.afterHooks.push =>
+              oc = Object.create opts
+              oc.x = tx
+              oc.y = ty
+              oc.mover = @
+              e.move oc
 
 
   class ExpressConveyor extends Conveyor
