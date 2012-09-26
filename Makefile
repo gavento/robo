@@ -1,13 +1,16 @@
 NODE_BIN=./node_modules/.bin
-STYLUS=$(NODE_BIN)/stylus
-HTTP_SERVER=$(NODE_BIN)/http-server
-HTTP_PORT = 4242
-R_JS=$(NODE_BIN)/r.js
-BUILD_DIR=./build
-INSTALL_URL=gavento@jabberwock.ucw.cz:/home/gavento/www/view/robo/
 
-all: style build
-.PHONY: all build start clean stylus
+STYLUS=$(NODE_BIN)/stylus
+R_JS=$(NODE_BIN)/r.js
+DOCKER=$(NODE_BIN)/docker
+HTTP_SERVER=$(NODE_BIN)/http-server
+
+HTTP_PORT = 4242
+INSTALL_URL=gavento@jabberwock.ucw.cz:/home/gavento/www/view/robo/
+BUILD_DIR=./build
+
+all: style build docs
+.PHONY: all build start clean stylus docs
 
 start:
 	@echo '***  Serving at  http://0.0.0.0:$(HTTP_PORT)/  ***'
@@ -27,6 +30,9 @@ build:
 
 style:
 	$(STYLUS) -I src/style < src/style/main.styl > src/style/main.css
+
+docs:
+	$(DOCKER) --input_dir src/ --exclude lib --output_dir $(BUILD_DIR)/docs
 
 install: clean style build
 	rsync --rsh=ssh -rlvvzuO --exclude='*\~' "$(BUILD_DIR)/" "${INSTALL_URL}/" 
