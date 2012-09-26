@@ -62,6 +62,8 @@
   left: 0
   top: 0
 
+
+
 .EntityView
   width: 0px
   height: 0px
@@ -69,6 +71,8 @@
 
 .BoardViewTiles .EntityView
   position: absolute
+
+
 
 .ConveyorView
   z-index: 10
@@ -85,6 +89,18 @@
 .RobotView
   z-index: 50
   background url('../img/roombo.png')
+
+.TurnerLView .TurnerRView .TurnerUView
+  z-index: 15
+
+.TurnerLView
+  background url('../img/turnL.png')
+
+.TurnerRView
+  background url('../img/turnR.png')
+
+.TurnerUView
+  background url('../img/turnU.png')
 
 
 .PlayerRobotView .RobotView

@@ -1,6 +1,7 @@
 define (require, exports, module) ->
 
   SimpleModel = require 'cs!app/lib/SimpleModel'
+  MultiLock = require 'cs!app/lib/MultiLock'
 
 
   class Card extends SimpleModel
@@ -31,24 +32,36 @@ define (require, exports, module) ->
     playOnRobot: (robot, opts) ->
       opts ?= {}
       console.log "Playing ", @, " on ", robot, " with ", opts
-      for c in @get 'commands'
-        oc = Object.create opts
-        oc.mover = @
-        switch c
+      cmds = (@get 'commands').slice()
+      if opts.lock?
+        unlock = opts.lock()
+      f = =>
+        console.log cmds
+        if cmds.length <= 0
+          if unlock?
+            unlock()
+            return
+        optsC = Object.create opts
+        optsC.mover = @
+        if optsC.lock?
+          ml = new MultiLock f, 2000
+          optsC.lock = ml.getLock
+        switch cmds.shift()
           when "R"
-            oc.dir = 1
-            robot.turn oc
+            optsC.dir = 1
+            robot.turn optsC
           when "L"
-            oc.dir = -1
-            robot.turn oc
+            optsC.dir = -1
+            robot.turn optsC
           when "U"
-            oc.dir = 2
-            robot.turn oc
+            optsC.dir = 2
+            robot.turn optsC
           when "S"
-            robot.step oc
+            robot.step optsC
           when "J" then # TODO
           when "B" then # TODO
           else throw "unknown command"
+      f()
 
 
   module.exports = Card

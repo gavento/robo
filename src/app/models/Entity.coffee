@@ -14,22 +14,41 @@ define (require, exports, module) ->
     isMovable: -> false
     isRobot: -> false
 
+    # Move the entity to the desired location.
+    # Also triggers an animation if opts.lock given.
     move: (opts) ->
-      throw "opts.x and opts.y required" unless opts.x? and opts.y?
-      opts.entity = @
-      opts.oldX = @x
-      opts.oldY = @y
-      @x = opts.x
-      @y = opts.y
-      @trigger "move", opts
+      throw "opts.x and opts.y required" unless opts? and opts.x? and opts.y?
+      optsC = Object.create opts
+      optsC.entity = @
+      optsC.oldX = @x
+      optsC.oldY = @y
+      @x = optsC.x
+      @y = optsC.y
+      @trigger "move", optsC
+      # @trigger "update"
+
+    # Rotate the entity right, with animation if opts.lock given.
+    # Makes sense only for Entities with @dir.
+    rotate: (opts) ->
+      throw "opts.dir required" unless opts? and opts.dir?
+      optsC = Object.create opts
+      optsC.entity = @
+      optsC.oldDir = (@get "dir").copy()
+      (@get "dir").turnRight optsC.dir
+      @trigger "rotate", optsC
+      # @trigger "update"
 
     destroy: ->
       super
 
+    # Activate the Entity in a board activation phase. The phase is
+    # in opts.phase.
     activate: (opts) ->
-      opts ?= {}
       #DEBUG# console.log "activated ", @, " with opts ", opts
-      opts.entity = @
-      @trigger "activate", opts
+      opts ?= {}
+      optsC = Object.create opts
+      optsC.entity = @
+      @trigger "activate", optsC
+
 
   module.exports = Entity

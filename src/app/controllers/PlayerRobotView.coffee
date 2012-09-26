@@ -36,6 +36,7 @@ define (require, exports, module) ->
       #DEBUG# @bind "release", (=> @log "releasing ", @)
       @render()
 
+
     render: =>
       @el.html("<div class='PlayerRobotViewName'>Robot <b>\"#{ @robot.get 'name' }\"</b> with #{ @robot.get 'health' } health</div>")
       @append @robotView
@@ -47,9 +48,8 @@ define (require, exports, module) ->
         f = (cardno) =>
           if cardno < cards.length
             ml = new MultiLock ( => f(cardno + 1)), 5000
-            lock = (args...) => ml.getLock args...
-            unlock = lock "Card"
-            cards[cardno].playOnRobot @robot, {lock: lock}
+            unlock = ml.getLock "Card"
+            cards[cardno].playOnRobot @robot, {lock: ml.getLock}
             unlock()
         f 0
 

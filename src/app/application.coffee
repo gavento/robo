@@ -33,7 +33,7 @@ define (require, exports, module) ->
       b.click( @activate )
 
     activate: =>
-      @log "Activating"
+      #DEBUG# @log "Activating"
       board = @game.board()
       buttons = $('.button-activate')
       buttons.attr "disabled", "disabled"

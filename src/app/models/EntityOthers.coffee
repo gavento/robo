@@ -37,14 +37,55 @@ define (require, exports, module) ->
 
     getPhases: -> [50]
 
-    activate: (phase) ->
+    activate: (opts) ->
       super
       for e in @board.tile @x, @y
         if e.isRobot()
           e.damage {damage: 1, source: @}
 
 
+  class Turner extends Entity
+    @configure {name:'Turner', subClass:true}, 'dir'
+    @typedProperty 'dir', Direction
+
+    getPhases: -> [40]
+    turnDirection: 0
+
+    # this is simple and naive
+    activate: (opts) ->
+      super
+      for e in @board.tile @x, @y
+        if e.isMovable()
+          optsC = Object.create opts
+          optsC.mover = @
+          optsC.dir = @turnDirection
+          e.rotate optsC
+      optsC = Object.create opts
+      optsC.dir = @turnDirection
+      optsC.mover = @
+      @rotate optsC
+
+
+  class TurnerR extends Turner
+    @configure {name:'TurnerR', subClass:true, registerAs: 'R'}
+    turnDirection: 1
+
+
+  class TurnerL extends Turner
+    @configure {name:'TurnerL', subClass:true, registerAs: 'L'}
+    turnDirection: -1
+
+
+  class TurnerU extends Turner
+    @configure {name:'TurnerU', subClass:true, registerAs: 'U'}
+    turnDirection: 2
+
+
   module.exports =
     Conveyor: Conveyor
     ExpressConveyor: ExpressConveyor
     Crusher: Crusher
+    Turner: Turner
+    TurnerR: TurnerR
+    TurnerL: TurnerL
+    TurnerU: TurnerU

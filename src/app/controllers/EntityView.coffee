@@ -10,6 +10,8 @@ define (require, exports, module) ->
     tag: 'div'
 
     animationDuration: ->
+      if @animDuration?
+        return @animDuration
       return 0
 
     attributes:
@@ -27,11 +29,14 @@ define (require, exports, module) ->
       @bind "release", (=> @entity.unbind @render)
       @entity.bind("move", @move)
       @bind "release", (=> @entity.unbind @move)
+      @entity.bind("rotate", @rotate)
+      @bind "release", (=> @entity.unbind @rotate)
 
       #DEBUG# @bind "release", (=> @log "releasing ", @)
       @render()
 
-    # x, y default to entity.x, entity.y
+    # Set entity position, without animation
+    # Params x, y default to entity.x, entity.y
     setPosition: (x, y) ->
       unless x? and y?
         x = @entity.get 'x'
@@ -41,14 +46,89 @@ define (require, exports, module) ->
           'left': x * @tileW
           'top': y * @tileH
 
-    move: (opts) =>
-      @setPosition()
+    # A helper to compute the proper duration of an animation
+    # Currently works well for Entity-induced movement (Conveyors, Turner, ...)
+    # and for Cards (provisionally).
+    #
+    # `opts` may contain:
+    # * `opts.lock` - no lock always gives duration 0, actual value is ignored.
+    # * `opts.duration` - to override anim. duration (speed still applies).
+    # * `opts.speed` - sets relative speed (2 = twice as long).
+    # * `opts.mover` - entity that caused the move.
+    guessDuration: (opts) ->
+      duration = do =>
+        if not opts.lock?
+          return 0
+        if opts.duration
+          return opts.duration
+        if opts.mover?
+          if opts.mover instanceof Entity
+            moverView = @boardView.entityViews[opts.mover.get 'id']
+            return moverView.animationDuration()
+          if opts.mover instanceof Card
+            return 450 # a random constant for now
+          else throw "unknown mover type"
+        console.log "No opts.mover and no opts.duration for ", @, " in ", opts
+        return 1000 # random constant just to show some move
+      if opts.speed?
+        return duration * opts.speed
+      return duration
 
+    # Animate a rotating Entity. 
+    # `opts.lock` is used for board locking, opts is passed to 
+    # guessDuration().
+    rotate: (opts) =>
+      if @passive
+        return
+      throw "opts.oldDir and opts.dir required" unless opts? and opts.oldDir? and opts.dir?
+      @log "rotate ", @entity, opts
+
+      opts ?= {}
+      duration = @guessDuration opts
+      if opts.lock?
+        unlock = opts.lock @entity.cid
+      oDir = opts.oldDir.getNumber()
+
+      i = 0
+      f = =>
+        if opts.dir > 0
+          if i >= opts.dir
+            CSSSprite(@el, 0, -(oDir + i) * @tileH, 0, 0, 0, 0, true, unlock)
+          else
+            i += 1
+            CSSSprite(@el, 0, -(oDir + i - 1) * @tileH, -@tileW, 0,
+              duration / @animFrames / opts.dir, @animFrames, false, f)
+        if opts.dir < 0
+          if i <= opts.dir
+            CSSSprite(@el, 0, -(oDir + i) * @tileH, 0, 0, 0, 0, true, unlock)
+          else
+            i -= 1
+            CSSSprite(@el, -@tileW * (@animFrames - 1), -(oDir + i) * @tileH, @tileW, 0,
+              duration / @animFrames / (-opts.dir), @animFrames, false, f)
+      f()
+
+    # Animate a moving Entity. 
+    # `opts.lock` is used for board locking, opts is passed to 
+    # guessDuration().
+    move: (opts) =>
+      if @passive
+        return
+
+      opts ?= {}
+      duration = @guessDuration opts
+      if opts.lock?
+        unlock = opts.lock @entity.cid
+      @el.animate({left: @boardView.tileW * @entity.x, top: @boardView.tileH * @entity.y},
+        duration, 'linear', unlock)
+
+    # Draw the entity as a 1x1 CSS-sprite tile.
     render: =>
       @el.empty()
       @el.css width: @tileW, height: @tileH
       if @entity.dir and not @passive
         @el.css 'background-position': "0px #{-(@entity.get('dir').getNumber() * @tileH)}px"
+      else
+        @el.css 'background-position': "0px 0px"
       @setPosition()
 
 

@@ -15,7 +15,7 @@ define (require, exports, module) ->
       @callback = ->
       cb()
 
-    getLock: (dbg_name) ->
+    getLock: (dbg_name) =>
       # dbg_name is optional (tracks who is locking it)
       # returns an "unlock" closure
       @number += 1

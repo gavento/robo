@@ -29,7 +29,6 @@ define (require, exports, module) ->
       CSSSprite @el, 0, -y0, -@tileW, 0, @animDuration / @animFrames, @animFrames, true, unlock
 
 
-
   class ConveyorView extends SimplyAnimatedEntityView
     @registerTypeName "C"
     attributes:
@@ -52,6 +51,29 @@ define (require, exports, module) ->
       class: 'EntityView CrusherView'
     animFrames: 5
     animDuration: 60*5
+
+  
+  class TurnerView extends EntityView
+    animFrames: 9
+    animDuration: 450
+
+
+  class TurnerRView extends TurnerView
+    @registerTypeName "R"
+    attributes:
+      class: 'EntityView TurnerRView'
+
+
+  class TurnerLView extends TurnerView
+    @registerTypeName "L"
+    attributes:
+      class: 'EntityView TurnerLView'
+
+
+  class TurnerUView extends TurnerView
+    @registerTypeName "U"
+    attributes:
+      class: 'EntityView TurnerUView'
 
 
   module.exports =
