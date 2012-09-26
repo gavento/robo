@@ -24,8 +24,7 @@ define (require, exports, module) ->
 
     render: =>
       @el.html "<div class='CardViewPriority'>#{ @card.get 'priority' }</div><div class='CardViewText'>#{ @card.get 'text' }</div>"
-  
-  
+
   class SimpleCardView extends CardView
     @registerTypeName "S"
 

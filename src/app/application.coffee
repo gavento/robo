@@ -12,25 +12,31 @@ define (require, exports, module) ->
     constructor: ->
       super
 
-      gameData = require 'text!app/game_test.json'
-      throw "Game data could not be read" unless gameData
-      @game = Game.fromJSON gameData
-      throw "Game not loaded" unless @game
-      @log "loaded Game: ", @game
-
-      @append "<div class='TestInputBox'><button class='button-activate'>Activate board</button></div>"
-      @append new GameView game:@game
-
-      @append new TestSizeInput model:@game.board()
-
-      @append new TestInputBox model:@game, propName:'name'
-
-      @append "<div class='TestInputBox'><button class='button-activate'>Activate board</button></div>"
-      @append new GameView game:@game
-
-
-      b = @$('.button-activate')
-      b.click( @activate )
+      throw "@json required" unless @json
+      
+      require [@json],  => (
+        gameData = arguments[0]
+        throw "Game data could not be read" unless gameData
+        
+        @game = Game.fromJSON gameData
+        throw "Game not loaded" unless @game
+        @log "loaded Game: ", @game
+        #@log JSON.stringify @game, null, 2
+  
+        @append "<div class='TestInputBox'><button class='button-activate'>Activate board</button></div>"
+        @append new GameView game:@game
+  
+        @append new TestSizeInput model:@game.board()
+  
+        @append new TestInputBox model:@game, propName:'name'
+  
+        @append "<div class='TestInputBox'><button class='button-activate'>Activate board</button></div>"
+        @append new GameView game:@game
+  
+  
+        b = @$('.button-activate')
+        b.click( @activate )
+      )
 
     # Activate all entities on the board.
     activate: =>

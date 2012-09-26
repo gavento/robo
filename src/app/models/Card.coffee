@@ -24,6 +24,7 @@ define (require, exports, module) ->
 
     constructor: ->
       @commands_ ?= []
+      selected = false
       super
 
     text: ->
@@ -31,37 +32,42 @@ define (require, exports, module) ->
 
     playOnRobot: (robot, opts) ->
       opts ?= {}
-      console.log "Playing ", @, " on ", robot, " with ", opts
-      cmds = (@get 'commands').slice()
-      if opts.lock?
-        unlock = opts.lock()
-      f = =>
-        console.log cmds
-        if cmds.length <= 0
-          if unlock?
-            unlock()
-            return
-        optsC = Object.create opts
-        optsC.mover = @
-        if optsC.lock?
-          ml = new MultiLock f, 2000
-          optsC.lock = ml.getLock
-        switch cmds.shift()
-          when "R"
-            optsC.dir = 1
-            robot.turn optsC
-          when "L"
-            optsC.dir = -1
-            robot.turn optsC
-          when "U"
-            optsC.dir = 2
-            robot.turn optsC
-          when "S"
-            robot.step optsC
-          when "J" then # TODO
-          when "B" then # TODO
-          else throw "unknown command"
-      f()
-
+      if @selected
+        console.log "Playing ", @, " on ", robot, " with ", opts
+        cmds = (@get 'commands').slice()
+        if opts.lock?
+          unlock = opts.lock()
+        f = =>
+          console.log cmds
+          if cmds.length <= 0
+            if unlock?
+              unlock()
+              return
+          optsC = Object.create opts
+          optsC.mover = @
+          if optsC.lock?
+            ml = new MultiLock f, 2000
+            optsC.lock = ml.getLock
+          switch cmds.shift()
+            when "R"
+              optsC.dir = 1
+              robot.turn optsC
+            when "L"
+              optsC.dir = -1
+              robot.turn optsC
+            when "U"
+              optsC.dir = 2
+              robot.turn optsC
+            when "S"
+              robot.step optsC
+            when "J" then # TODO
+            when "B" then # TODO
+            else throw "unknown command"
+        f()
+      else
+        console.log "Skipping ", @, " on ", robot 
+    
+    select: ->
+      @selected = not @selected
 
   module.exports = Card

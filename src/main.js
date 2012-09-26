@@ -12,5 +12,5 @@ var config = {
 require(config, [
     "cs!app/application"],
     function(App) {
-  new App({el: "#app"});
+  new App({el: "#app", json: 'text!app/game_test.json'});
 });
