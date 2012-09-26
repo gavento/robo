@@ -10,6 +10,7 @@ define (require, exports, module) ->
 
     attributes:
       class: 'EntityView RobotView'
+    animFrames: 9
 
     render: =>
       super

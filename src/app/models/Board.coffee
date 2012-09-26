@@ -4,17 +4,31 @@ define (require, exports, module) ->
   MultiLock = require 'cs!app/lib/MultiLock'
   Tile = require 'cs!app/models/Tile'
 
+  # Load all Entity subtypes for loading
   Entity = require 'cs!app/models/Entity'
   require 'cs!app/models/EntityOthers'
   require 'cs!app/models/EntityRobot'
 
 
+  # # class Board #
+  #
+  # Board representation, owns all the contained entities.
+  #
+  # ### Model properties ###
+  #
+  # * `entities: [Entity]` - list of Entities, in no particular order.
+  # * `width, height` - board size, coordinates are in ranges `0..(width-1)`.
+  # * `name` - board or map name, just informative.
+  # 
+  # ### Internal ###
+  #
+  # * `tiles_: map x -> map y -> [Entity ids]` - list of Entity id for every
+  #   map tile.
+  # * `entityById_` - map of entities by their id.
+
   class Board extends SimpleModel
     @configure {name: 'Board'}, 'width', 'height', 'entities'
-    # entities: [Entity]
-    # width, height: integers
-    # name: string
-    # tiles: map x -> map y -> [Entity ids]
+
 
     constructor: (atts) ->
       @width_ = 0
@@ -24,28 +38,23 @@ define (require, exports, module) ->
       @entityById_ = {}
       super atts
 
+
     destroy: ->
-      @set 'entities', []
+      @set 'entities', [] # properly call destoy for all Entities
       super
+
+
+    # Setters/getters for attributes
 
     width: (val) ->
       if val? and val != @width_ then @resize val, @height_
       return @width_
 
+
     height: (val) ->
       if val? and val != @height then @resize @width_, val
       return @height_
 
-    resize: (w, h) ->
-      if w == @width_ and h == @height_ then return
-      # remove entities outside the new size
-      es = @get('entities').slice()
-      for e in es
-        if e.x >= w or e.y >= h
-          @removeEntity e
-      @width_ = w
-      @height_ = h
-      @trigger "resize"
 
     entities: (val) ->
       if val?
@@ -56,6 +65,22 @@ define (require, exports, module) ->
           @addEntity e
       return @entities_
 
+
+    # Resize board, destroying those outside the new size.
+    # Triggers `"resize"` event.
+    resize: (w, h) ->
+      if w == @width_ and h == @height_ then return
+      es = @get('entities').slice()
+      for e in es
+        if e.x >= w or e.y >= h
+          @removeEntity e
+      @width_ = w
+      @height_ = h
+      @trigger "resize"
+
+
+    # Add the Entity, triggers `"addEntity", e`. If `e` is not Entity, it is
+    # loaded from JSON.
     addEntity: (e) ->
       unless e instanceof Entity
         e = Entity.createSubType e
@@ -69,6 +94,8 @@ define (require, exports, module) ->
       @tiles_[e.x][e.y].push e
       @trigger "addEntity", e
 
+
+    # Remove and destroy the given Entity. Triggers `"removeEntity", e`.
     removeEntity: (e) ->
       @trigger "removeEntity", e
       @tiles_[e.x][e.y] = @tiles_[e.x][e.y].filter (v) -> not (v is e)
@@ -76,16 +103,22 @@ define (require, exports, module) ->
       delete @entityById_[e.get 'id']
       e.destroy()
 
+
+    # Is the given point inside the Board?
     inside: (x, y) ->
       return x >= 0 and y >= 0 and x < @get('width') and y < @get('height')
 
+
+    # Return list of entities at `[x][y]`. Returns `[]` outside the board.
     tile: (x, y) ->
       if @inside x, y and @tiles_[x]? and @tiles_[x][y]?
         return @tiles_[x][y]
       else
         return []
 
-    # internal - only for updating tiles 
+
+    # Update internal structures on Entity move. Internal,
+    # called on event "move" from the Entity.
     moveEntity: (opts) =>
       unless opts.oldX? and opts.oldY? and opts.entity?
         throw "opts.oldX, opts.oldY and opts.entity required"
@@ -94,6 +127,7 @@ define (require, exports, module) ->
       @tiles_[e.x] ?= {}
       @tiles_[e.x][e.y] ?= []
       @tiles_[e.x][e.y].push e
+
 
     entityById: (id) ->
       e = @entityById_[id]

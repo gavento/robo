@@ -1,10 +1,13 @@
 define (require, exports, module) ->
 
-#  require "spine"
 
   Game = require 'cs!app/models/Game'
   GameView = require 'cs!app/controllers/GameView'
 
+  # # App controller #
+  #
+  # Provisional loader class, used for development.
+  #
   class App extends Spine.Controller
     constructor: ->
       super
@@ -14,16 +17,13 @@ define (require, exports, module) ->
       @game = Game.fromJSON gameData
       throw "Game not loaded" unless @game
       @log "loaded Game: ", @game
-      #@log JSON.stringify @game, null, 2
 
       @append "<div class='TestInputBox'><button class='button-activate'>Activate board</button></div>"
       @append new GameView game:@game
 
       @append new TestSizeInput model:@game.board()
-      #@append new TestSizeInput model:@game.board()
 
       @append new TestInputBox model:@game, propName:'name'
-      #@append new TestInputBox model:@game, propName:'name'
 
       @append "<div class='TestInputBox'><button class='button-activate'>Activate board</button></div>"
       @append new GameView game:@game
@@ -32,14 +32,15 @@ define (require, exports, module) ->
       b = @$('.button-activate')
       b.click( @activate )
 
+    # Activate all entities on the board.
     activate: =>
-      #DEBUG# @log "Activating"
       board = @game.board()
       buttons = $('.button-activate')
       buttons.attr "disabled", "disabled"
       board.activateBoardLocking {}, ->
         buttons.removeAttr "disabled"
 
+  # Experimental class for synchronous sync of inputbox contents.
   class TestInputBox extends Spine.Controller
     events:
       'keyup input': 'keyPress'
@@ -67,7 +68,7 @@ define (require, exports, module) ->
       @model[@propName] = @input.val()
       @model.trigger(@eventName)
 
-
+  # Experimental class for semi-synchronous updates to board size.
   class TestSizeInput extends Spine.Controller
     events:
       'click button': 'submit'
@@ -98,5 +99,6 @@ define (require, exports, module) ->
     submit: ->
       @model.set 'width', Number @inWidth.val()
       @model.set 'height', Number @inHeight.val()
+
 
   module.exports = App

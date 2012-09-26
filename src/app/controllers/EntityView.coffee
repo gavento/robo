@@ -1,6 +1,9 @@
 define (require, exports, module) ->
 
   ST = require "cs!app/lib/SubClassTypes"
+  Entity = require "cs!app/models/Entity"
+  Card = require "cs!app/models/Card"
+  CSSSprite = require "app/lib/CSSSprite"
 
   class EntityView extends Spine.Controller
     ST.baseClass @

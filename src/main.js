@@ -4,14 +4,8 @@ var config = {
     'cs' :'lib/cs',
     'text' :'lib/text',
     'coffee-script': 'lib/coffee-script',
-//    'jquery': 'lib/jquery-1.7.2',
-//    'spine': 'lib/spine',
   },
   shims: {
-//    'lib/spine': {
-//      deps: ['jquery'],
-//      exports: 'Spine',
-//    }
   }
 };
 
