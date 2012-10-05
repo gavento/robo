@@ -24,7 +24,7 @@ define (require, exports, module) ->
 
     constructor: ->
       @commands_ ?= []
-      selected = false
+      @selected = true
       super
 
     text: ->
