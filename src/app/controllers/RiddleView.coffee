@@ -38,8 +38,7 @@ define (require, exports, module) ->
 
     activate: =>
       @log "Activating"
-      board = @game.board()
-      board.activateAllPhases()
+      @game.next()
     
   class TestInputBox extends Spine.Controller
     events:
