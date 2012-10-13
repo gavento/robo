@@ -9,7 +9,8 @@ define (require, exports, module) ->
     constructor: ->
       super
      
-      riddles = ["1"]
+      # allowed riddles
+      riddles = ["1", "2"]
       @riddleid = riddles[0] unless @riddleid in riddles
       json = "text!app/riddles/riddle_#{ @riddleid }.json"
       @log "Riddle: ", @riddleid, json
@@ -38,7 +39,7 @@ define (require, exports, module) ->
 
     activate: =>
       @log "Activating"
-      @game.next()
+      @game.continue()
     
   class TestInputBox extends Spine.Controller
     events:

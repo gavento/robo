@@ -1,0 +1,53 @@
+ {
+  "name": "Riddle 2 -- Empty with two robots",
+  "board": {
+    "width": 5,
+    "height": 5,
+    "entities": [
+      {
+        "x": 1,
+        "y": 1,
+        "type": "Robot",
+        "id": "Robot-1",
+        "name": "Cervenacek",
+        "dir": "E",
+        "image": "roombo-r.png",
+        "health": 7,
+        "cards": 
+          [
+            {"type": "S", "priority": 220, "commands": "S S" },
+            {"type": "S", "priority": 107, "commands": "L S" },
+            {"type": "S", "priority":  42, "commands": "U" },
+            {"type": "S", "priority": 278, "commands": "S U S U" }
+          ]
+      },
+      {
+        "x": 3,
+        "y": 3,
+        "type": "Robot",
+        "id": "Robot-2",
+        "name": "Modracek",
+        "dir": "W",
+        "image": "roombo-m.png",
+        "health": 7,
+        "cards": 
+          [
+            {"type": "S", "priority": 107, "commands": "L S" },
+            {"type": "S", "priority": 220, "commands": "S S" },
+            {"type": "S", "priority":  42, "commands": "U" },
+            {"type": "S", "priority": 278, "commands": "S U S U" }
+          ]
+      }
+    ]
+  },
+  "players": [
+    {
+      "name": "Tester",
+      "robotIds": [
+        "Robot-1",
+        "Robot-2"
+      ]
+    }
+  ]
+}
+
