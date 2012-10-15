@@ -41,14 +41,24 @@ define (require, exports, module) ->
 
     
     getSortedRobots: ->
-      # TODO: use list comprehensions
-      # TODO: sort it
+      # Get all robots of all players.
       robots = []
       for player in @get 'players'
-        console.log player
         for robot in player.get 'robots'
-          console.log robot
           robots.push robot
+      # Sort robots according to priority of current card.
+      robots.sort( (robot1, robot2) =>
+        priority1 = robot1.get('cards')[@cardIndex].get('priority')
+        priority2 = robot2.get('cards')[@cardIndex].get('priority')
+        # Robot whose card has higher priority will play first.
+        if priority1 < priority2
+          return 1 
+        else if priority1 < priority2
+          return -1
+        else
+          return 0 # TODO: What to do if the priorities are equal?
+      )
+      # Return sorted array of robots.
       return robots
 
     isGameOver: ->
@@ -58,7 +68,6 @@ define (require, exports, module) ->
       return @cardIndex >= 4 # number of selected cards
 
     isCardOver: ->
-      console.log "Sorted", @getSortedRobots()
       return @robotIndex >= @getSortedRobots().length
 
     isRobotPlaced: ->
@@ -160,7 +169,11 @@ define (require, exports, module) ->
 
   class Game::States::BoardStart
     next: ->
-      @state.transition("BoardOver")
+      @state.transition("BoardActive")
+  
+  class Game::States::BoardActive
+    next: ->
+      @board().activateBoardLocking({}, (=> @state.transition("BoardOver")), 5000)
   
   class Game::States::BoardOver
     next: ->

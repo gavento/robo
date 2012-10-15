@@ -1,0 +1,77 @@
+ {
+  "name": "Riddle 3 -- Two crushed robots",
+  "board": {
+    "width": 5,
+    "height": 5,
+    "entities": [
+      {
+        "x": 1,
+        "y": 4,
+        "type": "X",
+        "id": "Entity-X1"
+      },
+      {
+        "x": 4,
+        "y": 1,
+        "type": "X",
+        "id": "Entity-X1"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "type": "X",
+        "id": "Entity-X1"
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "type": "X",
+        "id": "Entity-X1"
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "type": "Robot",
+        "id": "Robot-1",
+        "name": "Cervenacek",
+        "dir": "E",
+        "image": "roombo-r.png",
+        "health": 7,
+        "cards": 
+          [
+            {"type": "S", "priority": 230, "commands": "S S S" },
+            {"type": "S", "priority": 80, "commands": "U" },
+            {"type": "S", "priority": 220, "commands": "S S" },
+            {"type": "S", "priority": 103, "commands": "L S" }
+          ]
+      },
+      {
+        "x": 3,
+        "y": 3,
+        "type": "Robot",
+        "id": "Robot-2",
+        "name": "Modracek",
+        "dir": "W",
+        "image": "roombo-m.png",
+        "health": 7,
+        "cards": 
+          [
+            {"type": "S", "priority": 200, "commands": "S" },
+            {"type": "S", "priority": 48, "commands": "L" },
+            {"type": "S", "priority": 190, "commands": "B" },
+            {"type": "S", "priority": 221, "commands": "S S" }
+          ]
+      }
+    ]
+  },
+  "players": [
+    {
+      "name": "Tester",
+      "robotIds": [
+        "Robot-1",
+        "Robot-2"
+      ]
+    }
+  ]
+}
+
