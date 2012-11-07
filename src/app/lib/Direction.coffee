@@ -16,6 +16,8 @@ define (require, exports, module) ->
     @toName: (dir) ->
       return "NESW"[@toNumber dir]
 
+    @dirs: ["N","E","S","W"]
+
     constructor: (dir) ->
       @dir = @constructor.toNumber dir
 
