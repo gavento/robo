@@ -3,6 +3,8 @@ define (require, exports, module) ->
 
   TestingView = require 'cs!app/controllers/TestingView'
   RiddleView = require 'cs!app/controllers/RiddleView'
+  EditorView = require 'cs!app/controllers/EditorView'
+  Board = require 'cs!app/models/Board'
 
   # # App controller #
   class App extends Spine.Controller
@@ -15,6 +17,11 @@ define (require, exports, module) ->
           # riddle view
           @log "Displaying riddle view", params.id
           @replace new RiddleView riddleid:params.id
+        "/edit/": (params) ->
+          # editor with an empty board
+          board = new Board width:4, height:4
+          @log "Displaying editor for new board", board
+          @replace new EditorView board:board
         "/*id": (params) ->
           # default view (currently used for testing)
           @log "Displaying default view", params.id
