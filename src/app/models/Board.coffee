@@ -111,7 +111,7 @@ define (require, exports, module) ->
 
     # Return list of entities at `[x][y]`. Returns `[]` outside the board.
     tile: (x, y) ->
-      if @inside x, y and @tiles_[x]? and @tiles_[x][y]?
+      if (@inside x, y) and @tiles_[x]? and @tiles_[x][y]?
         return @tiles_[x][y]
       else
         return []
