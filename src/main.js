@@ -10,7 +10,9 @@ var config = {
 };
 
 require(config, [
+    "cs!app/menu",
     "cs!app/application"],
-    function(App) {
+    function(Menu, App) {
+  new Menu({el: "#header"});
   new App({el: "#app"});
 });
