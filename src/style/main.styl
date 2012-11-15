@@ -1,6 +1,10 @@
 @import 'mixin'
 @import 'theme'
 
+body
+  background: #000
+  color: #CCC
+
 #header
   overflow: hidden;
   height: 50px;
@@ -106,6 +110,7 @@
 .PlayerRobotView .RobotView
   display: inline-block
 
+
 .CardView
   width: 55px
   height: 80px
@@ -116,23 +121,58 @@
   margin: 10px
   padding: 3px
 
-.CardViewPriority
-  font-style: italic
-  width: 100%
-  text-align: right
+  .CardViewPriority
+    font-style: italic
+    width: 100%
+    text-align: right
 
-.CardViewText
-  font-weight: bold 
-  width: 100%
-  text-align: center
-  margin-top 20px
+  .CardViewText
+    font-weight: bold
+    width: 100%
+    text-align: center
+    margin-top 20px
+
 
 .EditorView
+
   .EditorSidebar
-    width: 136px
+    margin: 10px
+    padding: 5px
+    border-radius: 5px
+    background: #555
+    width: 150px
     float:left
+
+    .EditorCategory
+      background: #777
+      margin: 5px 5px 10px 5px
+      border-radius: 3px
+
     .EditorPalette
+      padding:3px
       .EntityView
         float:left
+
   .EditorBoard
-    margin-left: 140px
+    float: left
+
+
+.TileHint
+  width:190px
+  border-radius: 5px
+  box-shadow(0, 4px, 4px, #333)
+  background: #555
+  padding: 5px
+  position: absolute
+  z-index: 1000
+
+  .TileHintEntity
+    border-radius: 10px
+    background: #777
+    margin: 5px
+    .TileHintEntityRotL, .TileHintEntityRotR, .TileHintEntityDestroy
+      padding: 1px
+
+    .TileHintEntityView
+      display: inline-block
+      position: static !important
