@@ -63,6 +63,7 @@ define (require, exports, module) ->
         @addEntityView e
 
     addEntityView: (entity) =>
+      console.log "adding entity view", entity
       ev = EntityView.createSubType
         entity: entity
         type: entity.get 'type'
@@ -73,6 +74,7 @@ define (require, exports, module) ->
 
     removeEntityView: (entity) =>
       # entity can be an id
+      console.log "removing entity view", entity
       if typeof entity == "string"
         id = entity
       else

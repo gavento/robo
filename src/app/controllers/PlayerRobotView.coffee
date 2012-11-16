@@ -52,6 +52,10 @@ define (require, exports, module) ->
             cards[cardno].playOnRobot @robot, {lock: ml.getLock}
             unlock()
         f 0
+      @append @$("<button class='PlayerRobotViewButtonPlaceRobot'>Place robot</button>")
+      @$('.PlayerRobotViewButtonPlaceRobot').click => @robot.place({})
+      if @robot.isPlaced()
+        @$('.PlayerRobotViewButtonPlaceRobot').attr("disabled", "disabled")
 
 
   module.exports = PlayerRobotView

@@ -33,20 +33,28 @@ define (require, exports, module) ->
     playOnRobot: (robot, opts) ->
       opts ?= {}
       if @selected
-        console.log "Playing ", @, " on ", robot, " with ", opts
+        #console.log "Playing ", @, " on ", robot, " with ", opts
         cmds = (@get 'commands').slice()
         if opts.lock?
           unlock = opts.lock()
+        f2 = =>
+          optsC = Object.create opts
+          if optsC.lock?
+            ml = new MultiLock f, 2000
+            optsC.lock = ml.getLock
+          optsC.x = robot.x
+          optsC.y = robot.y
+          robot.board.activateOnEnter(optsC)
         f = =>
           console.log cmds
-          if cmds.length <= 0
+          if cmds.length <= 0 or not robot.isPlaced()
             if unlock?
               unlock()
               return
           optsC = Object.create opts
           optsC.mover = @
           if optsC.lock?
-            ml = new MultiLock f, 2000
+            ml = new MultiLock f2, 2000
             optsC.lock = ml.getLock
           switch cmds.shift()
             when "R"
@@ -60,9 +68,13 @@ define (require, exports, module) ->
               robot.turn optsC
             when "S"
               robot.step optsC
-            when "J" then # TODO
-            when "B" then # TODO
-            else throw "unknown command"
+            #when "J" then # TODO
+            #when "B" then # TODO
+            else 
+              if unlock?
+                unlock()
+                return
+              #throw "unknown command"
         f()
       else
         console.log "Skipping ", @, " on ", robot 

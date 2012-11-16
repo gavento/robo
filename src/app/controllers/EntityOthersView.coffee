@@ -75,6 +75,11 @@ define (require, exports, module) ->
     attributes:
       class: 'EntityView TurnerUView'
 
+  class HoleView extends EntityView
+    @registerTypeName "H"
+    attributes:
+      class: 'EntityView HoleView'
+
 
   module.exports =
     ConveyorView: ConveyorView

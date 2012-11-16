@@ -10,7 +10,7 @@ define (require, exports, module) ->
       super
      
       # allowed riddles
-      riddles = ["1", "2", "3"]
+      riddles = ["1", "2", "3", "4"]
       @riddleid = riddles[0] unless @riddleid in riddles
       json = "text!app/riddles/riddle_#{ @riddleid }.json"
       @log "Riddle: ", @riddleid, json

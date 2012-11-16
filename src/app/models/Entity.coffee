@@ -13,6 +13,8 @@ define (require, exports, module) ->
     getPhases: -> []
     isMovable: -> false
     isRobot: -> false
+    isPlaced: -> true
+    isActivatedOnEnter: -> false
 
     # Move the entity to the desired location.
     # Also triggers an animation if opts.lock given.
@@ -44,7 +46,7 @@ define (require, exports, module) ->
     # Activate the Entity in a board activation phase. The phase is
     # in opts.phase.
     activate: (opts) ->
-      #DEBUG# console.log "activated ", @, " with opts ", opts
+      #console.log "activated ", @, " with opts ", opts
       opts ?= {}
       optsC = Object.create opts
       optsC.entity = @

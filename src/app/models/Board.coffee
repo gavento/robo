@@ -86,7 +86,7 @@ define (require, exports, module) ->
         e = Entity.createSubType e
       throw "added Entity has @board defined" if e.board
       e.board = @
-      e.bind "move", @moveEntity
+      e.bind "move place", @moveEntity
       @entities_.push e
       @entityById_[e.get 'id'] = e
       @tiles_[e.x] ?= {}
@@ -165,6 +165,31 @@ define (require, exports, module) ->
             cb()
           return t
       return -1
+
+    activateOnEnter: (attrs) ->
+      throw "attrs.x and attrs.y required" unless attrs? and attrs.x? and attrs.y?
+      console.log "activateOnEnter", attrs, ent
+      ent = @tile attrs.x, attrs.y
+      if attrs.lock?
+        unlock = attrs.lock()
+      i = 0
+      f = =>
+        if i >= ent.length
+          if unlock?
+            unlock()
+            return
+
+        e = ent[i++]
+        if e.isActivatedOnEnter()
+          console.log "activating", e
+          attrsCopy = Object.create attrs
+          if attrsCopy.lock?
+            ml = new MultiLock f, 2000
+            attrsCopy.lock = ml.getLock
+          e.activate attrsCopy
+      f()
+      if unlock?
+        unlock()
 
     # Activate the board, synchronously. Note that this does not do any locking or animation synchronization.
     # Passes `attrs` to `activateOnePhase` and subsequently to `Entity.activate`

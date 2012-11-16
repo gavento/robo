@@ -12,6 +12,7 @@ define (require, exports, module) ->
     constructor: ->
       @cards_ ?= []
       @dir_ ?= new Direction(0)
+      @placed = true
       super
 
     damage: (opts) ->
@@ -19,6 +20,42 @@ define (require, exports, module) ->
       @health -= opts.damage
       @trigger "damage", opts
       @trigger "update"
+
+    fall: (opts) ->
+      throw "opts.dir required" unless opts?
+      optsC = Object.create opts
+      optsC.entity = @
+      optsC.dir = 8
+      optsC.oldDir = (@get "dir").copy()
+      (@get "dir").turnRight optsC.dir
+      @placed = false
+      @trigger "fall", optsC
+
+    # Returns true if the robot is currently placed on the board.
+    # Returns false if the robot is not on the board. It happens
+    # at the begining of the game, when the robot falls into a
+    # hole or when it is heavily damaged.
+    isPlaced: -> @placed
+
+    # Place the robot at position `opts.x`, `opts.y`. If no coordinates are
+    # specified than the robot will be placed on its respawn point.
+    place: (opts) ->
+      if not @isPlaced()
+        # Only robot that is not placed can be placed.
+        if opts? and opts.x? and opts.y?
+          @x = opts.x
+          @y = opts.y
+        else # TODO: respawn point
+          @x = 3
+          @y = 2
+        optsC = Object.create opts
+        optsC.entity = @
+        optsC.oldX = @x
+        optsC.oldY = @y
+        @placed = true
+        @trigger "place", optsC
+      else
+        throw "Placing robot that is already placed."
 
     isMovable: -> true
     isRobot: -> true
@@ -30,8 +67,12 @@ define (require, exports, module) ->
       if @board.inside tx, ty
         opts.x = tx
         opts.y = ty
-        @move opts 
-
+        @move opts
+      else
+        if opts.lock
+          unlock = opts.lock()
+          unlock()
+  
     # Turning and the aliases. turn and turnRight are the same
     turn: (opts) ->
       @rotate opts

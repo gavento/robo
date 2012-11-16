@@ -22,13 +22,13 @@ define (require, exports, module) ->
       @_enterState(state)
 
     _exitState: (state) =>
-      console.log "Leaving state:", @current
+      #console.log "Leaving state:", @current
       api = @interfaces[@current]
       for property in api
         delete @object[property]
 
     _enterState: (state) =>
-      console.log "Entering state:", state
+      #console.log "Entering state:", state
       api = new @interfaces[state]
       throw "Invalid state: " + state unless api
     

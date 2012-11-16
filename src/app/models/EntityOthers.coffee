@@ -81,6 +81,22 @@ define (require, exports, module) ->
     turnDirection: 2
 
 
+  class Hole extends Entity
+    @configure {name:'Hole', subClass:true, registerAs: 'H'}
+
+    #getPhases: -> [100]
+    isActivatedOnEnter: -> true
+    activate: (opts) ->
+      super
+      for e in @board.tile @x, @y
+        if e.isMovable()
+          optsC = Object.create opts
+          #optsC.mover = @
+          optsC.duration = 500
+          #optsC.dir = @turnDirection
+          e.fall optsC
+          e.damage {damage: 1, source: @}
+
   module.exports =
     Conveyor: Conveyor
     ExpressConveyor: ExpressConveyor
@@ -89,3 +105,4 @@ define (require, exports, module) ->
     TurnerR: TurnerR
     TurnerL: TurnerL
     TurnerU: TurnerU
+    Hole: Hole

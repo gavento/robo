@@ -1,0 +1,40 @@
+ {
+  "name": "Riddle 4 -- Hole",
+  "board": {
+    "width": 5,
+    "height": 5,
+    "entities": [
+      {
+        "x": 2,
+        "y": 2,
+        "type": "H",
+        "id": "Entity-H1"
+      },
+      {
+        "x": 3,
+        "y": 2,
+        "type": "Robot",
+        "id": "Robot-1",
+        "name": "Cervenacek",
+        "dir": "W",
+        "image": "roombo-r.png",
+        "health": 7,
+	"cards": [
+	  {"type": "S", "priority": 220, "commands": "S" },
+	  {"type": "S", "priority": 107, "commands": "S S" },
+	  {"type": "S", "priority":  42, "commands": "L R S" },
+	  {"type": "S", "priority": 278, "commands": "U B" }
+	]
+      }
+    ]
+  },
+  "players": [
+    {
+      "name": "Tester",
+      "robotIds": [
+        "Robot-1"
+      ]
+    }
+  ]
+}
+

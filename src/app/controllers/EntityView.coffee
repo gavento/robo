@@ -34,6 +34,10 @@ define (require, exports, module) ->
       @bind "release", (=> @entity.unbind @move)
       @entity.bind("rotate", @rotate)
       @bind "release", (=> @entity.unbind @rotate)
+      @entity.bind("fall", @fall)
+      @bind "release", (=> @entity.unbind @fall)
+      @entity.bind("place", @place)
+      @bind "release", (=> @entity.unbind @place)
 
       #DEBUG# @bind "release", (=> @log "releasing ", @)
       @render()
@@ -84,7 +88,7 @@ define (require, exports, module) ->
       if @passive
         return
       throw "opts.oldDir and opts.dir required" unless opts? and opts.oldDir? and opts.dir?
-      @log "rotate ", @entity, opts
+      #@log "rotate ", @entity, opts
 
       opts ?= {}
       duration = @guessDuration opts
@@ -124,8 +128,57 @@ define (require, exports, module) ->
       @el.animate({left: @boardView.tileW * @entity.x, top: @boardView.tileH * @entity.y},
         duration, 'linear', unlock)
 
+    # Animate a falling Entity. 
+    # `opts.lock` is used for board locking, opts is passed to 
+    # guessDuration().
+    # TODO: for now implemented as rotation
+    fall: (opts) =>
+      if @passive
+        return
+      throw "opts.oldDir and opts.dir required" unless opts? and opts.oldDir? and opts.dir?
+      @log "fall ", @entity, opts
+
+      opts ?= {}
+      duration = @guessDuration opts
+      if opts.lock?
+        unlock = (=>
+          u = opts.lock @entity.cid
+          u()
+          @el.hide()
+          )
+      oDir = opts.oldDir.getNumber()
+
+      i = 0
+      f = =>
+        if opts.dir > 0
+          if i >= opts.dir
+            CSSSprite(@el, 0, -(oDir + i) * @tileH, 0, 0, 0, 0, true, unlock)
+          else
+            i += 1
+            CSSSprite(@el, 0, -(oDir + i - 1) * @tileH, -@tileW, 0,
+              duration / @animFrames / opts.dir, @animFrames, false, f)
+        if opts.dir < 0
+          if i <= opts.dir
+            CSSSprite(@el, 0, -(oDir + i) * @tileH, 0, 0, 0, 0, true, unlock)
+          else
+            i -= 1
+            CSSSprite(@el, -@tileW * (@animFrames - 1), -(oDir + i) * @tileH, @tileW, 0,
+              duration / @animFrames / (-opts.dir), @animFrames, false, f)
+      f()
+
+    # Place an entity back on the board.
+    # This is called for robots when they are placed back on the board
+    # after they fall into a hole.
+    place: (opts) =>
+      if @passive
+        return
+      @log "place ", @entity, opts
+      @el.show()
+      @render()
+
     # Draw the entity as a 1x1 CSS-sprite tile.
     render: =>
+      @log "rendering", @entity
       @el.empty()
       @el.css width: @tileW, height: @tileH
       if @entity.dir and not @passive

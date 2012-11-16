@@ -23,6 +23,7 @@ define (require, exports, module) ->
         @lockers[dbg_name] ?= 0
         @lockers[dbg_name] += 1
       return =>
+        #console.log "unlock", @number, @lockers
         if dbg_name
           @lockers[dbg_name] -= 1
         @number -= 1

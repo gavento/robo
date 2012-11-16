@@ -71,7 +71,7 @@ define (require, exports, module) ->
       return @robotIndex >= @getSortedRobots().length
 
     isRobotPlaced: ->
-      return true
+      return @getSortedRobots()[@robotIndex].isPlaced()
 
 
 
@@ -144,8 +144,11 @@ define (require, exports, module) ->
         @state.transition("RobotPlace")
   
   class Game::States::RobotPlace
+    isUserActionRequired: ->
+      return not @isRobotPlaced()
+
     next: ->
-      @state.transition("RobotPlay") 
+      @state.transition("RobotPlay")
 
   class Game::States::RobotPlay
     next: ->
