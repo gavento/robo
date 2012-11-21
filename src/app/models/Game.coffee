@@ -156,7 +156,7 @@ define (require, exports, module) ->
       cards = robot.get 'cards'
       card = cards[@cardIndex]
       ml = new MultiLock (=> @state.transition("RobotOver") ), 5000
-      unlock = ml.getLock "Card"
+      unlock = ml.getLock "RobotPlay::Next"
       card.playOnRobot robot, {lock: ml.getLock}
       unlock()
   

@@ -178,7 +178,7 @@ define (require, exports, module) ->
 
     # Draw the entity as a 1x1 CSS-sprite tile.
     render: =>
-      @log "rendering", @entity
+      #@log "rendering", @entity
       @el.empty()
       @el.css width: @tileW, height: @tileH
       if @entity.dir and not @passive

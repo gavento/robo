@@ -68,10 +68,6 @@ define (require, exports, module) ->
         opts.x = tx
         opts.y = ty
         @move opts
-      else
-        if opts.lock
-          unlock = opts.lock()
-          unlock()
   
     # Turning and the aliases. turn and turnRight are the same
     turn: (opts) ->

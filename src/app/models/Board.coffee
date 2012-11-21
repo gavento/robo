@@ -168,10 +168,10 @@ define (require, exports, module) ->
 
     activateOnEnter: (attrs) ->
       throw "attrs.x and attrs.y required" unless attrs? and attrs.x? and attrs.y?
-      console.log "activateOnEnter", attrs, ent
+      #console.log "activateOnEnter", attrs, ent
       ent = @tile attrs.x, attrs.y
       if attrs.lock?
-        unlock = attrs.lock()
+        unlock = attrs.lock("activateOnEnter")
       i = 0
       f = =>
         if i >= ent.length
@@ -185,8 +185,11 @@ define (require, exports, module) ->
           attrsCopy = Object.create attrs
           if attrsCopy.lock?
             ml = new MultiLock f, 2000
+            unlock2 = ml.getLock("activateOnEnter_f")
             attrsCopy.lock = ml.getLock
           e.activate attrsCopy
+          if unlock2?
+            unlock2()
       f()
       if unlock?
         unlock()
