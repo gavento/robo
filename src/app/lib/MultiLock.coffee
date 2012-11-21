@@ -1,16 +1,26 @@
 define (require, exports, module) ->
 
   class MultiLock
+    # Id of the last created MultiLock. It is incremented with each new
+    # MultiLock. MultiLock id is used for debugging.
+    @counter = 0
+    # If this is set to true than debugging outputs will be enabled.
+    @debug = false
+
     constructor: (@callback, @timeout=2000) ->
       @number = 0
       @lockers = {}
       @timerID = setTimeout @timeoutF, @timeout
+      @id = ++MultiLock.counter
+      console.log "MultiLock", @id, "created", @ if MultiLock.debug
 
     # timeout callback disables the original callback
     timeoutF: (logWarning=true) =>
       clearTimeout @timerID
       if logWarning
-        console.log "MultiLock expired:", @
+        console.log "MultiLock", @id, "expired", @ if logWarning
+      else
+        console.log "MultiLock", @id, "triggered", @ if MultiLock.debug
       cb = @callback
       @callback = ->
       cb()
@@ -22,11 +32,12 @@ define (require, exports, module) ->
       if dbg_name
         @lockers[dbg_name] ?= 0
         @lockers[dbg_name] += 1
+      console.log "MultiLock", @id, "locked", @ if MultiLock.debug
       return =>
-        #console.log "unlock", @number, @lockers
         if dbg_name
           @lockers[dbg_name] -= 1
         @number -= 1
+        console.log "MultiLock", @id, "unlocked", @ if MultiLock.debug
         if @number == 0
           @timeoutF false
 
