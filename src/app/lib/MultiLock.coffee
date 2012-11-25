@@ -32,12 +32,12 @@ define (require, exports, module) ->
       if dbg_name
         @lockers[dbg_name] ?= 0
         @lockers[dbg_name] += 1
-      console.log "MultiLock", @id, "locked", @ if MultiLock.debug
+      console.log "MultiLock", @id, "locked by", dbg_name, @ if MultiLock.debug
       return =>
         if dbg_name
           @lockers[dbg_name] -= 1
         @number -= 1
-        console.log "MultiLock", @id, "unlocked", @ if MultiLock.debug
+        console.log "MultiLock", @id, "unlocked by", dbg_name, @ if MultiLock.debug
         if @number == 0
           @timeoutF false
 
