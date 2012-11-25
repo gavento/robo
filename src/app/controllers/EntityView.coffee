@@ -93,7 +93,7 @@ define (require, exports, module) ->
       opts ?= {}
       duration = @guessDuration opts
       if opts.lock?
-        unlock = opts.lock @entity.cid
+        unlock = opts.lock @entity.id
       oDir = opts.oldDir.getNumber()
 
       i = 0
@@ -124,7 +124,7 @@ define (require, exports, module) ->
       opts ?= {}
       duration = @guessDuration opts
       if opts.lock?
-        unlock = opts.lock @entity.cid
+        unlock = opts.lock @entity.id
       @el.animate({left: @boardView.tileW * @entity.x, top: @boardView.tileH * @entity.y},
         duration, 'linear', unlock)
 
@@ -142,7 +142,7 @@ define (require, exports, module) ->
       duration = @guessDuration opts
       if opts.lock?
         unlock = (=>
-          u = opts.lock @entity.cid
+          u = opts.lock @entity.id
           u()
           @el.hide()
           )

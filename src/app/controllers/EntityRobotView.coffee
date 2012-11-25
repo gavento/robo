@@ -38,7 +38,7 @@ define (require, exports, module) ->
             opts.duration ?= 1000 # a random constant for now
           else throw "unknown mover type"
         opts.duration ?= 1000 # random constant just to show some move
-        unlock = opts.lock @entity.cid
+        unlock = opts.lock @entity.id
 
       opts.duration ?= 0
       if opts.speed?

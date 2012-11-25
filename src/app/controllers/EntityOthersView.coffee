@@ -21,7 +21,7 @@ define (require, exports, module) ->
     animate: (opts) =>
       duration = 0
       if opts.lock?
-        unlock = opts.lock @entity.cid
+        unlock = opts.lock @entity.id
         duration = @animDuration
       if opts.speed?
         duration *= opts.speed
