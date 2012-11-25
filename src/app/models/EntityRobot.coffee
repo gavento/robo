@@ -42,16 +42,16 @@ define (require, exports, module) ->
     place: (opts) ->
       if not @isPlaced()
         # Only robot that is not placed can be placed.
+        optsC = Object.create opts
+        optsC.entity = @
+        optsC.oldX = @x
+        optsC.oldY = @y
         if opts? and opts.x? and opts.y?
           @x = opts.x
           @y = opts.y
         else # TODO: respawn point
           @x = 3
           @y = 2
-        optsC = Object.create opts
-        optsC.entity = @
-        optsC.oldX = @x
-        optsC.oldY = @y
         @placed = true
         @trigger "place", optsC
       else
