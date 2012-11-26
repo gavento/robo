@@ -38,14 +38,14 @@ define (require, exports, module) ->
             opts.duration ?= 1000 # a random constant for now
           else throw "unknown mover type"
         opts.duration ?= 1000 # random constant just to show some move
-        unlock = opts.lock @entity.id
+        #unlock = opts.lock @entity.id
 
       opts.duration ?= 0
       if opts.speed?
         opts.duration *= opts.speed
 
       @el.animate({left: @boardView.tileW * @entity.x, top: @boardView.tileH * @entity.y},
-        opts.duration, 'linear', unlock)
+        opts.duration, 'linear', => opts.callback(null))
 
 
   module.exports = RobotView

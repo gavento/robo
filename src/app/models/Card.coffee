@@ -3,7 +3,6 @@ define (require, exports, module) ->
   SimpleModel = require 'cs!app/lib/SimpleModel'
   MultiLock = require 'cs!app/lib/MultiLock'
 
-
   class Card extends SimpleModel
     @configure {name: 'Card', baseClass: true}, 'type', 'priority'
 
@@ -37,29 +36,11 @@ define (require, exports, module) ->
         cmds = (@get 'commands').slice()
         if opts.lock?
           unlock = opts.lock("playOnRobot")
-        f2 = =>
-          optsC = Object.create opts
-          if optsC.lock?
-            ml = new MultiLock f1, 2000
-            unlock3 = ml.getLock("playOnRobot_f2")
-            optsC.lock = ml.getLock
-          optsC.x = robot.x
-          optsC.y = robot.y
-          robot.board.activateOnEnter(optsC)
-          if unlock3?
-            unlock3()
-        f1 = =>
-          console.log cmds
-          if cmds.length <= 0 or not robot.isPlaced()
-            if unlock?
-              unlock()
-              return
+
+        f1 = (callback) =>
           optsC = Object.create opts
           optsC.mover = @
-          if optsC.lock?
-            ml = new MultiLock f2, 2000
-            unlock2 = ml.getLock("playOnRobot_f1")
-            optsC.lock = ml.getLock
+          optsC.callback = callback
           switch cmds.shift()
             when "R"
               optsC.dir = 1
@@ -72,14 +53,23 @@ define (require, exports, module) ->
               robot.turn optsC
             when "S"
               robot.step optsC
-            #when "J" then # TODO
-            #when "B" then # TODO
-            else 
-              #throw "unknown command"
-          if unlock2?
-            unlock2()
-            return
-        f1()
+            else
+              callback("unknown command")
+          
+        f2 = (callback) =>
+          optsC = Object.create opts
+          optsC.x = robot.x
+          optsC.y = robot.y
+          optsC.callback = callback
+          #robot.board.activateOnEnter(optsC)
+          callback(null)
+
+        # play card
+        async.until(
+          => return cmds.length <= 0 or not robot.isPlaced,
+          (callback) => async.waterfall([f1, f2], callback),
+          (err) => unlock()
+        )
       else
         console.log "Skipping ", @, " on ", robot 
     

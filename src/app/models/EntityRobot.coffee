@@ -68,6 +68,7 @@ define (require, exports, module) ->
         opts.x = tx
         opts.y = ty
         @move opts
+      else opts.callback("out of board")
   
     # Turning and the aliases. turn and turnRight are the same
     turn: (opts) ->

@@ -11,6 +11,7 @@
     "http-server": ">= 0.5",
     "requirejs": ">= 2.0",
     "stylus": ">= 0.28",
-    "docker": ">= 0.1.6"
+    "docker": ">= 0.1.6",
+    "async": ">= 0.0.1"
   }
 }

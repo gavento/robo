@@ -92,22 +92,22 @@ define (require, exports, module) ->
 
       opts ?= {}
       duration = @guessDuration opts
-      if opts.lock?
-        unlock = opts.lock @entity.id
+      #if opts.lock?
+      #  unlock = opts.lock @entity.id
       oDir = opts.oldDir.getNumber()
 
       i = 0
       f = =>
         if opts.dir > 0
           if i >= opts.dir
-            CSSSprite(@el, 0, -(oDir + i) * @tileH, 0, 0, 0, 0, true, unlock)
+            CSSSprite(@el, 0, -(oDir + i) * @tileH, 0, 0, 0, 0, true, => opts.callback(null))
           else
             i += 1
             CSSSprite(@el, 0, -(oDir + i - 1) * @tileH, -@tileW, 0,
               duration / @animFrames / opts.dir, @animFrames, false, f)
         if opts.dir < 0
           if i <= opts.dir
-            CSSSprite(@el, 0, -(oDir + i) * @tileH, 0, 0, 0, 0, true, unlock)
+            CSSSprite(@el, 0, -(oDir + i) * @tileH, 0, 0, 0, 0, true, => opts.callback(null))
           else
             i -= 1
             CSSSprite(@el, -@tileW * (@animFrames - 1), -(oDir + i) * @tileH, @tileW, 0,
@@ -123,10 +123,11 @@ define (require, exports, module) ->
 
       opts ?= {}
       duration = @guessDuration opts
-      if opts.lock?
-        unlock = opts.lock @entity.id
+      #if opts.lock?
+      #  unlock = opts.lock @entity.id
       @el.animate({left: @boardView.tileW * @entity.x, top: @boardView.tileH * @entity.y},
-        duration, 'linear', unlock)
+        duration, 'linear', => opts.callback(null)
+      )
 
     # Animate a falling Entity. 
     # `opts.lock` is used for board locking, opts is passed to 
