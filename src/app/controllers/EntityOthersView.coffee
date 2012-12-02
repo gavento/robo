@@ -18,15 +18,9 @@ define (require, exports, module) ->
       @entity.bind "activate", @animate
       @bind "release", (=> @entity.unbind @animate)
 
-    animate: (opts) =>
-      duration = 0
-      if opts.lock?
-        unlock = opts.lock @entity.id
-        duration = @animDuration
-      if opts.speed?
-        duration *= opts.speed
-      y0 = if @entity.dir? then (@entity.dir().getNumber() * @tileH) else 0
-      CSSSprite @el, 0, -y0, -@tileW, 0, @animDuration / @animFrames, @animFrames, true, unlock
+    animate: (opts, lock) =>
+      unlock = lock.getLock("EntityOthersView.animate")
+      @animateEntity(opts, unlock)
 
 
   class ConveyorView extends SimplyAnimatedEntityView
@@ -53,7 +47,7 @@ define (require, exports, module) ->
     animDuration: 60*5
 
   
-  class TurnerView extends EntityView
+  class TurnerView extends SimplyAnimatedEntityView
     animFrames: 9
     animDuration: 450
 
@@ -85,4 +79,8 @@ define (require, exports, module) ->
     ConveyorView: ConveyorView
     ExpressConveyorView: ExpressConveyorView
     CrusherView: CrusherView
+    TurnerRView: TurnerRView
+    TurnerLView: TurnerLView
+    TurnerUView: TurnerUView
+    HoleView: HoleView
 

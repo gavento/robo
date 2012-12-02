@@ -53,87 +53,33 @@ define (require, exports, module) ->
           'left': x * @tileW
           'top': y * @tileH
 
-    # A helper to compute the proper duration of an animation
-    # Currently works well for Entity-induced movement (Conveyors, Turner, ...)
-    # and for Cards (provisionally).
-    #
-    # `opts` may contain:
-    # * `opts.lock` - no lock always gives duration 0, actual value is ignored.
-    # * `opts.duration` - to override anim. duration (speed still applies).
-    # * `opts.speed` - sets relative speed (2 = twice as long).
-    # * `opts.mover` - entity that caused the move.
-    guessDuration: (opts) ->
-      duration = do =>
-        if not opts.lock?
-          return 0
-        if opts.duration
-          return opts.duration
-        if opts.mover?
-          if opts.mover instanceof Entity
-            moverView = @boardView.entityViews[opts.mover.get 'id']
-            return moverView.animationDuration()
-          if opts.mover instanceof Card
-            return 450 # a random constant for now
-          else throw "unknown mover type"
-        console.log "No opts.mover and no opts.duration for ", @, " in ", opts
-        return 1000 # random constant just to show some move
-      if opts.speed?
-        return duration * opts.speed
-      return duration
-
     # Animate a rotating Entity. 
     # `opts.lock` is used for board locking, opts is passed to 
     # guessDuration().
-    rotate: (opts) =>
+    rotate: (opts, lock) =>
       if @passive
         return
       throw "opts.oldDir and opts.dir required" unless opts? and opts.oldDir? and opts.dir?
-      #@log "rotate ", @entity, opts
-
-      opts ?= {}
-      duration = @guessDuration opts
-      #if opts.lock?
-      #  unlock = opts.lock @entity.id
-      oDir = opts.oldDir.getNumber()
-
-      i = 0
-      f = =>
-        if opts.dir > 0
-          if i >= opts.dir
-            CSSSprite(@el, 0, -(oDir + i) * @tileH, 0, 0, 0, 0, true, => opts.callback(null))
-          else
-            i += 1
-            CSSSprite(@el, 0, -(oDir + i - 1) * @tileH, -@tileW, 0,
-              duration / @animFrames / opts.dir, @animFrames, false, f)
-        if opts.dir < 0
-          if i <= opts.dir
-            CSSSprite(@el, 0, -(oDir + i) * @tileH, 0, 0, 0, 0, true, => opts.callback(null))
-          else
-            i -= 1
-            CSSSprite(@el, -@tileW * (@animFrames - 1), -(oDir + i) * @tileH, @tileW, 0,
-              duration / @animFrames / (-opts.dir), @animFrames, false, f)
-      f()
+      unlock = lock.getLock("EntityView.move")
+      @animateEntity(opts, unlock)
 
     # Animate a moving Entity. 
     # `opts.lock` is used for board locking, opts is passed to 
     # guessDuration().
-    move: (opts) =>
+    move: (opts, lock) =>
       if @passive
         return
 
-      opts ?= {}
+      unlock = lock.getLock("EntityView.move")
       duration = @guessDuration opts
-      #if opts.lock?
-      #  unlock = opts.lock @entity.id
       @el.animate({left: @boardView.tileW * @entity.x, top: @boardView.tileH * @entity.y},
-        duration, 'linear', => opts.callback(null)
-      )
+        duration, 'linear', unlock)
 
     # Animate a falling Entity. 
     # `opts.lock` is used for board locking, opts is passed to 
     # guessDuration().
     # TODO: for now implemented as rotation
-    fall: (opts) =>
+    fall: (opts, lock) =>
       if @passive
         return
       throw "opts.oldDir and opts.dir required" unless opts? and opts.oldDir? and opts.dir?
@@ -170,7 +116,7 @@ define (require, exports, module) ->
     # Place an entity back on the board.
     # This is called for robots when they are placed back on the board
     # after they fall into a hole.
-    place: (opts) =>
+    place: (opts, lock) =>
       if @passive
         return
       @log "place ", @entity, opts
@@ -188,5 +134,66 @@ define (require, exports, module) ->
         @el.css 'background-position': "0px 0px"
       @setPosition()
 
+    # A helper to compute the proper duration of an animation
+    # Currently works well for Entity-induced movement (Conveyors, Turner, ...)
+    # and for Cards (provisionally).
+    #
+    # `opts` may contain:
+    # * `opts.lock` - no lock always gives duration 0, actual value is ignored.
+    # * `opts.duration` - to override anim. duration (speed still applies).
+    # * `opts.speed` - sets relative speed (2 = twice as long).
+    # * `opts.mover` - entity that caused the move.
+    guessDuration: (opts) ->
+      opts ?= {}
+      duration = do =>
+        if opts.duration
+          # Entity has fixed animation duration.
+          return opts.duration
+        if opts.mover?
+          # Entity is moved by another entity.
+          if opts.mover instanceof Entity
+            moverView = @boardView.entityViews[opts.mover.get 'id']
+            return moverView.animationDuration()
+          if opts.mover instanceof Card
+            return 450 # a random constant for now
+          else throw "unknown mover type"
+        if @animationDuration() > 0
+          # Entity has its own animation duration.
+          return @animationDuration()
+        console.log "EntityView.guessDuration: No opts.mover and no opts.duration for ", @, " in ", opts
+        return 1000 # random constant just to show some move
+      if opts.speed?
+        # Spead up or slow down the animation duration.
+        return duration * opts.speed
+      return duration
+
+    animateEntity: (opts, callback) =>
+      duration = @guessDuration opts
+      direction = if opts.dir? then opts.dir else 0
+      oldDir = if opts.oldDir? then opts.oldDir.getNumber() else 0
+
+      i = 0
+      f = =>
+        if direction > 0
+          # Entity will be rotated clockwise.
+          if i >= direction
+            CSSSprite(@el, 0, -(oldDir + i) * @tileH, 0, 0, 0, 0, true, callback)
+          else
+            i += 1
+            CSSSprite(@el, 0, -(oldDir + i - 1) * @tileH, -@tileW, 0,
+              duration / @animFrames / direction, @animFrames, false, f)
+        if direction < 0
+          # Entity will be rotated counter clockwise.
+          if i <= direction
+            CSSSprite(@el, 0, -(oldDir + i) * @tileH, 0, 0, 0, 0, true, callback)
+          else
+            i -= 1
+            CSSSprite(@el, -@tileW * (@animFrames - 1), -(oldDir + i) * @tileH, @tileW, 0,
+              duration / @animFrames / (-direction), @animFrames, false, f)
+        if direction == 0
+          # Entity will not be rotated, only animated.
+          y0 = if @entity.dir? then (@entity.dir().getNumber() * @tileH) else 0
+          CSSSprite(@el, 0, -y0, -@tileW, 0, duration / @animFrames, @animFrames, true, callback)
+      f()
 
   module.exports = EntityView

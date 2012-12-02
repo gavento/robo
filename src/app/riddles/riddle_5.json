@@ -1,0 +1,55 @@
+{
+  "name": "Riddle 5 -- Turners",
+  "board": {
+    "width": 5,
+    "height": 5,
+    "entities": [
+      {
+        "x": 1,
+        "y": 2,
+        "type": "R",
+        "id": "Entity-R1",
+        "dir": "N"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "type": "L",
+        "id": "Entity-L1",
+        "dir": "E"
+      },
+      {
+        "x": 3,
+        "y": 2,
+        "type": "U",
+        "id": "Entity-U1",
+        "dir": "S"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "type": "Robot",
+        "id": "Robot-1",
+        "name": "Cervenacek",
+        "dir": "E",
+        "image": "roombo-r.png",
+        "health": 7,
+        "cards": [
+  	      {"type": "S", "priority": 220, "commands": "S L" },
+          {"type": "S", "priority": 107, "commands": "S R" },
+          {"type": "S", "priority":  42, "commands": "S U" },
+          {"type": "S", "priority": 278, "commands": "S U" }
+      	]
+      }
+    ]
+  },
+  "players": [
+    {
+      "name": "Tester",
+      "robotIds": [
+        "Robot-1"
+      ]
+    }
+  ]
+}
+

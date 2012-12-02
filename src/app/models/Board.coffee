@@ -147,24 +147,18 @@ define (require, exports, module) ->
     # of no more phases.
     # Passes `attr` extended with `phase` and `afterHooks` to `Entity.activate`.
     # Optionally, `eByP` can be a precomputed value of `@entitiesByPhase`.
-    activateOnePhase: (attrs, fromTime=-1, eByP) ->
+    activateOnePhase: (attrs, t, eByP, callback) ->
       eByP ?= @entitiesByPhase()
-      phases = (Number(k) for k in _.keys(eByP))
-      phases.sort()
+      attrsCopy = Object.create attrs
+      attrsCopy.afterHooks = []
 
-      for t in phases
-        if t > fromTime
-          attrsCopy = Object.create attrs
-          # Somewhat a HACK: FIFO of hooks to execute after phase
-          attrsCopy.afterHooks = []
-          attrsCopy.phase = t
-          for e in eByP[t]
-            e.activate attrsCopy
-          while attrsCopy.afterHooks.length > 0
-            cb = attrsCopy.afterHooks.shift()
-            cb()
-          return t
-      return -1
+      # Activate all entities with the same activation phase simultaneously.
+      # Perform hooks that should be executed after the phase is finished
+      # and call the callback function when finished.
+      async.parallel([
+        (cb2) => async.forEach(eByP[t], ((e, cb) => e.activate(attrsCopy, cb)), cb2)
+        (cb2) => async.parallel(attrsCopy.afterHooks, cb2)],
+        callback)
 
     activateOnEnter: (attrs) ->
       throw "attrs.x and attrs.y required" unless attrs? and attrs.x? and attrs.y?
@@ -206,21 +200,20 @@ define (require, exports, module) ->
     # For every phase, a `Multilock` is created with the given timeout (in ms, 5s default).
     # Passes `attrs` to `activateOnePhase` and subsequently to `Entity.activate`.
     # After all phases, `callback` is called.
-    activateBoardLocking: (attrs, callback, timeout=5000) ->
+    activateBoardLocking: (attrs, callback) ->
       eByP = @entitiesByPhase()
-      t = -0.5
-      f = =>
-        if t > -1
+      phases = (Number(k) for k in _.keys(eByP))
+      phases.sort()
+
+      # Activate all phases in sequence. Ie. the next phase will be executed
+      # only after the previous phase finished. When all phases are finished
+      # callback function will be called.
+      async.forEachSeries(
+        phases,
+        ((phase, cb) =>
           attrsCopy = Object.create attrs
-          multilock = new MultiLock f, timeout
-          attrsCopy.lock = (args...) -> multilock.getLock args...
-          attrsCopy.timeout = timeout
-          unlock = attrsCopy.lock "Board"
-          t = @activateOnePhase attrsCopy, t, eByP
-          unlock()
-        else
-          if callback
-            callback()
-      f()
+          @activateOnePhase attrsCopy, phase, eByP, cb),
+        callback)
+
 
   module.exports = Board

@@ -21,6 +21,10 @@ define (require, exports, module) ->
     constructor: (dir) ->
       @dir = @constructor.toNumber dir
 
+    turn: (amount) ->
+      throw "Direction.turn: No amount given." unless amount?
+      @dir = @constructor.toNumber(@dir + amount)
+
     turnRight: (amount = 1) ->
       @dir = @constructor.toNumber(@dir + amount)
 

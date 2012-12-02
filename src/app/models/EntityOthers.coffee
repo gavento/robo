@@ -11,19 +11,27 @@ define (require, exports, module) ->
     getPhases: -> [20]
 
     # this is VERY simple and naive
-    activate: (opts) ->
+    activate: (opts, callback) ->
       super
       tx = @x + @dir().dx()
       ty = @y + @dir().dy()
-      if @board.inside tx, ty
-        for e in @board.tile @x, @y
-          if e.isMovable()
-            opts.afterHooks.push =>
-              oc = Object.create opts
-              oc.x = tx
-              oc.y = ty
-              oc.mover = @
-              e.move oc
+      # For now, the conveyor can not move entity outside of the board.
+      if not @board.inside tx, ty
+        callback(null)
+        return
+
+      # Move all movable entities on this tile.
+      # But not right now, just create functions to move them. These
+      # functions will be executed after all entities are activated.
+      # Otherwise a robot would be moved by all successive conveyors.
+      for e in @board.tile @x, @y
+        if e.isMovable()
+          opts.afterHooks.push( (cb2) =>
+            optsC = Object.create opts
+            optsC.x = tx
+            optsC.y = ty
+            optsC.mover = @
+            e.move optsC, cb2)
 
 
   class ExpressConveyor extends Conveyor
@@ -37,11 +45,17 @@ define (require, exports, module) ->
 
     getPhases: -> [50]
 
-    activate: (opts) ->
+    activate: (opts, callback) ->
       super
+
+      # Crush (damage) all entities on this turner.
       for e in @board.tile @x, @y
         if e.isRobot()
-          e.damage {damage: 1, source: @}
+          opts.afterHooks.push( (cb) =>
+            optsC = Object.create opts
+            optsC.damage = 1
+            optsC.source = @
+            e.damage optsC, cb)
 
 
   class Turner extends Entity
@@ -52,18 +66,25 @@ define (require, exports, module) ->
     turnDirection: 0
 
     # this is simple and naive
-    activate: (opts) ->
-      super
-      for e in @board.tile @x, @y
-        if e.isMovable()
-          optsC = Object.create opts
-          optsC.mover = @
-          optsC.dir = @turnDirection
-          e.rotate optsC
+    activate: (opts, callback) ->
+      dir = (@get "dir")
       optsC = Object.create opts
+      optsC.oldDir = dir.copy()
       optsC.dir = @turnDirection
       optsC.mover = @
-      @rotate optsC
+      super optsC, callback
+
+      # Change direction of the turner itself.
+      dir.turn(@turnDirection)
+
+      # Rotate all movable entities on this turner.
+      for e in @board.tile @x, @y
+        if e.isMovable()
+          opts.afterHooks.push((cb) =>
+            optsC = Object.create opts
+            optsC.mover = @
+            optsC.dir = @turnDirection
+            e.rotate optsC, cb)
 
 
   class TurnerR extends Turner
@@ -84,18 +105,25 @@ define (require, exports, module) ->
   class Hole extends Entity
     @configure {name:'Hole', subClass:true, registerAs: 'H'}
 
-    #getPhases: -> [100]
     isActivatedOnEnter: -> true
-    activate: (opts) ->
+
+    activate: (opts, callback) ->
       super
-      for e in @board.tile @x, @y
+      async.forEach(@board.tile(@x, @y), ((e, cb) =>
         if e.isMovable()
           optsC = Object.create opts
-          #optsC.mover = @
           optsC.duration = 500
-          #optsC.dir = @turnDirection
-          e.fall optsC
-          e.damage {damage: 1, source: @}
+          # Perform fall and damage in parallel.
+          async.parallel(
+            [
+              (cb2) => e.fall(optsC, cb2),
+              (cb2) => e.damage({damage:1, source: @}, cb2)
+            ],
+            cb)
+        else
+          cb(null)
+        ), callback)
+
 
   module.exports =
     Conveyor: Conveyor

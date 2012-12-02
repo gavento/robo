@@ -13,6 +13,7 @@ define (require, exports, module) ->
           new Submenu(2, "2", (-> @navigate("/riddles/2")), []),
           new Submenu(2, "3", (-> @navigate("/riddles/3")), []),
           new Submenu(2, "4", (-> @navigate("/riddles/4")), [])
+          new Submenu(2, "5", (-> @navigate("/riddles/5")), [])
           ])
         ]
       for s in @submenus

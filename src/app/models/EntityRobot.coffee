@@ -15,13 +15,13 @@ define (require, exports, module) ->
       @placed = true
       super
 
-    damage: (opts) ->
+    damage: (opts, callback) ->
       throw "opts.damage required" unless opts? and opts.damage?
       @health -= opts.damage
-      @trigger "damage", opts
-      @trigger "update"
+      @triggerLockedEvent("damage", opts, callback)
+      #@trigger "update"
 
-    fall: (opts) ->
+    fall: (opts, callback) ->
       throw "opts.dir required" unless opts?
       optsC = Object.create opts
       optsC.entity = @
@@ -29,7 +29,7 @@ define (require, exports, module) ->
       optsC.oldDir = (@get "dir").copy()
       (@get "dir").turnRight optsC.dir
       @placed = false
-      @trigger "fall", optsC
+      @triggerLockedEvent("fall", optsC, callback)
 
     # Returns true if the robot is currently placed on the board.
     # Returns false if the robot is not on the board. It happens
@@ -39,7 +39,7 @@ define (require, exports, module) ->
 
     # Place the robot at position `opts.x`, `opts.y`. If no coordinates are
     # specified than the robot will be placed on its respawn point.
-    place: (opts) ->
+    place: (opts, callback) ->
       if not @isPlaced()
         # Only robot that is not placed can be placed.
         optsC = Object.create opts
@@ -53,34 +53,34 @@ define (require, exports, module) ->
           @x = 3
           @y = 2
         @placed = true
-        @trigger "place", optsC
+        @triggerLockedEvent("place", optsC, callback)
       else
         throw "Placing robot that is already placed."
 
     isMovable: -> true
     isRobot: -> true
 
-    step: (opts) ->
+    step: (opts, callback) ->
       opts ?= {}
       tx = @x + @get('dir').dx()
       ty = @y + @get('dir').dy()
       if @board.inside tx, ty
         opts.x = tx
         opts.y = ty
-        @move opts
-      else opts.callback("out of board")
+        @move opts, callback
+      else callback(null)
   
     # Turning and the aliases. turn and turnRight are the same
-    turn: (opts) ->
-      @rotate opts
+    turn: (opts, callback) ->
+      @rotate opts, callback
 
-    turnRight: (opts) ->
-      @turn opts
+    turnRight: (opts, callback) ->
+      @turn opts, callback
 
-    turnLeft: (opts) ->
+    turnLeft: (opts, callback) ->
       optsC = Object.create opts
       optsC.dir = -opts.dir
-      @turn optsC
+      @turn optsC, callback
 
 
   module.exports = Robot

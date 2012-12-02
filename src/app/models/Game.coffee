@@ -3,7 +3,6 @@ define (require, exports, module) ->
   SimpleModel = require "cs!app/lib/SimpleModel"
   Board = require "cs!app/models/Board"
   Player = require "cs!app/models/Player"
-  MultiLock = require "cs!app/lib/MultiLock"
   Stateful = require "cs!app/lib/Stateful"
 
   class Game extends SimpleModel
@@ -155,10 +154,7 @@ define (require, exports, module) ->
       robot = @getSortedRobots()[@robotIndex]
       cards = robot.get 'cards'
       card = cards[@cardIndex]
-      ml = new MultiLock (=> @state.transition("RobotOver") ), 5000
-      unlock = ml.getLock "RobotPlay::Next"
-      card.playOnRobot robot, {lock: ml.getLock}
-      unlock()
+      card.playOnRobot(robot, {}, (=> @state.transition("RobotOver")))
   
   class Game::States::RobotOver
     next: ->
@@ -176,7 +172,7 @@ define (require, exports, module) ->
   
   class Game::States::BoardActive
     next: ->
-      @board().activateBoardLocking({}, (=> @state.transition("BoardOver")), 5000)
+      @board().activateBoardLocking({}, (=> @state.transition("BoardOver")))
   
   class Game::States::BoardOver
     next: ->

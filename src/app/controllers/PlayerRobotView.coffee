@@ -31,7 +31,7 @@ define (require, exports, module) ->
         @cardViews.push cv
         @bind "release", (=> cv.release())
 
-      @robot.bind("update", @render)
+      @robot.bind("damage", @render)
       @bind "release", (=> @robot.unbind @render)
       #DEBUG# @bind "release", (=> @log "releasing ", @)
       @render()
