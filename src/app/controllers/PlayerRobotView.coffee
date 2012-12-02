@@ -53,7 +53,7 @@ define (require, exports, module) ->
             unlock()
         f 0
       @append @$("<button class='PlayerRobotViewButtonPlaceRobot'>Place robot</button>")
-      @$('.PlayerRobotViewButtonPlaceRobot').click => @robot.place({})
+      @$('.PlayerRobotViewButtonPlaceRobot').click => @robot.place({}, (->) )
       if @robot.isPlaced()
         @$('.PlayerRobotViewButtonPlaceRobot').attr("disabled", "disabled")
 

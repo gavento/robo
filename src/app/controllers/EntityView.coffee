@@ -83,7 +83,10 @@ define (require, exports, module) ->
       # First animate the entity and then hide it.
       async.series(
         [ ((cb) => @animateEntity(opts, cb)),
-          ((cb) => @el.hide())]
+          ((cb) =>
+            @el.hide()
+            cb(null))],
+        unlock)
 
     # Place an entity back on the board.
     # This is called for robots when they are placed back on the board
