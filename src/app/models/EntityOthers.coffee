@@ -109,20 +109,15 @@ define (require, exports, module) ->
 
     activate: (opts, callback) ->
       super
-      async.forEach(@board.tile(@x, @y), ((e, cb) =>
+      for e in @board.tile @x, @y
         if e.isMovable()
           optsC = Object.create opts
           optsC.duration = 500
           # Perform fall and damage in parallel.
           async.parallel(
-            [
-              (cb2) => e.fall(optsC, cb2),
-              (cb2) => e.damage({damage:1, source: @}, cb2)
-            ],
-            cb)
-        else
-          cb(null)
-        ), callback)
+            [ ((cb2) => e.fall(optsC, cb2)),
+              ((cb2) => e.damage({damage:1, source: @}, cb2))],
+            callback)
 
 
   module.exports =

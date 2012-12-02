@@ -159,34 +159,23 @@ define (require, exports, module) ->
         (cb2) => async.forEach(eByP[t], ((e, cb) => e.activate(attrsCopy, cb)), cb2)
         (cb2) => async.parallel(attrsCopy.afterHooks, cb2)],
         callback)
-
-    activateOnEnter: (attrs) ->
+    
+    # Activate tile entered by a robot. Only some tiles are activated immediately 
+    # when robot enters them (eg. hole).
+    activateOnEnter: (attrs, callback) ->
       throw "attrs.x and attrs.y required" unless attrs? and attrs.x? and attrs.y?
       #console.log "activateOnEnter", attrs, ent
       ent = @tile attrs.x, attrs.y
-      if attrs.lock?
-        unlock = attrs.lock("activateOnEnter")
-      i = 0
-      f = =>
-        if i >= ent.length
-          if unlock?
-            unlock()
-            return
-
-        e = ent[i++]
-        if e.isActivatedOnEnter()
-          console.log "activating", e
-          attrsCopy = Object.create attrs
-          if attrsCopy.lock?
-            ml = new MultiLock f, 2000
-            unlock2 = ml.getLock("activateOnEnter_f")
-            attrsCopy.lock = ml.getLock
-          e.activate attrsCopy
-          if unlock2?
-            unlock2()
-      f()
-      if unlock?
-        unlock()
+      async.forEach(
+        ent,
+        ((e, cb) =>
+          if e.isActivatedOnEnter()
+            console.log "activating", e
+            attrsCopy = Object.create attrs
+            e.activate attrsCopy, cb
+          else
+            cb(null)),
+        callback)
 
     # Activate the board, synchronously. Note that this does not do any locking or animation synchronization.
     # Passes `attrs` to `activateOnePhase` and subsequently to `Entity.activate`

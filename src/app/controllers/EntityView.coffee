@@ -60,7 +60,7 @@ define (require, exports, module) ->
       if @passive
         return
       throw "opts.oldDir and opts.dir required" unless opts? and opts.oldDir? and opts.dir?
-      unlock = lock.getLock("EntityView.move")
+      unlock = lock.getLock("EntityView.rotate")
       @animateEntity(opts, unlock)
 
     # Animate a moving Entity. 
@@ -76,42 +76,14 @@ define (require, exports, module) ->
         duration, 'linear', unlock)
 
     # Animate a falling Entity. 
-    # `opts.lock` is used for board locking, opts is passed to 
-    # guessDuration().
-    # TODO: for now implemented as rotation
     fall: (opts, lock) =>
       if @passive
         return
-      throw "opts.oldDir and opts.dir required" unless opts? and opts.oldDir? and opts.dir?
-      @log "fall ", @entity, opts
-
-      opts ?= {}
-      duration = @guessDuration opts
-      if opts.lock?
-        unlock = (=>
-          u = opts.lock @entity.id
-          u()
-          @el.hide()
-          )
-      oDir = opts.oldDir.getNumber()
-
-      i = 0
-      f = =>
-        if opts.dir > 0
-          if i >= opts.dir
-            CSSSprite(@el, 0, -(oDir + i) * @tileH, 0, 0, 0, 0, true, unlock)
-          else
-            i += 1
-            CSSSprite(@el, 0, -(oDir + i - 1) * @tileH, -@tileW, 0,
-              duration / @animFrames / opts.dir, @animFrames, false, f)
-        if opts.dir < 0
-          if i <= opts.dir
-            CSSSprite(@el, 0, -(oDir + i) * @tileH, 0, 0, 0, 0, true, unlock)
-          else
-            i -= 1
-            CSSSprite(@el, -@tileW * (@animFrames - 1), -(oDir + i) * @tileH, @tileW, 0,
-              duration / @animFrames / (-opts.dir), @animFrames, false, f)
-      f()
+      unlock = lock.getLock("EntityView.fall")
+      # First animate the entity and then hide it.
+      async.series(
+        [ ((cb) => @animateEntity(opts, cb)),
+          ((cb) => @el.hide())]
 
     # Place an entity back on the board.
     # This is called for robots when they are placed back on the board

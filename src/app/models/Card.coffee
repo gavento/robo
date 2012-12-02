@@ -57,17 +57,16 @@ define (require, exports, module) ->
           optsC = Object.create opts
           optsC.x = robot.x
           optsC.y = robot.y
-          #robot.board.activateOnEnter(optsC, cb)
-          cb(null)
+          robot.board.activateOnEnter(optsC, cb)
 
         # play card
         async.until(
           => return cmds.length <= 0 or not robot.isPlaced,
           (cb) => async.waterfall([f1, f2], cb),
-          (err) => callback(null)
-        )
+          (err) => callback(null))
       else
-        console.log "Skipping ", @, " on ", robot 
+        console.log "Skipping ", @, " on ", robot
+        callback(null)
     
     select: ->
       @selected = not @selected
