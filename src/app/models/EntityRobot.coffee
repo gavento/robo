@@ -64,11 +64,11 @@ define (require, exports, module) ->
       opts ?= {}
       tx = @x + @get('dir').dx()
       ty = @y + @get('dir').dy()
-      if @board.inside tx, ty
-        opts.x = tx
-        opts.y = ty
-        @move opts, callback
-      else callback(null)
+      # The computed position may be outside of the board. In that
+      # case the robot will fall.
+      opts.x = tx
+      opts.y = ty
+      @move opts, callback
   
     # Turning and the aliases. turn and turnRight are the same
     turn: (opts, callback) ->

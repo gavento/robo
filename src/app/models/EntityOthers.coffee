@@ -72,7 +72,6 @@ define (require, exports, module) ->
       optsC.oldDir = dir.copy()
       optsC.dir = @turnDirection
       optsC.mover = @
-      super optsC, callback
 
       # Change direction of the turner itself.
       dir.turn(@turnDirection)
@@ -85,6 +84,7 @@ define (require, exports, module) ->
             optsC.mover = @
             optsC.dir = @turnDirection
             e.rotate optsC, cb)
+      super optsC, callback
 
 
   class TurnerR extends Turner
@@ -108,16 +108,17 @@ define (require, exports, module) ->
     isActivatedOnEnter: -> true
 
     activate: (opts, callback) ->
-      super
-      for e in @board.tile @x, @y
+      for e in @board.tile opts.x, opts.y
         if e.isMovable()
-          optsC = Object.create opts
-          optsC.duration = 500
-          # Perform fall and damage in parallel.
-          async.parallel(
-            [ ((cb2) => e.fall(optsC, cb2)),
-              ((cb2) => e.damage({damage:1, source: @}, cb2))],
-            callback)
+          opts.afterHooks.push((cb) =>
+            optsC = Object.create opts
+            optsC.duration = 500
+            # Perform fall and damage in parallel.
+            async.parallel(
+              [ ((cb2) => e.fall(optsC, cb2)),
+                ((cb2) => e.damage({damage:1, source: @}, cb2))],
+              cb))
+      super
 
 
   module.exports =

@@ -34,11 +34,13 @@ define (require, exports, module) ->
         #console.log "Playing ", @, " on ", robot, " with ", opts
         cmds = (@get 'commands').slice()
 
+        # This function handles the movement.
         f1 = (cb) =>
+          cmd = cmds.shift()
           optsC = Object.create opts
           optsC.mover = @
           optsC.callback = callback
-          switch cmds.shift()
+          switch cmd
             when "R"
               optsC.dir = 1
               robot.turn(optsC, cb)
@@ -52,7 +54,9 @@ define (require, exports, module) ->
               robot.step(optsC, cb)
             else
               cb(null)
-          
+        
+        # This function handles the activation of the entity the robot
+        # just entered.
         f2 = (cb) =>
           optsC = Object.create opts
           optsC.x = robot.x
@@ -60,8 +64,8 @@ define (require, exports, module) ->
           robot.board.activateOnEnter(optsC, cb)
 
         # play card
-        async.until(
-          => return cmds.length <= 0 or not robot.isPlaced,
+        async.whilst(
+          => return cmds.length > 0  and robot.isPlaced(),
           (cb) => async.waterfall([f1, f2], cb),
           (err) => callback(null))
       else

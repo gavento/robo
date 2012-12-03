@@ -6,7 +6,7 @@ define (require, exports, module) ->
 
   # Load all Entity subtypes for loading
   Entity = require 'cs!app/models/Entity'
-  require 'cs!app/models/EntityOthers'
+  EO = require 'cs!app/models/EntityOthers'
   require 'cs!app/models/EntityRobot'
 
 
@@ -27,7 +27,8 @@ define (require, exports, module) ->
   # * `entityById_` - map of entities by their id.
 
   class Board extends SimpleModel
-    @configure {name: 'Board'}, 'width', 'height', 'entities'
+    @configure {name: 'Board'}, 'width', 'height', 'entities', 'entitiesOutside', 'hole'
+    @typedProperty 'hole', EO.Hole
 
 
     constructor: (atts) ->
@@ -35,6 +36,8 @@ define (require, exports, module) ->
       @height_ = 0
       @entities_ = []
       @tiles_ = {}
+      @hole_ ?= new EO.Hole({x: -1, y: -1, type: 'H'})
+      @hole_.board = @
       @entityById_ = {}
       super atts
 
@@ -114,7 +117,11 @@ define (require, exports, module) ->
       if (@inside x, y) and @tiles_[x]? and @tiles_[x][y]?
         return @tiles_[x][y]
       else
-        return []
+        entities = [@hole_]
+        for e in @entities_
+          if e.x == x && e.y == y
+            entities.push(e)
+        return entities
 
 
     # Update internal structures on Entity move. Internal,
@@ -164,17 +171,15 @@ define (require, exports, module) ->
     # when robot enters them (eg. hole).
     activateOnEnter: (attrs, callback) ->
       throw "attrs.x and attrs.y required" unless attrs? and attrs.x? and attrs.y?
-      #console.log "activateOnEnter", attrs, ent
-      ent = @tile attrs.x, attrs.y
-      async.forEach(
-        ent,
-        ((e, cb) =>
-          if e.isActivatedOnEnter()
-            console.log "activating", e
-            attrsCopy = Object.create attrs
-            e.activate attrsCopy, cb
-          else
-            cb(null)),
+      ent = (e for e in @tile(attrs.x, attrs.y) when e.isActivatedOnEnter())
+      attrsCopy = Object.create attrs
+      attrsCopy.afterHooks = []
+
+      # Activate all entities at given position that should be activated on
+      # enter. After that perform hooks.
+      async.parallel([
+        (cb2) => async.forEach(ent, ((e, cb) => e.activate(attrsCopy, cb)), cb2),
+        (cb2) => async.parallel(attrsCopy.afterHooks, cb2)],
         callback)
 
     # Activate the board, synchronously. Note that this does not do any locking or animation synchronization.
