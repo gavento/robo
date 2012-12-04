@@ -54,20 +54,12 @@ define (require, exports, module) ->
               robot.step(optsC, cb)
             else
               cb(null)
-        
-        # This function handles the activation of the entity the robot
-        # just entered.
-        f2 = (cb) =>
-          optsC = Object.create opts
-          optsC.x = robot.x
-          optsC.y = robot.y
-          robot.board.activateOnEnter(optsC, cb)
 
         # play card
         async.whilst(
           => return cmds.length > 0  and robot.isPlaced(),
-          (cb) => async.waterfall([f1, f2], cb),
-          (err) => callback(null))
+          f1,
+          => callback(null))
       else
         console.log "Skipping ", @, " on ", robot
         callback(null)

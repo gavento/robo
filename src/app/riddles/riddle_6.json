@@ -1,0 +1,120 @@
+{
+  "name": "Riddle 5 -- Turners",
+  "board": {
+    "width": 5,
+    "height": 5,
+    "entities": [
+      {
+        "x": 2,
+        "y": 0,
+        "type": "E",
+        "id": "Entity-1",
+        "dir": "N"
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "type": "E",
+        "id": "Entity-2",
+        "dir": "N"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "type": "C",
+        "id": "Entity-3",
+        "dir": "W"
+      },
+      {
+        "x": 4,
+        "y": 2,
+        "type": "C",
+        "id": "Entity-4",
+        "dir": "E"
+      },
+      {
+        "x": 2,
+        "y": 4,
+        "type": "C",
+        "id": "Entity-5",
+        "dir": "S"
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "type": "Robot",
+        "id": "Robot-1",
+        "name": "Dead man 1",
+        "dir": "W",
+        "image": "roombo-r.png",
+        "health": 7,
+        "cards": [
+  	      {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" }
+      	]
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "type": "Robot",
+        "id": "Robot-2",
+        "name": "Dead man 2",
+        "dir": "S",
+        "image": "roombo-g.png",
+        "health": 7,
+        "cards": [
+  	      {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" }
+      	]
+      },
+      {
+        "x": 3,
+        "y": 2,
+        "type": "Robot",
+        "id": "Robot-3",
+        "name": "Dead man 3",
+        "dir": "E",
+        "image": "roombo-b.png",
+        "health": 7,
+        "cards": [
+  	      {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" }
+      	]
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "type": "Robot",
+        "id": "Robot-4",
+        "name": "Dead man 4",
+        "dir": "N",
+        "image": "roombo-y.png",
+        "health": 7,
+        "cards": [
+  	      {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" }
+      	]
+      }
+    ]
+  },
+  "players": [
+    {
+      "name": "Killer",
+      "robotIds": [
+        "Robot-1",
+        "Robot-2",
+        "Robot-3",
+        "Robot-4"
+      ]
+    }
+  ]
+}
+
