@@ -160,11 +160,14 @@ define (require, exports, module) ->
       attrsCopy.afterHooks = []
 
       # Activate all entities with the same activation phase simultaneously.
-      # Perform hooks that should be executed after the phase is finished
-      # and call the callback function when finished.
-      async.parallel([
-        (cb2) => async.forEach(eByP[t], ((e, cb) => e.activate(attrsCopy, cb)), cb2)
-        (cb2) => async.parallel(attrsCopy.afterHooks, cb2)],
+      # Perform hooks that should be executed after the phase is finished.
+      # Finally activate all tiles occupied by robots.
+      async.series([
+        ((cb3) => async.parallel([
+          (cb2) => async.forEach(eByP[t], ((e, cb) => e.activate(attrsCopy, cb)), cb2),
+          (cb2) => async.parallel(attrsCopy.afterHooks, cb2)],
+           cb3)),
+        (cb3) => @activateOccupiedTiles(attrsCopy, cb3)],
         callback)
     
     # Activate tile entered by a robot. Only some tiles are activated immediately 
@@ -180,6 +183,20 @@ define (require, exports, module) ->
       async.parallel([
         (cb2) => async.forEach(ent, ((e, cb) => e.activate(attrsCopy, cb)), cb2),
         (cb2) => async.parallel(attrsCopy.afterHooks, cb2)],
+        callback)
+
+    # Activate tiles that are occupied by a movable entity. This is called
+    # after each phase.
+    activateOccupiedTiles: (attrs, callback) ->
+      # Get all movable entities and activate tiles these entities
+      # are standing on.
+      ent = (e for e in @entities_ when e.isMovable())
+      async.forEach(ent,
+        ((e, cb) =>
+          attrsCopy = Object.create attrs
+          attrsCopy.x = e.x
+          attrsCopy.y = e.y
+          @activateOnEnter(attrsCopy, cb)),
         callback)
 
     # Activate the board, synchronously. Note that this does not do any locking or animation synchronization.

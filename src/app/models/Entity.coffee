@@ -27,10 +27,7 @@ define (require, exports, module) ->
       optsC.oldY = @y
       @x = optsC.x
       @y = optsC.y
-      async.series(
-        [ ((cb) => @triggerLockedEvent("move", optsC, cb)),
-          ((cb) => @board.activateOnEnter(optsC, cb))],
-        callback)
+      @triggerLockedEvent("move", optsC, callback)
 
     # Rotate the entity right, with animation if opts.lock given.
     # Makes sense only for Entities with @dir.

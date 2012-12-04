@@ -55,10 +55,18 @@ define (require, exports, module) ->
             else
               cb(null)
 
+        # This function handles the activation of the tile the robot
+        # just entered.
+        f2 = (cb) =>
+          optsC = Object.create opts
+          optsC.x = robot.x
+          optsC.y = robot.y
+          robot.board.activateOnEnter(optsC, cb)
+
         # play card
         async.whilst(
           => return cmds.length > 0  and robot.isPlaced(),
-          f1,
+          (cb) => async.series([f1, f2], cb),
           => callback(null))
       else
         console.log "Skipping ", @, " on ", robot

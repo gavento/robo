@@ -12,13 +12,8 @@ define (require, exports, module) ->
 
     # this is VERY simple and naive
     activate: (opts, callback) ->
-      super
       tx = @x + @dir().dx()
       ty = @y + @dir().dy()
-      # For now, the conveyor can not move entity outside of the board.
-      if not @board.inside tx, ty
-        callback(null)
-        return
 
       # Move all movable entities on this tile.
       # But not right now, just create functions to move them. These
@@ -32,6 +27,7 @@ define (require, exports, module) ->
             optsC.y = ty
             optsC.mover = @
             e.move optsC, cb2)
+      super
 
 
   class ExpressConveyor extends Conveyor
