@@ -172,7 +172,7 @@ define (require, exports, module) ->
   
   class Game::States::BoardActive
     next: ->
-      @board().activateBoardLocking({}, (=> @state.transition("BoardOver")))
+      @board().activateBoard({}, (=> @state.transition("BoardOver")))
   
   class Game::States::BoardOver
     next: ->

@@ -43,8 +43,7 @@ define (require, exports, module) ->
       board = @game.board()
       buttons = $('.button-activate')
       buttons.attr "disabled", "disabled"
-      board.activateBoardLocking {}, ->
-        buttons.removeAttr "disabled"
+      board.activateBoard({}, -> buttons.removeAttr "disabled")
     
   # Experimental class for synchronous sync of inputbox contents.
   class TestInputBox extends Spine.Controller

@@ -112,7 +112,8 @@ define (require, exports, module) ->
       return x >= 0 and y >= 0 and x < @get('width') and y < @get('height')
 
 
-    # Return list of entities at `[x][y]`. Returns `[]` outside the board.
+    # Return list of entities at `[x][y]`. If the coordinates are outside
+    # the board than `hole` entity is always part of the returned list.
     tile: (x, y) ->
       if (@inside x, y) and @tiles_[x]? and @tiles_[x][y]?
         return @tiles_[x][y]
@@ -149,10 +150,8 @@ define (require, exports, module) ->
           eByP[p].push(e)
       return eByP
 
-    # Activate all entities within ONE phase after phase `fromTime` (exclusive).
-    # Returns the actually activated phase number (pass this to the next iteration) or -1 in case
-    # of no more phases.
-    # Passes `attr` extended with `phase` and `afterHooks` to `Entity.activate`.
+    # Activate all entities within phase `t`.
+    # Passes `attr` extended with `afterHooks` to `Entity.activate`.
     # Optionally, `eByP` can be a precomputed value of `@entitiesByPhase`.
     activateOnePhase: (attrs, t, eByP, callback) ->
       eByP ?= @entitiesByPhase()
@@ -170,8 +169,16 @@ define (require, exports, module) ->
         (cb3) => @activateOccupiedTiles(attrsCopy, cb3)],
         callback)
     
-    # Activate tile entered by a robot. Only some tiles are activated immediately 
-    # when robot enters them (eg. hole).
+    # ### Board.activateOnEnter ###
+    #
+    # Activate tile entered by a robot.  
+    # Only some tiles are activated immediately when robot enters them 
+    # (eg. hole). This is also called after each phase on all occupied tiles.
+    #
+    # * `attrs` Object containing all options for the tile activation. 
+    #   It is passed to to `Entity.activate`.
+    # * `callback` Callback that is called after all entitnies on given tile
+    #   have been activated.
     activateOnEnter: (attrs, callback) ->
       throw "attrs.x and attrs.y required" unless attrs? and attrs.x? and attrs.y?
       ent = (e for e in @tile(attrs.x, attrs.y) when e.isActivatedOnEnter())
@@ -185,8 +192,17 @@ define (require, exports, module) ->
         (cb2) => async.parallel(attrsCopy.afterHooks, cb2)],
         callback)
 
-    # Activate tiles that are occupied by a movable entity. This is called
-    # after each phase.
+    # ### Board.activateOccupiedTiles ###
+    #
+    # Activate tiles that are occupied by a movable entity.  
+    # Only some entities are activated when occupied (hole, water, etc.). 
+    # This is called after each phase.
+    #
+    # * `attrs` Object containing all options for the tile activation. 
+    #   It is passed to  `Board.activateOnEnter` and subsequently
+    #   to `Entity.activate`.
+    # * `callback` Callback that is called after all occupied tiles have been
+    #   activated.
     activateOccupiedTiles: (attrs, callback) ->
       # Get all movable entities and activate tiles these entities
       # are standing on.
@@ -199,19 +215,19 @@ define (require, exports, module) ->
           @activateOnEnter(attrsCopy, cb)),
         callback)
 
-    # Activate the board, synchronously. Note that this does not do any locking or animation synchronization.
-    # Passes `attrs` to `activateOnePhase` and subsequently to `Entity.activate`
-    activateBoard: (attrs) ->
-      eByP = @entitiesByPhase()
-      t = -0.5
-      while t > -1
-        t = @activateOnePhase attrs, t, eByP
-
-    # Activate the board, asynchronously, with locking for animation synchronisation.
-    # For every phase, a `Multilock` is created with the given timeout (in ms, 5s default).
-    # Passes `attrs` to `activateOnePhase` and subsequently to `Entity.activate`.
-    # After all phases, `callback` is called.
-    activateBoardLocking: (attrs, callback) ->
+    # ### Board.activateBoard ###
+    #
+    # Activate the board synchronously.  
+    # All phases of the board are activated one after another. Tiles
+    # within one phase are activated simultaneously.
+    #
+    # * `attrs` Object containing all options for board 
+    #   activation. It is passed to  `Board.activateOnePhase` and subsequently
+    #   to `Entity.activate`.
+    # * `callback` Callback that is called after all phases have finished.
+    #
+    # ---
+    activateBoard: (attrs, callback) ->
       eByP = @entitiesByPhase()
       phases = (Number(k) for k in _.keys(eByP))
       phases.sort()
