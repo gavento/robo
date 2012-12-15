@@ -29,18 +29,25 @@ define (require, exports, module) ->
       return @get('commands').join(" ")
 
     playOnRobot: (robot, opts, callback) ->
-      opts ?= {}
       if @selected
         #console.log "Playing ", @, " on ", robot, " with ", opts
-        cmds = (@get 'commands').slice()
+        commands = (@get 'commands').slice()
+
+        # If this function returns true than there is at least one
+        # more command to be played and the robot is able to play it.
+        canPlayNextCommand = () =>
+          return commands.length > 0 and robot.isPlaced()
+
+        # Play current command of the card.
+        playNextCommand = (cb) =>
+          async.series([playNextCommandMovement, playNextCommandTile], cb)
 
         # This function handles the movement.
-        f1 = (cb) =>
-          cmd = cmds.shift()
+        playNextCommandMovement = (cb) =>
+          command = commands.shift()
           optsC = Object.create opts
           optsC.mover = @
-          optsC.callback = callback
-          switch cmd
+          switch command
             when "R"
               optsC.dir = 1
               robot.turn(optsC, cb)
@@ -57,20 +64,18 @@ define (require, exports, module) ->
 
         # This function handles the activation of the tile the robot
         # just entered.
-        f2 = (cb) =>
+        playNextCommandTile = (cb) =>
           optsC = Object.create opts
           optsC.x = robot.x
           optsC.y = robot.y
           robot.board.activateOnEnter(optsC, cb)
+        
+        # Play all commands of the card one by one.
+        async.whilst(canPlayNextCommand, playNextCommand, callback)
 
-        # play card
-        async.whilst(
-          => return cmds.length > 0  and robot.isPlaced(),
-          (cb) => async.series([f1, f2], cb),
-          => callback(null))
       else
         console.log "Skipping ", @, " on ", robot
-        callback(null)
+        callback()
     
     select: ->
       @selected = not @selected
