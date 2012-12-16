@@ -69,10 +69,17 @@ define (require, exports, module) ->
     attributes:
       class: 'EntityView TurnerUView'
 
+
   class HoleView extends EntityView
     @registerTypeName "H"
     attributes:
       class: 'EntityView HoleView'
+
+
+  class WallView extends EntityView
+    @registerTypeName "W"
+    attributes:
+      class: 'EntityView WallView'
 
 
   module.exports =

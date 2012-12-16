@@ -1,0 +1,97 @@
+{
+  "name": "Riddle 7 -- Walls",
+  "board": {
+    "width": 5,
+    "height": 5,
+    "entities": [
+      {
+        "x": -1,
+        "y": 2,
+        "type": "W",
+        "id": "Wall-1",
+        "dir": "E"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "type": "W",
+        "id": "Wall-2",
+        "dir": "W"
+      },
+      {
+        "x": 4,
+        "y": 2,
+        "type": "W",
+        "id": "Wall-3",
+        "dir": "E"
+      },
+      {
+        "x": 5,
+        "y": 2,
+        "type": "W",
+        "id": "Wall-4",
+        "dir": "W"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "type": "Robot",
+        "id": "Robot-1",
+        "name": "Red",
+        "dir": "W",
+        "image": "roombo-r.png",
+        "health": 7,
+        "cards": [
+  	      {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 11, "commands": "S" },
+          {"type": "S", "priority": 12, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" }
+      	]
+      },
+      {
+        "x": 4,
+        "y": 2,
+        "type": "Robot",
+        "id": "Robot-2",
+        "name": "Blue",
+        "dir": "E",
+        "image": "roombo-b.png",
+        "health": 7,
+        "cards": [
+  	      {"type": "S", "priority": 11, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 11, "commands": "S" },
+          {"type": "S", "priority": 12, "commands": "S" }
+      	]
+      },
+      {
+        "x": 3,
+        "y": 2,
+        "type": "Robot",
+        "id": "Robot-3",
+        "name": "Yellow",
+        "dir": "E",
+        "image": "roombo-y.png",
+        "health": 7,
+        "cards": [
+  	      {"type": "S", "priority": 12, "commands": "S" },
+          {"type": "S", "priority": 12, "commands": "S" },
+          {"type": "S", "priority": 10, "commands": "S" },
+          {"type": "S", "priority": 11, "commands": "S" }
+      	]
+      }
+    ]
+  },
+  "players": [
+    {
+      "name": "Wall-E",
+      "robotIds": [
+        "Robot-1",
+        "Robot-2",
+        "Robot-3"
+      ]
+    }
+  ]
+}
+
+

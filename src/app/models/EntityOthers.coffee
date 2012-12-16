@@ -119,6 +119,9 @@ define (require, exports, module) ->
       opts.afterHooks.push(fallEntities)
       super
 
+  class Wall extends Entity
+    @configure {name:'Wall', subClass:true, registerAs: 'W'}
+    @typedProperty 'dir', Direction
 
   module.exports =
     Conveyor: Conveyor
