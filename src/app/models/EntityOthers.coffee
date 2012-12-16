@@ -101,7 +101,7 @@ define (require, exports, module) ->
   class Hole extends Entity
     @configure {name:'Hole', subClass:true, registerAs: 'H'}
 
-    isActivatedOnEnter: -> true
+    hasImmediateEffect: -> true
 
     activate: (opts, callback) ->
       for e in @board.tile opts.x, opts.y

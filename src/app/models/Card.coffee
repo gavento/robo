@@ -68,7 +68,7 @@ define (require, exports, module) ->
           optsC = Object.create opts
           optsC.x = robot.x
           optsC.y = robot.y
-          robot.board.activateOnEnter(optsC, cb)
+          robot.board.activateImmediateEffects(optsC, cb)
         
         # Play all commands of the card one by one.
         async.whilst(canPlayNextCommand, playNextCommand, callback)

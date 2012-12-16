@@ -42,6 +42,100 @@ define (require, exports, module) ->
       super atts
 
 
+    # ### Board.activateBoard ###
+    #
+    # Activate the board synchronously.  
+    # All phases of the board are activated one after another. Tiles
+    # within one phase are activated simultaneously.
+    #
+    # * `attrs` Object containing all options for board 
+    #   activation. It is passed to  `Board.activateOnePhase` and subsequently
+    #   to `Entity.activate`.
+    # * `callback` Callback that is called after all phases have finished.
+    activateBoard: (attrs, callback) ->
+      entitiesByPhase = @entitiesByPhase()
+      phases = (Number(k) for k in _.keys(entitiesByPhase))
+      phases.sort()
+      activateOnePhase = (phase, cb) =>
+        @activateOnePhase(entitiesByPhase[phase], attrs, cb)
+      async.forEachSeries(phases, activateOnePhase, callback)
+
+
+    # ### Board.activateOnePhase ###
+    #
+    # Activate given entities.  
+    # After that activate entities with immediate effect on all occupied tiles.
+    # * `entities` List of entities that will be activated in parallel. 
+    # * `attrs` Object containing all options for the tile activation.
+    # * `callback` Callback that is called when the phase is finished.
+    activateOnePhase: (entities, attrs, callback) ->
+      activateEntitiesAndHooks = (cb) =>
+        @activateEntitiesAndHooks(entities, attrs, cb)
+      activateOccupiedTiles = (cb) =>
+        @activateOccupiedTiles(attrs, cb)
+      async.series([activateEntitiesAndHooks, activateOccupiedTiles], callback)
+
+
+    # ### Board.activateOccupiedTiles ###
+    #
+    # Activate tiles that are occupied by a movable entity.  
+    # Only some entities are activated when occupied (hole, water, etc.). 
+    # This is called after each phase.
+    #
+    # * `attrs` Object containing all options for the tile activation. 
+    #   It is passed to  `Board.activateOnEnter` and subsequently
+    #   to `Entity.activate`.
+    # * `callback` Callback that is called after all occupied tiles have been
+    #   activated.
+    activateOccupiedTiles: (attrs, callback) ->
+      activateTileWithEntity = (entity, cb) =>
+        attrsCopy = Object.create attrs
+        attrsCopy.x = entity.x
+        attrsCopy.y = entity.y
+        @activateImmediateEffects(attrsCopy, cb)
+      movableEntities = (e for e in @entities_ when e.isMovable())
+      async.forEach(movableEntities, activateTileWithEntity, callback)
+
+
+    # ### Board.activateImmediateEffects ###
+    #
+    # Activate immediate effects of a tile.  
+    #
+    # Some entities (eg. Hole or Water) have immediate effect on robot
+    # standing on them. This funcition activates those effects. It should
+    # be called on tiles entered by a movable entity and on tiles occupied by
+    # by a movable entity after each board phase. 
+    #
+    # * `attrs` Object containing all options for the tile activation. Must
+    #   contain attributes `x` and `y` (coordinates of activated tile).
+    # * `callback` Callback that is called after all entitnies effect on given 
+    #   that have an immediate effect have been activated.
+    activateImmediateEffects: (attrs, callback) ->
+      throw "attrs.x and attrs.y required" unless attrs? and attrs.x? and attrs.y?
+      entities = (e for e in @tile(attrs.x, attrs.y) when e.hasImmediateEffect())
+      @activateEntitiesAndHooks(entities, attrs, callback)
+
+
+    # ### Board.activateEntitiesAndHooks ###
+    #
+    # Activate given entities and perform hooks.
+    #
+    # * `entities` List of entities that will be activated in parallel.
+    # * `attrs` Object containing all options for the tile activation.
+    # * `callback` Callback that is called when all entities have been activated
+    #   and all hooks finished.
+    activateEntitiesAndHooks: (entities, attrs, callback) ->
+      attrsCopy = Object.create attrs
+      attrsCopy.afterHooks = []
+      activateEntities = (cb) =>
+        async.forEach(entities, activateEntity, cb)
+      activateEntity = (entity, cb) =>
+        entity.activate(attrsCopy, cb)
+      performHooks = (cb) =>
+        async.parallel(attrsCopy.afterHooks, cb)
+      async.parallel([activateEntities, performHooks], callback)
+
+
     destroy: ->
       @set 'entities', [] # properly call destoy for all Entities
       super
@@ -150,97 +244,7 @@ define (require, exports, module) ->
           eByP[p].push(e)
       return eByP
 
-    # Activate all entities within phase `t`.
-    # Passes `attr` extended with `afterHooks` to `Entity.activate`.
-    # Optionally, `eByP` can be a precomputed value of `@entitiesByPhase`.
-    activateOnePhase: (attrs, t, eByP, callback) ->
-      eByP ?= @entitiesByPhase()
-      attrsCopy = Object.create attrs
-      attrsCopy.afterHooks = []
 
-      # Activate all entities with the same activation phase simultaneously.
-      # Perform hooks that should be executed after the phase is finished.
-      # Finally activate all tiles occupied by robots.
-      async.series([
-        ((cb3) => async.parallel([
-          (cb2) => async.forEach(eByP[t], ((e, cb) => e.activate(attrsCopy, cb)), cb2),
-          (cb2) => async.parallel(attrsCopy.afterHooks, cb2)],
-           cb3)),
-        (cb3) => @activateOccupiedTiles(attrsCopy, cb3)],
-        callback)
-    
-    # ### Board.activateOnEnter ###
-    #
-    # Activate tile entered by a robot.  
-    # Only some tiles are activated immediately when robot enters them 
-    # (eg. hole). This is also called after each phase on all occupied tiles.
-    #
-    # * `attrs` Object containing all options for the tile activation. 
-    #   It is passed to to `Entity.activate`.
-    # * `callback` Callback that is called after all entitnies on given tile
-    #   have been activated.
-    activateOnEnter: (attrs, callback) ->
-      throw "attrs.x and attrs.y required" unless attrs? and attrs.x? and attrs.y?
-      ent = (e for e in @tile(attrs.x, attrs.y) when e.isActivatedOnEnter())
-      attrsCopy = Object.create attrs
-      attrsCopy.afterHooks = []
-
-      # Activate all entities at given position that should be activated on
-      # enter. After that perform hooks.
-      async.parallel([
-        (cb2) => async.forEach(ent, ((e, cb) => e.activate(attrsCopy, cb)), cb2),
-        (cb2) => async.parallel(attrsCopy.afterHooks, cb2)],
-        callback)
-
-    # ### Board.activateOccupiedTiles ###
-    #
-    # Activate tiles that are occupied by a movable entity.  
-    # Only some entities are activated when occupied (hole, water, etc.). 
-    # This is called after each phase.
-    #
-    # * `attrs` Object containing all options for the tile activation. 
-    #   It is passed to  `Board.activateOnEnter` and subsequently
-    #   to `Entity.activate`.
-    # * `callback` Callback that is called after all occupied tiles have been
-    #   activated.
-    activateOccupiedTiles: (attrs, callback) ->
-      # Get all movable entities and activate tiles these entities
-      # are standing on.
-      ent = (e for e in @entities_ when e.isMovable())
-      async.forEach(ent,
-        ((e, cb) =>
-          attrsCopy = Object.create attrs
-          attrsCopy.x = e.x
-          attrsCopy.y = e.y
-          @activateOnEnter(attrsCopy, cb)),
-        callback)
-
-    # ### Board.activateBoard ###
-    #
-    # Activate the board synchronously.  
-    # All phases of the board are activated one after another. Tiles
-    # within one phase are activated simultaneously.
-    #
-    # * `attrs` Object containing all options for board 
-    #   activation. It is passed to  `Board.activateOnePhase` and subsequently
-    #   to `Entity.activate`.
-    # * `callback` Callback that is called after all phases have finished.
-    #
-    # ---
-    activateBoard: (attrs, callback) ->
-      eByP = @entitiesByPhase()
-      phases = (Number(k) for k in _.keys(eByP))
-      phases.sort()
-
-      # Activate all phases in sequence. Ie. the next phase will be executed
-      # only after the previous phase finished. When all phases are finished
-      # callback function will be called.
-      async.forEachSeries(
-        phases,
-        ((phase, cb) =>
-          attrsCopy = Object.create attrs
-          @activateOnePhase attrsCopy, phase, eByP, cb),
-        callback)
-
+      
 
   module.exports = Board

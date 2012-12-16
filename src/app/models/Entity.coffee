@@ -15,7 +15,7 @@ define (require, exports, module) ->
     isMovable: -> false
     isRobot: -> false
     isPlaced: -> true
-    isActivatedOnEnter: -> false
+    hasImmediateEffect: -> false
 
     # Move the entity to the desired location.
     # Also triggers an animation if opts.lock given.
