@@ -104,16 +104,19 @@ define (require, exports, module) ->
     hasImmediateEffect: -> true
 
     activate: (opts, callback) ->
-      for e in @board.tile opts.x, opts.y
-        if e.isMovable()
-          opts.afterHooks.push((cb) =>
-            optsC = Object.create opts
-            optsC.duration = 500
-            # Perform fall and damage in parallel.
-            async.parallel(
-              [ ((cb2) => e.fall(optsC, cb2)),
-                ((cb2) => e.damage({damage:1, source: @}, cb2))],
-              cb))
+      x = opts.x
+      y = opts.y
+      movableEntities = (e for e in @board.tile(x, y) when e.isMovable())
+      fallEntities = (cb) =>
+        async.forEach(movableEntities, fallEntity, cb)
+      fallEntity = (entity, cb) =>
+        optsC = Object.create opts
+        optsC.duration = 500
+        async.parallel([
+          (cb2) => entity.fall(optsC, cb2),
+          (cb2) => entity.damage({damage:1, source: @}, cb2)],
+          cb)
+      opts.afterHooks.push(fallEntities)
       super
 
 
