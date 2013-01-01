@@ -18,6 +18,7 @@ Installation
 2. Install `nodejs` and `npm` for development/release tools.
 3. Install the dev tools by running `npm install` from the repo directory.
 
+
 Running
 -------
 
@@ -26,6 +27,14 @@ Running
 3. Go to `http://0.0.0.0:4242/src/` to see the dev version (easier to debug)
 4. Go to `http://0.0.0.0:4242/build/` to see the built version (which is faster)
 5. Copy `build/` anywhere to publish.
+
+
+Testing
+-------
+
+1. Compile the coffee-script tests into javascript using `make tests`
+2. Start a local server by `make start`
+3. Go to `http://0.0.0.0:4242/test/` to run tests
 
 
 ---------

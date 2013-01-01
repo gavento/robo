@@ -1,0 +1,38 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <link rel="stylesheet" href="lib/mocha.css" />
+</head>
+<body>
+  <div id="mocha"></div>
+
+  <!-- include dependency files here -->
+  <script src="lib/mocha.js"></script>
+  <script>mocha.setup('bdd')</script>
+  <script src="lib/chai.js"></script>
+  <script>chai.should()</script>
+  <script src="../src/lib/require.js"></script>
+  <script>
+    require.config({
+      baseUrl: '../src/',
+      paths: {
+        'cs': 'lib/cs',
+        'coffee-script': 'lib/coffee-script',
+      },
+    });
+  </script>
+  <script src="../src/lib/jquery-1.7.2.js"></script>
+  <script src="../src/lib/spine.js"></script>
+  <script src="../src/lib/async.js"></script>
+  
+  <!-- include test files here -->
+  <script type="text/javascript" src="mocha-and-chai.test.js"></script>
+  <script type="text/javascript" src="app/models/Board.test.js"></script>
+  
+  <!-- run tests -->
+  <script>
+    mocha.run();
+  </script>
+</body>
+</html>
