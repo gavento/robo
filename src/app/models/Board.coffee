@@ -209,8 +209,11 @@ define (require, exports, module) ->
     # Return list of entities at `[x][y]`. If the coordinates are outside
     # the board than `hole` entity is always part of the returned list.
     tile: (x, y) ->
-      if (@inside x, y) and @tiles_[x]? and @tiles_[x][y]?
-        return @tiles_[x][y]
+      if @inside(x, y)
+        if @tiles_[x]? and @tiles_[x][y]?
+          return @tiles_[x][y]
+        else
+          return []
       else
         entities = [@hole_]
         for e in @entities_
