@@ -93,7 +93,7 @@ define (require, exports, module) ->
         attrsCopy.x = entity.x
         attrsCopy.y = entity.y
         @activateImmediateEffects(attrsCopy, cb)
-      movableEntities = (e for e in @entities_ when e.isMovable())
+      movableEntities = @getMovableEntities()
       async.forEach(movableEntities, activateTileWithEntity, callback)
 
 
@@ -221,6 +221,18 @@ define (require, exports, module) ->
             entities.push(e)
         return entities
 
+    getEntitiesAt: (x, y) ->
+      entities = @tile(x, y)
+      return entities
+
+    getMovableEntitiesAt: (x, y) ->
+      entities = (e for e in @getEntitiesAt(x, y) when e.isMovable())
+    
+    getRobotEntitiesAt: (x, y) ->
+      entities = (e for e in @getEntitiesAt(x, y) when e.isRobot())
+    
+    getMovableEntities: ->
+      entities = (e for e in @entities_ when e.isMovable())
 
     # Update internal structures on Entity move. Internal,
     # called on event "move" from the Entity.

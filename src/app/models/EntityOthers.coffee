@@ -14,20 +14,21 @@ define (require, exports, module) ->
     activate: (opts, callback) ->
       tx = @x + @dir().dx()
       ty = @y + @dir().dy()
-
       # Move all movable entities on this tile.
       # But not right now, just create functions to move them. These
       # functions will be executed after all entities are activated.
       # Otherwise a robot would be moved by all successive conveyors.
-      for e in @board.tile @x, @y
-        if e.isMovable()
-          opts.afterHooks.push( (cb2) =>
-            optsC = Object.create opts
-            optsC.x = tx
-            optsC.y = ty
-            optsC.mover = @
-            e.move optsC, cb2)
-      super
+      entities = @board.getMovableEntitiesAt(@x, @y)
+      moveEntities = (cb) =>
+        async.forEach(entities, moveEntity, cb)
+      moveEntity = (entity, cb) =>
+        optsC = Object.create opts
+        optsC.x = tx
+        optsC.y = ty
+        optsC.mover = @
+        entity.move(optsC, cb)
+      opts.afterHooks.push(moveEntities)
+      super opts, callback
 
 
   class ExpressConveyor extends Conveyor
@@ -42,16 +43,17 @@ define (require, exports, module) ->
     getPhases: -> [50]
 
     activate: (opts, callback) ->
-      super
-
       # Crush (damage) all entities on this turner.
-      for e in @board.tile @x, @y
-        if e.isRobot()
-          opts.afterHooks.push( (cb) =>
-            optsC = Object.create opts
-            optsC.damage = 1
-            optsC.source = @
-            e.damage optsC, cb)
+      entities = @board.getRobotEntitiesAt(@x, @y)
+      crushEntities = (cb) =>
+        async.forEach(entities, crushEntity, cb)
+      crushEntity = (entity, cb) =>
+        optsC = Object.create opts
+        optsC.damage = 1
+        optsC.source = @
+        entity.damage(optsC, cb)
+      opts.afterHooks.push(crushEntities)
+      super opts, callback
 
 
   class Turner extends Entity
@@ -68,18 +70,18 @@ define (require, exports, module) ->
       optsC.oldDir = dir.copy()
       optsC.dir = @turnDirection
       optsC.mover = @
-
       # Change direction of the turner itself.
       dir.turn(@turnDirection)
-
       # Rotate all movable entities on this turner.
-      for e in @board.tile @x, @y
-        if e.isMovable()
-          opts.afterHooks.push((cb) =>
-            optsC = Object.create opts
-            optsC.mover = @
-            optsC.dir = @turnDirection
-            e.rotate optsC, cb)
+      entities = @board.getMovableEntitiesAt(@x, @y)
+      rotateEntities = (cb) =>
+        async.forEach(entities, rotateEntity, cb)
+      rotateEntity = (entity, cb) =>
+        optsC = Object.create opts
+        optsC.mover = @
+        optsC.dir = @turnDirection
+        entity.rotate(optsC, cb)
+      opts.afterHooks.push(rotateEntities)
       super optsC, callback
 
 
@@ -106,9 +108,9 @@ define (require, exports, module) ->
     activate: (opts, callback) ->
       x = opts.x
       y = opts.y
-      movableEntities = (e for e in @board.tile(x, y) when e.isMovable())
+      entities = @board.getMovableEntitiesAt(x, y)
       fallEntities = (cb) =>
-        async.forEach(movableEntities, fallEntity, cb)
+        async.forEach(entities, fallEntity, cb)
       fallEntity = (entity, cb) =>
         optsC = Object.create opts
         optsC.duration = 500
@@ -117,7 +119,7 @@ define (require, exports, module) ->
           (cb2) => entity.damage({damage:1, source: @}, cb2)],
           cb)
       opts.afterHooks.push(fallEntities)
-      super
+      super opts, callback
 
   class Wall extends Entity
     @configure {name:'Wall', subClass:true, registerAs: 'W'}
