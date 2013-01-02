@@ -15,7 +15,7 @@ all: style build docs
 
 start:
 	@echo '***  Serving at  http://0.0.0.0:$(HTTP_PORT)/  ***'
-	$(HTTP_SERVER) ./ -p $(HTTP_PORT)
+	$(HTTP_SERVER) ./ -p $(HTTP_PORT) -c-1
 
 clean:
 	rm -rf $(BUILD_DIR)
