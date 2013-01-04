@@ -25,7 +25,7 @@ describe 'Board', ->
         Hole = entities.Hole
         done()
   
-  describe 'new board', ->
+  describe 'that was just created', ->
     it 'should have specified size', ->
       board = new Board({width: 3, height: 2})
       board.width().should.equal(3)
@@ -44,7 +44,7 @@ describe 'Board', ->
       hole = tile[0]
       hole.should.be.an.instanceof(Hole)
 
-  describe 'board with crusher and robot', ->
+  describe 'with crusher and robot', ->
     board = null
     robot = null
     beforeEach ->
@@ -78,7 +78,7 @@ describe 'Board', ->
         robot.y.should.equal(0)
         done()
 
-  describe 'board with conveyor and robot', ->
+  describe 'with conveyor and robot', ->
     board = null
     robot = null
     beforeEach ->
@@ -122,7 +122,7 @@ describe 'Board', ->
         robot.isPlaced().should.not.be.ok
         done()
 
-  describe 'board with turner and robot', ->
+  describe 'with turner and robot', ->
     board = null
     robot = null
     beforeEach ->
