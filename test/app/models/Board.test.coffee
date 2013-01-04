@@ -1,11 +1,12 @@
 describe 'Board', ->
   Board = null
   Robot = null
+  Conveyor = null
+  ExpressConveyor = null
+  Crusher = null
   TurnerL = null
   TurnerR = null
   TurnerU = null
-  Conveyor = null
-  ExpressConveyor = null
   Hole = null
   before (done) ->
     require [
@@ -17,6 +18,7 @@ describe 'Board', ->
         Robot = robot
         Conveyor = entities.Conveyor
         ExpressConveyor = entities.ExpressConveyor
+        Crusher = entities.Crusher
         TurnerL = entities.TurnerL
         TurnerR = entities.TurnerR
         TurnerU = entities.TurnerU
@@ -41,6 +43,40 @@ describe 'Board', ->
       tile.length.should.equal(1)
       hole = tile[0]
       hole.should.be.an.instanceof(Hole)
+
+  describe 'board with crusher and robot', ->
+    board = null
+    robot = null
+    beforeEach ->
+      board = new Board({width: 3, height: 1})
+      robot = new Robot({x: 0, y: 0, type: 'Robot', health: 8})
+    it 'should damage the robot under the crusher', (done) ->
+      crusher = new Crusher({x: 0, y: 0, type: 'X'})
+      board.entities([robot, crusher])
+      robot.health.should.equal(8)
+      board.activateBoard {}, ->
+        robot.health.should.equal(7)
+        done()
+    it 'should damage the robot after the conveyor phase', (done) ->
+      crusher = new Crusher({x: 1, y: 0, type: 'X'})
+      conveyor = new Conveyor({x: 0, y: 0, type: 'C', dir: 'E'})
+      board.entities([robot, crusher, conveyor])
+      robot.health.should.equal(8)
+      board.activateBoard {}, ->
+        robot.health.should.equal(7)
+        robot.x.should.equal(1)
+        robot.y.should.equal(0)
+        done()
+    it 'should not damage the robot before the conveyor phase', (done) ->
+      crusher = new Crusher({x: 0, y: 0, type: 'X'})
+      conveyor = new Conveyor({x: 0, y: 0, type: 'C', dir: 'E'})
+      board.entities([robot, crusher, conveyor])
+      robot.health.should.equal(8)
+      board.activateBoard {}, ->
+        robot.health.should.equal(8)
+        robot.x.should.equal(1)
+        robot.y.should.equal(0)
+        done()
 
   describe 'board with conveyor and robot', ->
     board = null
