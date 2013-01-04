@@ -4,6 +4,7 @@ describe 'Board', ->
   TurnerL = null
   TurnerR = null
   TurnerU = null
+  Hole = null
   before (done) ->
     require [
       'cs!app/models/Board'
@@ -15,6 +16,7 @@ describe 'Board', ->
         TurnerL = entities.TurnerL
         TurnerR = entities.TurnerR
         TurnerU = entities.TurnerU
+        Hole = entities.Hole
         done()
   
   describe 'new board', ->
@@ -29,6 +31,12 @@ describe 'Board', ->
         board = new Board({width: 2, height: 1})
         board.tile(0, 0).should.be.empty
         board.tile(1, 0).should.be.empty
+    it 'should be surrounded by holes', ->
+        board = new Board({width: 2, height: 1})
+        tile = board.tile(-2, 5)
+        tile.length.should.equal(1)
+        hole = tile[0]
+        hole.should.be.an.instanceof(Robot)
   describe 'board with turner and robot', ->
     board = null
     robot = null
