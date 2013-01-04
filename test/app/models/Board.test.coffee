@@ -4,6 +4,8 @@ describe 'Board', ->
   TurnerL = null
   TurnerR = null
   TurnerU = null
+  Conveyor = null
+  ExpressConveyor = null
   Hole = null
   before (done) ->
     require [
@@ -13,6 +15,8 @@ describe 'Board', ->
       ], (board, robot, entities) ->
         Board = board
         Robot = robot
+        Conveyor = entities.Conveyor
+        ExpressConveyor = entities.ExpressConveyor
         TurnerL = entities.TurnerL
         TurnerR = entities.TurnerR
         TurnerU = entities.TurnerU
@@ -37,6 +41,51 @@ describe 'Board', ->
       tile.length.should.equal(1)
       hole = tile[0]
       hole.should.be.an.instanceof(Hole)
+
+  describe 'board with conveyor and robot', ->
+    board = null
+    robot = null
+    beforeEach ->
+      board = new Board({width: 3, height: 1})
+      robot = new Robot({x: 0, y: 0, type: 'Robot'})
+    it 'should move the robot on the conveyor', (done) ->
+      conveyor1 = new Conveyor({x: 0, y: 0, type: 'C', dir: 'E'})
+      conveyor2 = new Conveyor({x: 1, y: 0, type: 'C', dir: 'E'})
+      board.entities([robot, conveyor1, conveyor2])
+      robot.dir().dir.should.equal(0)
+      robot.x.should.equal(0)
+      robot.y.should.equal(0)
+      board.activateBoard {}, ->
+        robot.dir().dir.should.equal(0)
+        robot.x.should.equal(1)
+        robot.y.should.equal(0)
+        done()
+    it 'should move the robot on the express conveyor', (done) ->
+      conveyor1 = new ExpressConveyor({x: 0, y: 0, type: 'E', dir: 'E'})
+      conveyor2 = new ExpressConveyor({x: 1, y: 0, type: 'E', dir: 'E'})
+      board.entities([robot, conveyor1, conveyor2])
+      robot.dir().dir.should.equal(0)
+      robot.x.should.equal(0)
+      robot.y.should.equal(0)
+      board.activateBoard {}, ->
+        robot.dir().dir.should.equal(0)
+        robot.x.should.equal(2)
+        robot.y.should.equal(0)
+        done()
+    it 'should push the robot into a hole', (done) ->
+      conveyor = new Conveyor({x: 0, y: 0, type: 'C', dir: 'W'})
+      board.entities([robot, conveyor])
+      robot.dir().dir.should.equal(0)
+      robot.x.should.equal(0)
+      robot.y.should.equal(0)
+      robot.isPlaced().should.be.ok
+      board.activateBoard {}, ->
+        robot.dir().dir.should.equal(0)
+        robot.x.should.equal(-1)
+        robot.y.should.equal(0)
+        robot.isPlaced().should.not.be.ok
+        done()
+
   describe 'board with turner and robot', ->
     board = null
     robot = null
