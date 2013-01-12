@@ -134,3 +134,4 @@ define (require, exports, module) ->
     TurnerL: TurnerL
     TurnerU: TurnerU
     Hole: Hole
+    Wall: Wall

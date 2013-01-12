@@ -8,6 +8,7 @@ describe 'Board', ->
   TurnerR = null
   TurnerU = null
   Hole = null
+  Wall = null
   before (done) ->
     require [
       'cs!app/models/Board'
@@ -23,6 +24,7 @@ describe 'Board', ->
         TurnerR = entities.TurnerR
         TurnerU = entities.TurnerU
         Hole = entities.Hole
+        Wall = entities.Wall
         done()
   
   describe 'that was just created', ->
@@ -166,4 +168,16 @@ describe 'Board', ->
       robot.dir().dir.should.equal(0)
       board.activateBoard {}, ->
         robot.dir().dir.should.equal(0)
+        done()
+
+  describe 'with wall', ->
+    it 'robot should not pass through the wall', (done) ->
+      board = new Board({width: 2, height: 1})
+      robot = new Robot({x: 0, y: 0, type: 'Robot', dir: 'E'})
+      conveyor = new Conveyor({x: 0, y: 0, type: 'C', dir: 'E'})
+      wall = new Wall({x: 0, y: 0, type: 'W', dir: 'E'})
+      board.entities([robot, conveyor, wall])
+      board.activateBoard {}, ->
+        robot.x.should.equal(0)
+        robot.y.should.equal(0)
         done()
