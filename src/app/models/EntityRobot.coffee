@@ -58,6 +58,7 @@ define (require, exports, module) ->
         throw "Placing robot that is already placed."
 
     isMovable: -> true
+    isPushable: -> true
     isRobot: -> true
 
     step: (opts, callback) ->

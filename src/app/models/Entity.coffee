@@ -13,6 +13,8 @@ define (require, exports, module) ->
 
     getPhases: -> []
     isMovable: -> false
+    isPushable: -> false
+    canPush: -> @isPushable() # only pushable entities can push
     isRobot: -> false
     isPlaced: -> true
     hasImmediateEffect: -> false

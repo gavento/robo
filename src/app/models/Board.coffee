@@ -127,12 +127,16 @@ define (require, exports, module) ->
     activateEntitiesAndHooks: (entities, attrs, callback) ->
       attrsCopy = Object.create attrs
       attrsCopy.afterHooks = []
+      attrsCopy.effects = []
       activateEntities = (cb) =>
         async.forEach(entities, activateEntity, cb)
       activateEntity = (entity, cb) =>
         entity.activate(attrsCopy, cb)
       performHooks = (cb) =>
-        async.parallel(attrsCopy.afterHooks, cb)
+        if attrsCopy.effects.length > 0
+          attrsCopy.effects[0].handleEffects(attrsCopy.effects, attrs, cb)
+        else
+          async.parallel(attrsCopy.afterHooks, cb)
       async.parallel([activateEntities, performHooks], callback)
 
 
@@ -228,11 +232,17 @@ define (require, exports, module) ->
     getMovableEntitiesAt: (x, y) ->
       entities = (e for e in @getEntitiesAt(x, y) when e.isMovable())
     
+    getPushableEntitiesAt: (x, y) ->
+      entities = (e for e in @getEntitiesAt(x, y) when e.isPushable())
+    
     getRobotEntitiesAt: (x, y) ->
       entities = (e for e in @getEntitiesAt(x, y) when e.isRobot())
     
     getMovableEntities: ->
       entities = (e for e in @entities_ when e.isMovable())
+
+    getPushableEntities: ->
+      entities = (e for e in @entities_ when e.isPushable())
 
     # Update internal structures on Entity move. Internal,
     # called on event "move" from the Entity.
