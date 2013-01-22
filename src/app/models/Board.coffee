@@ -2,7 +2,7 @@ define (require, exports, module) ->
 
   SimpleModel = require "cs!app/lib/SimpleModel"
   MultiLock = require 'cs!app/lib/MultiLock'
-  Tile = require 'cs!app/models/Tile'
+  EffectFactory = require 'cs!app/models/effects/EffectFactory'
 
   # Load all Entity subtypes for loading
   Entity = require 'cs!app/models/Entity'
@@ -134,7 +134,7 @@ define (require, exports, module) ->
         entity.activate(attrsCopy, cb)
       performHooks = (cb) =>
         if attrsCopy.effects.length > 0
-          attrsCopy.effects[0].handleEffects(attrsCopy.effects, attrs, cb)
+          EffectFactory.handleEffects(attrsCopy.effects, attrs, cb)
         else
           async.parallel(attrsCopy.afterHooks, cb)
       async.parallel([activateEntities, performHooks], callback)
@@ -273,3 +273,4 @@ define (require, exports, module) ->
       
 
   module.exports = Board
+
