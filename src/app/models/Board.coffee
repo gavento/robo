@@ -134,7 +134,7 @@ define (require, exports, module) ->
         entity.activate(attrsCopy, cb)
       performHooks = (cb) =>
         if attrsCopy.effects.length > 0
-          EffectFactory.handleEffects(attrsCopy.effects, attrs, cb)
+          EffectFactory.handleAllEffects(attrsCopy.effects, attrs, cb)
         else
           async.parallel(attrsCopy.afterHooks, cb)
       async.parallel([activateEntities, performHooks], callback)

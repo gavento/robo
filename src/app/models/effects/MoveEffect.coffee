@@ -37,4 +37,14 @@ define (require, exports, module) ->
       optsC.mover = @cause
       @entity.move(optsC, callback)
 
+    @handleEffects: (effects, opts, callback) ->
+      console.log effects
+      applyEffects = (effects, cb) =>
+        async.forEach(effects, applyEffect, cb)
+      applyEffect = (effect, cb) =>
+        effect.applyEffect(opts, cb)
+      # This is the same as the previous behaviour, pushing is disabled.
+      filteredEffects = (effect for effect in effects when effect.isFirst())
+      applyEffects(filteredEffects, callback)
+
   module.exports = MoveEffect

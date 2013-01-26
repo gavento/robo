@@ -6,16 +6,28 @@ define (require, exports, module) ->
     @createMoveEffectChain: (board, entity, cause, direction) ->
       return MoveEffect.createEffect(board, entity, cause, direction)
 
-    @handleEffects: (effects, opts, callback) ->
-      # For now assume that all effects are MoveEffects
-      console.log effects
-      applyEffects = (effects, cb) =>
-        async.forEach(effects, applyEffect, cb)
-      applyEffect = (effect, cb) =>
-        effect.applyEffect(opts, cb)
-      # This is the same as the previous behaviour, pushing is disabled.
-      filteredEffects = (effect for effect in effects when effect.isFirst())
-      applyEffects(filteredEffects, callback)
+    @handleAllEffects: (effects, opts, callback) ->
+      effectsByType = @divideEffectByType(effects)
+      handleEffectsOfAllTypes = (effects, cb) =>
+        async.forEach(effects, handleEffectsOfSingleType, cb)
+      handleEffectsOfSingleType = (effects, cb) =>
+        effects[0].constructor.handleEffects(effects, opts, cb)
+      handleEffectsOfAllTypes(effectsByType, callback)
+
+    @divideEffectByType: (effects) ->
+      effectsByType = []
+      while effects.length > 0
+        firstEffectType = effects[0].constructor
+        effectsOfOneType = @filterEffectsOfSameTypes(effects, firstEffectType)
+        effects = @filterEffectsOfDifferentTypes(effects, firstEffectType)
+        effectsByType.push(effectsOfOneType)
+      return effectsByType
+
+    @filterEffectsOfSameTypes: (effects, type) ->
+      return (e for e in effects when e instanceof type)
+    
+    @filterEffectsOfDifferentTypes: (effects, type) ->
+      return (e for e in effects when e not instanceof type)
 
   module.exports = EffectFactory
 
