@@ -16,10 +16,6 @@ define (require, exports, module) ->
       if @entity.canPush()
         @affectEntitiesOnNeighbouringTile(board)
 
-    appendTo: (effect) ->
-      @source = effect
-      effect.targets.push(@)
-
     affectEntitiesOnNeighbouringTile: (board) ->
       nx = @entity.x + @direction.dx()
       ny = @entity.y + @direction.dy()
@@ -122,7 +118,7 @@ define (require, exports, module) ->
       optsC = Object.create opts
       optsC.x = tx
       optsC.y = ty
-      optsC.mover = @cause
+      optsC.mover = @getPrimaryCause()
       @entity.move(optsC, callback)
 
   module.exports = MoveEffect

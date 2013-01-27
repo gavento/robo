@@ -5,6 +5,10 @@ define (require, exports, module) ->
       @source = null
       @targets = []
       @valid = true
+    
+    appendTo: (effect) ->
+      @source = effect
+      effect.targets.push(@)
 
     invalidate: ->
       @valid = false
@@ -26,5 +30,11 @@ define (require, exports, module) ->
 
     getDirectionAsNumber: ->
       return @direction.getNumber()
+
+    getPrimaryCause: ->
+      effect = @
+      until effect.isFirst()
+        effect = effect.source
+      return effect.cause
     
   module.exports = Effect

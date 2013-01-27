@@ -37,10 +37,6 @@ describe 'MoveEffect', ->
       effect = initEffect()
     it 'should be derived from Effect', ->
       effect.should.be.instanceof(Effect)
-    it 'should be first', ->
-      effect.isFirst().should.be.true
-    it 'should not be last', ->
-      effect.isLast().should.be.false
     it 'should have targets', ->
       effect.targets.length.should.equal(2)
 
