@@ -6,6 +6,9 @@ define (require, exports, module) ->
       @targets = []
       @valid = true
 
+    invalidate: ->
+      @valid = false
+
     isFirst: ->
       return @source == null
 
@@ -15,7 +18,13 @@ define (require, exports, module) ->
     isValid: ->
       return @valid
 
-    invalidate: ->
-      @valid = false
+    isInvalid: ->
+      return not @valid
+
+    getEntityId: ->
+      return @entity.id
+
+    getDirectionAsNumber: ->
+      return @direction.getNumber()
     
   module.exports = Effect
