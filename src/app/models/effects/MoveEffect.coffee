@@ -21,17 +21,13 @@ define (require, exports, module) ->
       effect.targets.push(@)
 
     affectEntitiesOnNeighbouringTile: (board) ->
-      console.log "dir", @direction
       nx = @entity.x + @direction.dx()
       ny = @entity.y + @direction.dy()
       for entity in board.getPushableEntitiesAt(nx, ny)
-        console.log 'entity', entity
         effect = MoveEffect.createEffect(board, entity, @entity, @direction)
         effect.appendTo(@)
-        console.log 'effect', effect
 
     @handleEffects: (effects, opts, callback) ->
-      console.log effects.length
       # This is the same as the previous behaviour, pushing is disabled.
       filteredEffects = (effect for effect in effects when effect.isFirst())
       applyEffects = (effects, cb) =>
