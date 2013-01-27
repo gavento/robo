@@ -37,8 +37,8 @@ define (require, exports, module) ->
 
     @filterEffects: (effects) ->
       effects = @filterOutOppositeEffects(effects)
-      finalEffects = (effect for effect in effects when effect.isFirst())
-      return finalEffects
+      #effects = (effect for effect in effects when effect.isFirst())
+      return effects
 
     @filterOutOppositeEffects: (effects) ->
       effectsByEntityId = {}

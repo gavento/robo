@@ -71,7 +71,7 @@ describe 'MoveEffect', ->
       before (done) ->
         board = new Board({width: 3, height: 3})
         robot1 = new Robot({x: 0, y: 0, type: 'Robot'})
-        robot2 = new Robot({x: 0, y: 0, type: 'Robot'})
+        robot2 = new Robot({x: 1, y: 0, type: 'Robot'})
         conveyor = new Conveyor({x: 0, y: 0, type: 'C', dir: 'E'})
         board.entities([robot1, robot2, conveyor])
         board.activateBoard {}, done
