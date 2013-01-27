@@ -20,6 +20,7 @@ define (require, exports, module) ->
         firstEffectType = effects[0].constructor
         effectsOfOneType = @filterEffectsOfSameTypes(effects, firstEffectType)
         effects = @filterEffectsOfDifferentTypes(effects, firstEffectType)
+        effectsOfOneType = @splitEffects(effectsOfOneType)
         effectsByType.push(effectsOfOneType)
       return effectsByType
 
@@ -28,6 +29,19 @@ define (require, exports, module) ->
     
     @filterEffectsOfDifferentTypes: (effects, type) ->
       return (e for e in effects when e not instanceof type)
+
+    @splitEffects: (effects) ->
+      splittedEffects = []
+      for effect in effects
+        splittedEffects.push(@splitEffect(effect)...)
+      return splittedEffects
+
+    @splitEffect: (effect) ->
+      splittedEffects = [effect]
+      for targetEffect in effect.targets
+        splittedEffects.push(@splitEffect(targetEffect)...)
+      return splittedEffects
+
 
   module.exports = EffectFactory
 

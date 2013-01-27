@@ -18,15 +18,27 @@ define (require, exports, module) ->
 
     appendTo: (effect) ->
       @source = effect
-      @targets.push(effect)
+      effect.targets.push(@)
 
     affectEntitiesOnNeighbouringTile: (board) ->
+      console.log "dir", @direction
       nx = @entity.x + @direction.dx()
       ny = @entity.y + @direction.dy()
       for entity in board.getPushableEntitiesAt(nx, ny)
-        effect = new MoveEffect(board, entity, @entity, @direction)
+        console.log 'entity', entity
+        effect = MoveEffect.createEffect(board, entity, @entity, @direction)
         effect.appendTo(@)
-        effect.affectEntitiesOnNeighbouringTile(board)
+        console.log 'effect', effect
+
+    @handleEffects: (effects, opts, callback) ->
+      console.log effects.length
+      # This is the same as the previous behaviour, pushing is disabled.
+      filteredEffects = (effect for effect in effects when effect.isFirst())
+      applyEffects = (effects, cb) =>
+        async.forEach(effects, applyEffect, cb)
+      applyEffect = (effect, cb) =>
+        effect.applyEffect(opts, cb)
+      applyEffects(filteredEffects, callback)
 
     applyEffect: (opts, callback) ->
       tx = @entity.x + @direction.dx()
@@ -36,15 +48,5 @@ define (require, exports, module) ->
       optsC.y = ty
       optsC.mover = @cause
       @entity.move(optsC, callback)
-
-    @handleEffects: (effects, opts, callback) ->
-      console.log effects
-      applyEffects = (effects, cb) =>
-        async.forEach(effects, applyEffect, cb)
-      applyEffect = (effect, cb) =>
-        effect.applyEffect(opts, cb)
-      # This is the same as the previous behaviour, pushing is disabled.
-      filteredEffects = (effect for effect in effects when effect.isFirst())
-      applyEffects(filteredEffects, callback)
 
   module.exports = MoveEffect
