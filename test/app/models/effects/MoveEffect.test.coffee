@@ -138,15 +138,17 @@ describe 'MoveEffect', ->
       describe 'and the second conveyor has the oposite direction', ->
         robot1 = null
         robot2 = null
+        robot3 = null
         conveyor1 = null
         conveyor2 = null
         before (done) ->
           board = new Board({width: 3, height: 3})
           robot1 = new Robot({x: 0, y: 0, type: 'Robot'})
           robot2 = new Robot({x: 1, y: 0, type: 'Robot'})
+          robot3 = new Robot({x: 2, y: 0, type: 'Robot'})
           conveyor1 = new Conveyor({x: 0, y: 0, type: 'C', dir: 'E'})
           conveyor2 = new Conveyor({x: 1, y: 0, type: 'C', dir: 'W'})
-          board.entities([robot1, robot2, conveyor1, conveyor2])
+          board.entities([robot1, robot2, robot3, conveyor1, conveyor2])
           board.activateBoard {}, done
         it 'robot on the first conveyor should not be moved', ->
           robot1.x.should.equal(0)
@@ -154,6 +156,9 @@ describe 'MoveEffect', ->
         it 'robot on the second conveyor should not be moved', ->
           robot2.x.should.equal(1)
           robot2.y.should.equal(0)
+        it 'robot behind the second robot should not be moved', ->
+          robot3.x.should.equal(2)
+          robot3.y.should.equal(0)
         it 'first conveyor should not be moved', ->
           conveyor1.x.should.equal(0)
           conveyor1.y.should.equal(0)
