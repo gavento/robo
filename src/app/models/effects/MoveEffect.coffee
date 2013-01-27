@@ -37,25 +37,19 @@ define (require, exports, module) ->
 
     @filterEffects: (effects) ->
       effects = @filterOutOppositeEffects(effects)
+      effects = @filterOutDuplicateEffects(effects)
       #effects = (effect for effect in effects when effect.isFirst())
       return effects
 
     @filterOutOppositeEffects: (effects) ->
-      effectsByEntityId = {}
-      for effect in effects
-        id = effect.getEntityId()
-        effectsByEntityId[id] ?= []
-        effectsByEntityId[id].push(effect)
+      effectsByEntityId = @getEffectsByEntityId(effects)
       for id of effectsByEntityId
         @invalidateOppositeEffectsOnOneEntity(effectsByEntityId[id])
       effects = @filterOutInvalidEffects(effects)
       return effects
 
     @invalidateOppositeEffectsOnOneEntity: (effects) ->
-      effectsByDirection = [[],[],[],[]]
-      for effect in effects
-        dir = effect.getDirectionAsNumber()
-        effectsByDirection[dir].push(effect)
+      effectsByDirection = @getEffectsByDirection(effects)
       north = effectsByDirection[0]
       east = effectsByDirection[1]
       south = effectsByDirection[2]
@@ -66,25 +60,58 @@ define (require, exports, module) ->
       if east.length > 0 and west.length > 0
         @invalidateEffectChains(east)
         @invalidateEffectChains(west)
-    
+
+    @filterOutDuplicateEffects: (effects) ->
+      effectsByEntityId = @getEffectsByEntityId(effects)
+      for id of effectsByEntityId
+        @invalidateDuplicateEffectsOnOneEntity(effectsByEntityId[id])
+      effects = @filterOutInvalidEffects(effects)
+      return effects
+
+    @invalidateDuplicateEffectsOnOneEntity: (effects) ->
+      effectsByDirection = @getEffectsByDirection(effects)
+      for effects in effectsByDirection
+        if effects.length > 1
+          @invalidateForwardEffects(effects[1..])
+
+    @getEffectsByDirection: (effects) ->
+      effectsByDirection = [[],[],[],[]]
+      for effect in effects
+        dir = effect.getDirectionAsNumber()
+        effectsByDirection[dir].push(effect)
+      return effectsByDirection
+
+    @getEffectsByEntityId: (effects) ->
+      effectsByEntityId = {}
+      for effect in effects
+        id = effect.getEntityId()
+        effectsByEntityId[id] ?= []
+        effectsByEntityId[id].push(effect)
+      return effectsByEntityId
+
     @invalidateEffectChains: (effects) ->
       for effect in effects
-        @invalidateEffectChain(effect)
+        @invalidateEffectChainOf(effect)
 
-    @invalidateEffectChain: (effect) ->
+    @invalidateEffectChainOf: (effect) ->
       return unless effect.isValid()
       effect.invalidate()
       @invalidateSourceEffectsOf(effect)
       @invalidateTargetEffectsOf(effect)
+    
+    @invalidateForwardEffects: (effects) ->
+      for effect in effects
+        effect.invalidate()
+        @invalidateTargetEffectsOf(effect)
 
     @invalidateSourceEffectsOf: (effect) ->
       return unless not effect.isFirst()
-      @invalidateEffectChain(effect.source)
+      @invalidateEffectChainOf(effect.source)
 
     @invalidateTargetEffectsOf: (effect) ->
       return unless not effect.isLast()
       for e in effect.targets
-        @invalidateEffectChain(e)
+        @invalidateEffectChainOf(e)
     
     @filterOutInvalidEffects: (effects) ->
       return (e for e in effects when e.isValid())
