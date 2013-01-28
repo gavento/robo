@@ -177,3 +177,45 @@ describe 'MoveEffect', ->
       it 'the wall should not be moved',  ->
         wall.x.should.equal(0)
         wall.y.should.equal(0)
+    describe 'robot is being pushed against a wall by second robot', ->
+      describe 'and it is also being pushed in an orthogonal direction by third robot', ->
+        robot1 = null
+        robot2 = null
+        robot3 = null
+        before (done) ->
+          board = new Board({width: 2, height: 3})
+          robot1 = new Robot({x: 0, y: 1, type: 'Robot'})
+          robot2 = new Robot({x: 1, y: 1, type: 'Robot'})
+          robot3 = new Robot({x: 0, y: 2, type: 'Robot'})
+          conveyor1 = new Conveyor({x: 1, y: 1, type: 'C', dir: 'W'})
+          conveyor2 = new Conveyor({x: 0, y: 2, type: 'C', dir: 'N'})
+          wall = new Wall({x: 0, y: 1, type: 'W', dir: 'E'})
+          board.entities([robot1, robot2, robot3, conveyor1, conveyor2, wall])
+          board.activateBoard {}, done
+        it 'the first robot should be moved up', ->
+          robot1.x.should.equal(0)
+          robot1.y.should.equal(0)
+        it 'the second robot should be unmoved', ->
+          robot2.x.should.equal(1)
+          robot2.y.should.equal(1)
+        it 'the third robot should be moved up', ->
+          robot3.x.should.equal(0)
+          robot3.y.should.equal(1)
+      describe 'and it is also being moved in an orthogonal direction by a conveyor', ->
+        robot1 = null
+        robot2 = null
+        before (done) ->
+          board = new Board({width: 2, height: 2})
+          robot1 = new Robot({x: 0, y: 1, type: 'Robot'})
+          robot2 = new Robot({x: 1, y: 1, type: 'Robot'})
+          conveyor1 = new Conveyor({x: 0, y: 1, type: 'C', dir: 'N'})
+          conveyor2 = new Conveyor({x: 1, y: 1, type: 'C', dir: 'W'})
+          wall = new Wall({x: 0, y: 1, type: 'W', dir: 'E'})
+          board.entities([robot1, robot2, conveyor1, conveyor2, wall])
+          board.activateBoard {}, done
+        it 'the first robot should be moved up', ->
+          robot1.x.should.equal(0)
+          robot1.y.should.equal(0)
+        it 'the second robot should be moved left', ->
+          robot2.x.should.equal(0)
+          robot2.y.should.equal(1)
