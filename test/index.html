@@ -12,7 +12,9 @@
 	<script>
 		mocha.setup({
 			ui: 'bdd',
-			timeout: 5000
+			timeout: 5000,
+			/* getInterface global leak is sometimes detected in Firefox with firebug addon */
+			globals: 'getInterface' 
 		})</script>
   <script src="lib/chai.js"></script>
   <script>chai.should()</script>
