@@ -40,7 +40,7 @@ define (require, exports, module) ->
 
     @filterEffects: (effects) ->
       effects = @filterOutOppositeEffects(effects)
-      #effects = @filterOutOrthogonalEffects(effects)
+      effects = @filterOutEffectsTargetingSameTile(effects)
       effects = @filterOutEffectsAgainstWall(effects)
       effects = @filterOutDuplicateEffects(effects)
       #effects = (effect for effect in effects when effect.isFirst())
@@ -49,22 +49,16 @@ define (require, exports, module) ->
     @filterOutOppositeEffects: (effects) ->
       effectsByEntityId = @getEffectsByEntityId(effects)
       for id of effectsByEntityId
-        @invalidateOppositeEffectsOnOneEntity(effectsByEntityId[id])
+        @invalidateOppositeEffects(effectsByEntityId[id])
       effects = @filterOutInvalidEffects(effects)
       return effects
 
-    @invalidateOppositeEffectsOnOneEntity: (effects) ->
-      effectsByDirection = @getEffectsByDirection(effects)
-      north = effectsByDirection[0]
-      east = effectsByDirection[1]
-      south = effectsByDirection[2]
-      west = effectsByDirection[3]
-      if north.length > 0 and south.length > 0
-        @invalidateEffectChains(north)
-        @invalidateEffectChains(south)
-      if east.length > 0 and west.length > 0
-        @invalidateEffectChains(east)
-        @invalidateEffectChains(west)
+    @filterOutEffectsTargetingSameTile: (effects) ->
+      effectsByTargetTile = @getEffectsByTargetTile(effects)
+      for e in effectsByTargetTile
+        @invalidateEffectsTargetingOneTile(e)
+      effects = @filterOutInvalidEffects(effects)
+      return effects
 
     @filterOutEffectsAgainstWall: (effects) ->
       for effect in effects
@@ -73,19 +67,41 @@ define (require, exports, module) ->
       effects = @filterOutInvalidEffects(effects)
       return effects
 
-    @invalidateDuplicateEffectsOnOneEntity: (effects) ->
-      effectsByDirection = @getEffectsByDirection(effects)
-      for effects in effectsByDirection
-        if effects.length > 1
-          @invalidateForwardEffects(effects[1..])
-
-
     @filterOutDuplicateEffects: (effects) ->
       effectsByEntityId = @getEffectsByEntityId(effects)
       for id of effectsByEntityId
         @invalidateDuplicateEffectsOnOneEntity(effectsByEntityId[id])
       effects = @filterOutInvalidEffects(effects)
       return effects
+
+    @invalidateEffectsTargetingOneTile: (effects) ->
+      @invalidateOppositeEffects(effects)
+      @invalidateOrthogonalEffects(effects)
+
+    @invalidateOppositeEffects: (effects) ->
+      effectsByDirection = @getEffectsByDirection(effects)
+      north = effectsByDirection[0]
+      east = effectsByDirection[1]
+      south = effectsByDirection[2]
+      west = effectsByDirection[3]
+      @invalidateEffectsOfTwoDirectionsIfBothExist(north, south)
+      @invalidateEffectsOfTwoDirectionsIfBothExist(east, west)
+    
+    @invalidateOrthogonalEffects: (effects) ->
+      effectsByDirection = @getEffectsByDirection(effects)
+      north = effectsByDirection[0]
+      east = effectsByDirection[1]
+      south = effectsByDirection[2]
+      west = effectsByDirection[3]
+      @invalidateEffectsOfTwoDirectionsIfBothExist(north, east)
+      @invalidateEffectsOfTwoDirectionsIfBothExist(east, south)
+      @invalidateEffectsOfTwoDirectionsIfBothExist(south, west)
+      @invalidateEffectsOfTwoDirectionsIfBothExist(west, north)
+    
+    @invalidateEffectsOfTwoDirectionsIfBothExist: (first, second) ->
+      if first.length > 0 and second.length > 0
+        @invalidateEffectChains(first)
+        @invalidateEffectChains(second)
 
     @invalidateDuplicateEffectsOnOneEntity: (effects) ->
       effectsByDirection = @getEffectsByDirection(effects)
@@ -108,6 +124,21 @@ define (require, exports, module) ->
         effectsByEntityId[id].push(effect)
       return effectsByEntityId
 
+    @getEffectsByTargetTile: (effects) ->
+      effectsByTargetTile = {}
+      for effect in effects
+        if not effect.isBlocked()
+          tx = effect.entity.x + effect.direction.dx()
+          ty = effect.entity.y + effect.direction.dy()
+          effectsByTargetTile[tx] ?= {}
+          effectsByTargetTile[tx][ty] ?= []
+          effectsByTargetTile[tx][ty].push(effect)
+      effectsByTargetTileLinear = []
+      for x of effectsByTargetTile
+        for y of effectsByTargetTile[x]
+          effectsByTargetTileLinear.push(effectsByTargetTile[x][y][..])
+      return effectsByTargetTileLinear
+    
     @invalidateEffectChains: (effects) ->
       for effect in effects
         @invalidateEffectChainOf(effect)
