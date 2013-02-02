@@ -6,8 +6,9 @@ define (require, exports, module) ->
 
   # Load all Entity subtypes for loading
   Entity = require 'cs!app/models/Entity'
-  EO = require 'cs!app/models/EntityOthers'
   require 'cs!app/models/EntityRobot'
+  EO = require 'cs!app/models/EntityOthers'
+  Wall = EO.Wall
 
 
   # # class Board #
@@ -238,11 +239,21 @@ define (require, exports, module) ->
     getRobotEntitiesAt: (x, y) ->
       entities = (e for e in @getEntitiesAt(x, y) when e.isRobot())
     
+    getEntitiesOfTypeAt: (x, y, type) ->
+      entities = (e for e in @getEntitiesAt(x, y) when e instanceof type)
+    
     getMovableEntities: ->
       entities = (e for e in @entities_ when e.isMovable())
 
     getPushableEntities: ->
       entities = (e for e in @entities_ when e.isPushable())
+
+    # Returns true if an entity can move from position 'x', 'y'
+    # in direction 'direction'.
+    isPassable: (x, y, direction) ->
+      walls = @getEntitiesOfTypeAt(x, y, Wall)
+      walls = (w for w in walls when w.dir().equals(direction))
+      return walls.length == 0
 
     # Update internal structures on Entity move. Internal,
     # called on event "move" from the Entity.

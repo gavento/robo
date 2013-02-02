@@ -10,11 +10,15 @@ define (require, exports, module) ->
       return effect
 
     constructor: (entity, cause, @direction) ->
+      @blocked = false
       super entity, cause
 
     propagate: (board) ->
-      if @entity.canPush()
-        @affectEntitiesOnNeighbouringTile(board)
+      if board.isPassable(@entity.x, @entity.y, @direction)
+        if @entity.canPush()
+          @affectEntitiesOnNeighbouringTile(board)
+      else
+        @blocked = true
 
     affectEntitiesOnNeighbouringTile: (board) ->
       nx = @entity.x + @direction.dx()
@@ -22,6 +26,9 @@ define (require, exports, module) ->
       for entity in board.getPushableEntitiesAt(nx, ny)
         effect = MoveEffect.createEffect(board, entity, @entity, @direction)
         effect.appendTo(@)
+
+    isBlocked: ->
+      return @blocked
 
     @handleEffects: (effects, opts, callback) ->
       finalEffects = @filterEffects(effects)
@@ -33,6 +40,8 @@ define (require, exports, module) ->
 
     @filterEffects: (effects) ->
       effects = @filterOutOppositeEffects(effects)
+      #effects = @filterOutOrthogonalEffects(effects)
+      effects = @filterOutEffectsAgainstWall(effects)
       effects = @filterOutDuplicateEffects(effects)
       #effects = (effect for effect in effects when effect.isFirst())
       return effects
@@ -56,6 +65,20 @@ define (require, exports, module) ->
       if east.length > 0 and west.length > 0
         @invalidateEffectChains(east)
         @invalidateEffectChains(west)
+
+    @filterOutEffectsAgainstWall: (effects) ->
+      for effect in effects
+        if effect.isBlocked()
+          @invalidateEffectChainOf(effect)
+      effects = @filterOutInvalidEffects(effects)
+      return effects
+
+    @invalidateDuplicateEffectsOnOneEntity: (effects) ->
+      effectsByDirection = @getEffectsByDirection(effects)
+      for effects in effectsByDirection
+        if effects.length > 1
+          @invalidateForwardEffects(effects[1..])
+
 
     @filterOutDuplicateEffects: (effects) ->
       effectsByEntityId = @getEffectsByEntityId(effects)

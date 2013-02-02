@@ -46,5 +46,8 @@ define (require, exports, module) ->
 
     copy: -> new Direction @dir
 
+    equals: (direction) ->
+      return direction.getNumber() == @getNumber()
+
 
   module.exports = Direction
