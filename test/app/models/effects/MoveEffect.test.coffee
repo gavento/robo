@@ -189,7 +189,7 @@ describe 'MoveEffect', ->
           robot3 = new Robot({x: 0, y: 2, type: 'Robot'})
           conveyor1 = new Conveyor({x: 1, y: 1, type: 'C', dir: 'W'})
           conveyor2 = new Conveyor({x: 0, y: 2, type: 'C', dir: 'N'})
-          wall = new Wall({x: 0, y: 1, type: 'W', dir: 'E'})
+          wall = new Wall({x: 0, y: 1, type: 'W', dir: 'W'})
           board.entities([robot1, robot2, robot3, conveyor1, conveyor2, wall])
           board.activateBoard {}, done
         it 'the first robot should not move', ->
@@ -210,12 +210,12 @@ describe 'MoveEffect', ->
           robot2 = new Robot({x: 1, y: 1, type: 'Robot'})
           conveyor1 = new Conveyor({x: 0, y: 1, type: 'C', dir: 'N'})
           conveyor2 = new Conveyor({x: 1, y: 1, type: 'C', dir: 'W'})
-          wall = new Wall({x: 0, y: 1, type: 'W', dir: 'E'})
+          wall = new Wall({x: 0, y: 1, type: 'W', dir: 'W'})
           board.entities([robot1, robot2, conveyor1, conveyor2, wall])
           board.activateBoard {}, done
-        it 'the first robot should not move', ->
+        it 'the first robot should be moved in the direction of the conveyor it is standing on', ->
           robot1.x.should.equal(0)
           robot1.y.should.equal(0)
-        it 'the second robot should be moved in the direction of the conveyor it is standing on', ->
-          robot2.x.should.equal(0)
+        it 'the second robot should not move', ->
+          robot2.x.should.equal(1)
           robot2.y.should.equal(1)
