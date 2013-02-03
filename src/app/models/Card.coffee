@@ -1,6 +1,7 @@
 define (require, exports, module) ->
 
   SimpleModel = require 'cs!app/lib/SimpleModel'
+  EffectFactory = require 'cs!app/models/effects/EffectFactory'
 
   class Card extends SimpleModel
     @configure {name: 'Card', baseClass: true}, 'type', 'priority'
@@ -58,7 +59,10 @@ define (require, exports, module) ->
               optsC.dir = 2
               robot.turn(optsC, cb)
             when "S"
-              robot.step(optsC, cb)
+              effect = EffectFactory.createMoveEffectChain(
+                robot.board, robot, @, robot.dir())
+              EffectFactory.handleAllEffects([effect], optsC, cb)
+              #robot.step(optsC, cb)
             else
               cb(null)
 
