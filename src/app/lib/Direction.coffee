@@ -45,6 +45,8 @@ define (require, exports, module) ->
       return @getName()
 
     copy: -> new Direction @dir
+    
+    opposite: -> new Direction @constructor.toNumber(@dir + 2)
 
     equals: (direction) ->
       return direction.getNumber() == @getNumber()

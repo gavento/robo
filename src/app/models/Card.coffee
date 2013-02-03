@@ -62,7 +62,10 @@ define (require, exports, module) ->
               effect = EffectFactory.createMoveEffectChain(
                 robot.board, robot, @, robot.dir())
               EffectFactory.handleAllEffects([effect], optsC, cb)
-              #robot.step(optsC, cb)
+            when "B"
+              effect = EffectFactory.createMoveEffectChain(
+                robot.board, robot, @, robot.dir().opposite())
+              EffectFactory.handleAllEffects([effect], optsC, cb)
             else
               cb(null)
 
