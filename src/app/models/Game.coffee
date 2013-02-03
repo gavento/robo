@@ -38,20 +38,25 @@ define (require, exports, module) ->
         @started = true
         @run()
 
-    
     getSortedRobots: ->
       # Get all robots of all players.
       robots = []
       for player in @get 'players'
         for robot in player.get 'robots'
           robots.push robot
+      getPriority = (robot, cardIndex) ->
+        cards = robot.get('cards')
+        if cards? and cards.length > cardIndex
+          return cards[cardIndex].get('priority')
+        else
+          return 0
       # Sort robots according to priority of current card.
       robots.sort( (robot1, robot2) =>
-        priority1 = robot1.get('cards')[@cardIndex].get('priority')
-        priority2 = robot2.get('cards')[@cardIndex].get('priority')
+        priority1 = getPriority(robot1, @cardIndex)
+        priority2 = getPriority(robot2, @cardIndex)
         # Robot whose card has higher priority will play first.
         if priority1 < priority2
-          return 1 
+          return 1
         else if priority1 < priority2
           return -1
         else
@@ -64,7 +69,11 @@ define (require, exports, module) ->
       return true
 
     isTurnOver: ->
-      return @cardIndex >= 4 # number of selected cards
+      robots = @getSortedRobots()
+      lengths = (robot.get('cards').length for robot in robots)
+      lengths.push(0) # to ensure that the array is not empty
+      maximum = Math.max(lengths...)
+      return @cardIndex >= maximum # number of selected cards
 
     isCardOver: ->
       return @robotIndex >= @getSortedRobots().length
@@ -119,7 +128,10 @@ define (require, exports, module) ->
   class Game::States::CardNext
     next: ->
       @robotIndex = 0
-      @state.transition("CardPlay")
+      if @isCardOver()
+        @state.transition("BoardStart")
+      else
+        @state.transition("CardPlay")
 
   class Game::States::CardPlay
     next: ->
@@ -151,11 +163,17 @@ define (require, exports, module) ->
 
   class Game::States::RobotPlay
     next: ->
+      robots = @getSortedRobots()
+      if robots.length <= @robotIndex
+        @state.transition("RobotOver")
       robot = @getSortedRobots()[@robotIndex]
-      cards = robot.get 'cards'
-      card = cards[@cardIndex]
-      card.playOnRobot(robot, {}, (=> @state.transition("RobotOver")))
-  
+      cards = robot.get('cards')
+      if cards? and cards.length > @cardIndex
+        card = cards[@cardIndex]
+        card.playOnRobot(robot, {}, (=> @state.transition("RobotOver")))
+      else
+        @state.transition("RobotOver")
+
   class Game::States::RobotOver
     next: ->
       @robotIndex++

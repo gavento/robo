@@ -1,0 +1,276 @@
+{
+  "name": "Riddle 8 -- Crowded",
+  "board": {
+    "width": 4,
+    "height": 4,
+    "entities": [
+      {
+        "x": 0,
+        "y": 0,
+        "type": "C",
+        "dir": "E"
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "type": "W",
+        "dir": "W"
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "type": "C",
+        "dir": "S"
+      },
+      {
+        "x": 3,
+        "y": 0,
+        "type": "C",
+        "dir": "S"
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "type": "C",
+        "dir": "N"
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "type": "C",
+        "dir": "E"
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "type": "C",
+        "dir": "S"
+      },
+      {
+        "x": 3,
+        "y": 1,
+        "type": "C",
+        "dir": "W"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "type": "C",
+        "dir": "N"
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "type": "C",
+        "dir": "W"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "type": "C",
+        "dir": "W"
+      },
+      {
+        "x": 3,
+        "y": 2,
+        "type": "C",
+        "dir": "S"
+      },
+      {
+        "x": 0,
+        "y": 3,
+        "type": "C",
+        "dir": "E"
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "type": "C",
+        "dir": "N"
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "type": "C",
+        "dir": "W"
+      },
+      {
+        "x": 3,
+        "y": 3,
+        "type": "C",
+        "dir": "N"
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "type": "W",
+        "dir": "E"
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "type": "W",
+        "dir": "S"
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "type": "W",
+        "dir": "W"
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "type": "W",
+        "dir": "N"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "type": "W",
+        "dir": "W"
+      },
+      {
+        "x": -1,
+        "y": 2,
+        "type": "W",
+        "dir": "E"
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "type": "Robot",
+        "dir": "E",
+        "image": "roombo-b.png",
+        "health": 7
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "type": "Robot",
+        "dir": "N",
+        "image": "roombo-r.png",
+        "health": 7
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "type": "Robot",
+        "dir": "S",
+        "image": "roombo-y.png",
+        "health": 7
+      },
+      {
+        "x": 3,
+        "y": 0,
+        "type": "Robot",
+        "dir": "S",
+        "image": "roombo-r.png",
+        "health": 7
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "type": "Robot",
+        "dir": "N",
+        "image": "roombo-y.png",
+        "health": 7
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "type": "Robot",
+        "dir": "E",
+        "image": "roombo-r.png",
+        "health": 7
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "type": "Robot",
+        "dir": "S",
+        "image": "roombo-y.png",
+        "health": 7
+      },
+      {
+        "x": 3,
+        "y": 1,
+        "type": "Robot",
+        "dir": "W",
+        "image": "roombo-r.png",
+        "health": 7
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "type": "Robot",
+        "dir": "N",
+        "image": "roombo-y.png",
+        "health": 7
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "type": "Robot",
+        "dir": "W",
+        "image": "roombo-y.png",
+        "health": 7
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "type": "Robot",
+        "dir": "W",
+        "image": "roombo-y.png",
+        "health": 7
+      },
+      {
+        "x": 3,
+        "y": 2,
+        "type": "Robot",
+        "dir": "S",
+        "image": "roombo-r.png",
+        "health": 7
+      },
+      {
+        "x": 0,
+        "y": 3,
+        "type": "Robot",
+        "dir": "E",
+        "image": "roombo-r.png",
+        "health": 7
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "type": "Robot",
+        "dir": "N",
+        "image": "roombo-r.png",
+        "health": 7
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "type": "Robot",
+        "dir": "W",
+        "image": "roombo-b.png",
+        "health": 7
+      },
+      {
+        "x": 3,
+        "y": 3,
+        "type": "Robot",
+        "dir": "N",
+        "image": "roombo-r.png",
+        "health": 7
+      }
+    ]
+  },
+  "players": [
+    {
+      "name": "Spectator",
+      "robotIds": []
+    }
+  ]
+}
+
