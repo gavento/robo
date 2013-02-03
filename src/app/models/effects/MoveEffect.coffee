@@ -41,8 +41,8 @@ define (require, exports, module) ->
     @filterEffects: (effects) ->
       effects = @filterOutOppositeEffects(effects)
       effects = @filterOutEffectsTargetingSameTile(effects)
+      effects = @filterOutBlockedEffects(effects)
       effects = @filterOutOneOfOrthogonalEffects(effects)
-      effects = @filterOutEffectsAgainstWall(effects)
       effects = @filterOutDuplicateEffects(effects)
       #effects = (effect for effect in effects when effect.isFirst())
       return effects
@@ -68,11 +68,34 @@ define (require, exports, module) ->
       effects = @filterOutInvalidEffects(effects)
       return effects
 
-    @filterOutEffectsAgainstWall: (effects) ->
-      for effect in effects
-        if effect.isBlocked()
-          @invalidateEffectChainOf(effect)
-      effects = @filterOutInvalidEffects(effects)
+    @filterOutBlockedEffects: (effects) ->
+      effectsByEntityId = @getEffectsByEntityId(effects)
+      changed = true
+      invalidateEffect = (effect) =>
+        effect.invalidate()
+        changed = true
+      targetsBlockedEntity = (effect) =>
+        if effect.isLast()
+          return false
+        for target in effect.targets
+          id = target.getEntityId()
+          if effectsByEntityId[id]? # only entities with valid effects
+            validEffects = (e for e in effectsByEntityId[id] when e.isValid())
+            if validEffects.length > 0
+              return false
+        return true
+      while changed
+        changed = false
+        for effect in effects
+          if effect.isInvalid()
+            continue
+          if effect.isBlocked()
+            invalidateEffect(effect)
+            continue
+          if targetsBlockedEntity(effect)
+            invalidateEffect(effect)
+            continue
+        effects = @filterOutInvalidEffects(effects)
       return effects
 
     @filterOutDuplicateEffects: (effects) ->

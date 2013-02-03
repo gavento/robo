@@ -216,6 +216,29 @@ describe 'MoveEffect', ->
         it 'the first robot should be moved in the direction of the conveyor it is standing on', ->
           robot1.x.should.equal(0)
           robot1.y.should.equal(0)
-        it 'the second robot should be moved in the difection of the conveyor it is standing on', ->
+        it 'the second robot should be moved in the direction of the conveyor it is standing on', ->
           robot2.x.should.equal(0)
           robot2.y.should.equal(1)
+      describe 'and the second robot is being pushed in an orthogonal direction by third robot', ->
+        robot1 = null
+        robot2 = null
+        robot3 = null
+        before (done) ->
+          board = new Board({width: 2, height: 3})
+          robot1 = new Robot({x: 0, y: 1, type: 'Robot'})
+          robot2 = new Robot({x: 1, y: 1, type: 'Robot'})
+          robot3 = new Robot({x: 1, y: 0, type: 'Robot'})
+          conveyor1 = new Conveyor({x: 1, y: 1, type: 'C', dir: 'W'})
+          conveyor2 = new Conveyor({x: 1, y: 0, type: 'C', dir: 'S'})
+          wall = new Wall({x: 0, y: 1, type: 'W', dir: 'W'})
+          board.entities([robot1, robot2, robot3, conveyor1, conveyor2, wall])
+          board.activateBoard {}, done
+        it 'the first robot should not move', ->
+          robot1.x.should.equal(0)
+          robot1.y.should.equal(1)
+        it 'the second robot should be moved by third robot', ->
+          robot2.x.should.equal(1)
+          robot2.y.should.equal(2)
+        it 'the third robot should be moved in the direction of the conveyor it is standing on', ->
+          robot3.x.should.equal(1)
+          robot3.y.should.equal(1)
