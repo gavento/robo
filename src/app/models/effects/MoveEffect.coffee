@@ -41,6 +41,7 @@ define (require, exports, module) ->
     @filterEffects: (effects) ->
       effects = @filterOutOppositeEffects(effects)
       effects = @filterOutEffectsTargetingSameTile(effects)
+      effects = @filterOutOneOfOrthogonalEffects(effects)
       effects = @filterOutEffectsAgainstWall(effects)
       effects = @filterOutDuplicateEffects(effects)
       #effects = (effect for effect in effects when effect.isFirst())
@@ -57,6 +58,13 @@ define (require, exports, module) ->
       effectsByTargetTile = @getEffectsByTargetTile(effects)
       for e in effectsByTargetTile
         @invalidateEffectsTargetingOneTile(e)
+      effects = @filterOutInvalidEffects(effects)
+      return effects
+
+    @filterOutOneOfOrthogonalEffects: (effects) ->
+      effectsByEntityId = @getEffectsByEntityId(effects)
+      for id of effectsByEntityId
+        @invalidateOneOfOrthogonalEffects(effectsByEntityId[id])
       effects = @filterOutInvalidEffects(effects)
       return effects
 
@@ -98,10 +106,29 @@ define (require, exports, module) ->
       @invalidateEffectsOfTwoDirectionsIfBothExist(south, west)
       @invalidateEffectsOfTwoDirectionsIfBothExist(west, north)
     
+    @invalidateOneOfOrthogonalEffects: (effects) ->
+      effectsByDirection = @getEffectsByDirection(effects)
+      north = effectsByDirection[0]
+      east = effectsByDirection[1]
+      south = effectsByDirection[2]
+      west = effectsByDirection[3]
+      @invalidateNonFirstEffectsOfTwoDirectionsIfBothExist(north, east)
+      @invalidateNonFirstEffectsOfTwoDirectionsIfBothExist(east, south)
+      @invalidateNonFirstEffectsOfTwoDirectionsIfBothExist(south, west)
+      @invalidateNonFirstEffectsOfTwoDirectionsIfBothExist(west, north)
+      
     @invalidateEffectsOfTwoDirectionsIfBothExist: (first, second) ->
       if first.length > 0 and second.length > 0
         @invalidateEffectChains(first)
         @invalidateEffectChains(second)
+
+    @invalidateNonFirstEffectsOfTwoDirectionsIfBothExist: (first, second) ->
+      if first.length > 0 and second.length > 0
+        effects = first.concat(second)
+        for effect in effects
+          if not effect.isFirst()
+            effect.invalidate()
+            @invalidateTargetEffectsOf(effect)
 
     @invalidateDuplicateEffectsOnOneEntity: (effects) ->
       effectsByDirection = @getEffectsByDirection(effects)
