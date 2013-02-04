@@ -9,6 +9,15 @@ define (require, exports, module) ->
       effect.propagate(board)
       return effect
 
+    applyEffect: (opts, callback) ->
+      tx = @entity.x + @direction.dx()
+      ty = @entity.y + @direction.dy()
+      optsC = Object.create opts
+      optsC.x = tx
+      optsC.y = ty
+      optsC.mover = @getPrimaryCause()
+      @entity.move(optsC, callback)
+
     constructor: (entity, cause, @direction) ->
       @blocked = false
       super entity, cause
@@ -188,41 +197,5 @@ define (require, exports, module) ->
         for y of effectsByTargetTile[x]
           effectsByTargetTileLinear.push(effectsByTargetTile[x][y][..])
       return effectsByTargetTileLinear
-    
-    @invalidateEffectChains: (effects) ->
-      for effect in effects
-        @invalidateEffectChainOf(effect)
-
-    @invalidateEffectChainOf: (effect) ->
-      return unless effect.isValid()
-      effect.invalidate()
-      @invalidateSourceEffectsOf(effect)
-      @invalidateTargetEffectsOf(effect)
-    
-    @invalidateForwardEffects: (effects) ->
-      for effect in effects
-        effect.invalidate()
-        @invalidateTargetEffectsOf(effect)
-
-    @invalidateSourceEffectsOf: (effect) ->
-      return unless not effect.isFirst()
-      @invalidateEffectChainOf(effect.source)
-
-    @invalidateTargetEffectsOf: (effect) ->
-      return unless not effect.isLast()
-      for e in effect.targets
-        @invalidateEffectChainOf(e)
-    
-    @filterOutInvalidEffects: (effects) ->
-      return (e for e in effects when e.isValid())
-
-    applyEffect: (opts, callback) ->
-      tx = @entity.x + @direction.dx()
-      ty = @entity.y + @direction.dy()
-      optsC = Object.create opts
-      optsC.x = tx
-      optsC.y = ty
-      optsC.mover = @getPrimaryCause()
-      @entity.move(optsC, callback)
 
   module.exports = MoveEffect
