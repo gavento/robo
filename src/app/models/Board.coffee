@@ -49,16 +49,16 @@ define (require, exports, module) ->
     # All phases of the board are activated one after another. Tiles
     # within one phase are activated simultaneously.
     #
-    # * `attrs` Object containing all options for board 
+    # * `opts` Object containing all options for board 
     #   activation. It is passed to  `Board.activateOnePhase` and subsequently
     #   to `Entity.activate`.
     # * `callback` Callback that is called after all phases have finished.
-    activateBoard: (attrs, callback) ->
+    activateBoard: (opts, callback) ->
       entitiesByPhase = @entitiesByPhase()
       phases = (Number(k) for k in _.keys(entitiesByPhase))
       phases.sort()
       activateOnePhase = (phase, cb) =>
-        @activateOnePhase(entitiesByPhase[phase], attrs, cb)
+        @activateOnePhase(entitiesByPhase[phase], opts, cb)
       async.forEachSeries(phases, activateOnePhase, callback)
 
 
@@ -67,13 +67,13 @@ define (require, exports, module) ->
     # Activate given entities.  
     # After that activate entities with immediate effect on all occupied tiles.
     # * `entities` List of entities that will be activated in parallel. 
-    # * `attrs` Object containing all options for the tile activation.
+    # * `opts` Object containing all options for the tile activation.
     # * `callback` Callback that is called when the phase is finished.
-    activateOnePhase: (entities, attrs, callback) ->
+    activateOnePhase: (entities, opts, callback) ->
       activateEntitiesAndHooks = (cb) =>
-        @activateEntitiesAndHooks(entities, attrs, cb)
+        @activateEntitiesAndHooks(entities, opts, cb)
       activateOccupiedTiles = (cb) =>
-        @activateOccupiedTiles(attrs, cb)
+        @activateOccupiedTiles(opts, cb)
       async.series([activateEntitiesAndHooks, activateOccupiedTiles], callback)
 
 
@@ -83,17 +83,17 @@ define (require, exports, module) ->
     # Only some entities are activated when occupied (hole, water, etc.). 
     # This is called after each phase.
     #
-    # * `attrs` Object containing all options for the tile activation. 
+    # * `opts` Object containing all options for the tile activation. 
     #   It is passed to  `Board.activateOnEnter` and subsequently
     #   to `Entity.activate`.
     # * `callback` Callback that is called after all occupied tiles have been
     #   activated.
-    activateOccupiedTiles: (attrs, callback) ->
+    activateOccupiedTiles: (opts, callback) ->
       activateTileWithEntity = (entity, cb) =>
-        attrsCopy = Object.create attrs
-        attrsCopy.x = entity.x
-        attrsCopy.y = entity.y
-        @activateImmediateEffects(attrsCopy, cb)
+        optsCopy = Object.create opts
+        optsCopy.x = entity.x
+        optsCopy.y = entity.y
+        @activateImmediateEffects(optsCopy, cb)
       movableEntities = @getMovableEntities()
       async.forEach(movableEntities, activateTileWithEntity, callback)
 
@@ -107,14 +107,14 @@ define (require, exports, module) ->
     # be called on tiles entered by a movable entity and on tiles occupied by
     # by a movable entity after each board phase. 
     #
-    # * `attrs` Object containing all options for the tile activation. Must
+    # * `opts` Object containing all options for the tile activation. Must
     #   contain attributes `x` and `y` (coordinates of activated tile).
     # * `callback` Callback that is called after all entitnies effect on given 
     #   that have an immediate effect have been activated.
-    activateImmediateEffects: (attrs, callback) ->
-      throw "attrs.x and attrs.y required" unless attrs? and attrs.x? and attrs.y?
-      entities = (e for e in @tile(attrs.x, attrs.y) when e.hasImmediateEffect())
-      @activateEntitiesAndHooks(entities, attrs, callback)
+    activateImmediateEffects: (opts, callback) ->
+      throw "opts.x and opts.y required" unless opts? and opts.x? and opts.y?
+      entities = (e for e in @tile(opts.x, opts.y) when e.hasImmediateEffect())
+      @activateEntitiesAndHooks(entities, opts, callback)
 
 
     # ### Board.activateEntitiesAndHooks ###
@@ -122,22 +122,22 @@ define (require, exports, module) ->
     # Activate given entities and perform hooks.
     #
     # * `entities` List of entities that will be activated in parallel.
-    # * `attrs` Object containing all options for the tile activation.
+    # * `opts` Object containing all options for the tile activation.
     # * `callback` Callback that is called when all entities have been activated
     #   and all hooks finished.
-    activateEntitiesAndHooks: (entities, attrs, callback) ->
-      attrsCopy = Object.create attrs
-      attrsCopy.afterHooks = []
-      attrsCopy.effects = []
+    activateEntitiesAndHooks: (entities, opts, callback) ->
+      optsCopy = Object.create opts
+      optsCopy.afterHooks = []
+      optsCopy.effects = []
       activateEntities = (cb) =>
         async.forEach(entities, activateEntity, cb)
       activateEntity = (entity, cb) =>
-        entity.activate(attrsCopy, cb)
+        entity.activate(optsCopy, cb)
       performHooks = (cb) =>
-        if attrsCopy.effects.length > 0
-          EffectFactory.handleAllEffects(attrsCopy.effects, attrs, cb)
+        if optsCopy.effects.length > 0
+          EffectFactory.handleAllEffects(optsCopy.effects, opts, cb)
         else
-          async.parallel(attrsCopy.afterHooks, cb)
+          async.parallel(optsCopy.afterHooks, cb)
       async.parallel([activateEntities, performHooks], callback)
 
 
