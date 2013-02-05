@@ -30,7 +30,6 @@ define (require, exports, module) ->
     getPhases: -> [50]
 
     activate: (opts, callback) ->
-      # Crush (damage) all entities on this turner.
       entities = @board.getRobotEntitiesAt(@x, @y)
       crushEntities = (cb) =>
         async.forEach(entities, crushEntity, cb)
@@ -50,26 +49,18 @@ define (require, exports, module) ->
     getPhases: -> [40]
     turnDirection: 0
 
-    # this is simple and naive
     activate: (opts, callback) ->
-      dir = (@get "dir")
-      optsC = Object.create opts
-      optsC.oldDir = dir.copy()
-      optsC.dir = @turnDirection
-      optsC.mover = @
-      # Change direction of the turner itself.
-      dir.turn(@turnDirection)
-      # Rotate all movable entities on this turner.
-      entities = @board.getMovableEntitiesAt(@x, @y)
-      rotateEntities = (cb) =>
-        async.forEach(entities, rotateEntity, cb)
-      rotateEntity = (entity, cb) =>
-        optsC = Object.create opts
-        optsC.mover = @
-        optsC.dir = @turnDirection
-        entity.rotate(optsC, cb)
-      opts.afterHooks.push(rotateEntities)
-      super optsC, callback
+      for entity in @board.getTurnableEntitiesAt(@x, @y)
+        effect = EffectFactory.createTurnEffectChain(
+          @board, entity, @, @turnDirection)
+        opts.effects.push(effect)
+      # Rotate the turner itself.
+      optsCopy = Object.create opts
+      optsCopy.oldDir = @dir().copy()
+      optsCopy.dir = @turnDirection
+      optsCopy.mover = @
+      @dir().turn(@turnDirection)
+      super optsCopy, callback
 
 
   class TurnerR extends Turner

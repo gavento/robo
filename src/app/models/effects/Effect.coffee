@@ -5,7 +5,7 @@ define (require, exports, module) ->
       @source = null
       @targets = []
       @valid = true
-    
+
     appendTo: (effect) ->
       @source = effect
       effect.targets.push(@)
@@ -36,7 +36,12 @@ define (require, exports, module) ->
       until effect.isFirst()
         effect = effect.source
       return effect.cause
-    
+   
+    @applyEffects: (effects, opts, callback) ->
+      applyOneEffect = (effect, cb) =>
+        effect.applyEffect(opts, cb)
+      async.forEach(effects, applyOneEffect, callback)
+
     @invalidateEffectChains: (effects) ->
       for effect in effects
         @invalidateEffectChainOf(effect)

@@ -13,6 +13,7 @@ define (require, exports, module) ->
 
     getPhases: -> []
     isMovable: -> false
+    isTurnable: -> false
     isPushable: -> false
     canPush: -> @isPushable() # only pushable entities can push
     isRobot: -> false
@@ -35,11 +36,8 @@ define (require, exports, module) ->
     # Makes sense only for Entities with @dir.
     rotate: (opts, callback) ->
       throw "opts.dir required" unless opts? and opts.dir?
-      optsC = Object.create opts
-      optsC.entity = @
-      optsC.oldDir = (@get "dir").copy()
-      (@get "dir").turnRight opts.dir
-      @triggerLockedEvent("rotate", optsC, callback)
+      @dir().turn(opts.dir)
+      @triggerLockedEvent("rotate", opts, callback)
 
     destroy: ->
       super
@@ -56,8 +54,8 @@ define (require, exports, module) ->
     # Helper method that creates lock, locks it, triggers an event and unlocks the
     # lock. 
     triggerLockedEvent: (name, opts, callback) ->
-      lock = new MultiLock(callback)
-      unlock = lock.getLock("Entity.#{name}", 5000)
+      lock = new MultiLock(callback, 10000)
+      unlock = lock.getLock("Entity.#{name}")
       @trigger(name, opts, lock)
       unlock()
 

@@ -46,28 +46,26 @@ define (require, exports, module) ->
         # This function handles the movement.
         playNextCommandMovement = (cb) =>
           command = commands.shift()
-          optsC = Object.create opts
-          optsC.mover = @
+          effect = null
           switch command
             when "R"
-              optsC.dir = 1
-              robot.turn(optsC, cb)
+              effect = EffectFactory.createTurnEffectChain(
+                @board, robot, @, 1)
             when "L"
-              optsC.dir = -1
-              robot.turn(optsC, cb)
+              effect = EffectFactory.createTurnEffectChain(
+                @board, robot, @, -1)
             when "U"
-              optsC.dir = 2
-              robot.turn(optsC, cb)
+              effect = EffectFactory.createTurnEffectChain(
+                @board, robot, @, 2)
             when "S"
               effect = EffectFactory.createMoveEffectChain(
                 robot.board, robot, @, robot.dir())
-              EffectFactory.handleAllEffects([effect], optsC, cb)
             when "B"
               effect = EffectFactory.createMoveEffectChain(
                 robot.board, robot, @, robot.dir().opposite())
-              EffectFactory.handleAllEffects([effect], optsC, cb)
             else
               cb(null)
+          EffectFactory.handleAllEffects([effect], opts, cb)
 
         # This function handles the activation of the tile the robot
         # just entered.

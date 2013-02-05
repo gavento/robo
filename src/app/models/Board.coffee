@@ -232,10 +232,13 @@ define (require, exports, module) ->
 
     getMovableEntitiesAt: (x, y) ->
       entities = (e for e in @getEntitiesAt(x, y) when e.isMovable())
-    
+   
     getPushableEntitiesAt: (x, y) ->
       entities = (e for e in @getEntitiesAt(x, y) when e.isPushable())
-    
+
+    getTurnableEntitiesAt: (x, y) ->
+      entities = (e for e in @getEntitiesAt(x, y) when e.isTurnable())
+     
     getRobotEntitiesAt: (x, y) ->
       entities = (e for e in @getEntitiesAt(x, y) when e.isRobot())
     

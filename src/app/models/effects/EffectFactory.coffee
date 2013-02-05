@@ -1,10 +1,14 @@
 define (require, exports, module) ->
   
   MoveEffect = require 'cs!app/models/effects/MoveEffect'
+  TurnEffect = require 'cs!app/models/effects/TurnEffect'
   
   class EffectFactory
     @createMoveEffectChain: (board, entity, cause, direction) ->
       return MoveEffect.createEffect(board, entity, cause, direction)
+
+    @createTurnEffectChain: (board, entity, cause, amount) ->
+      return TurnEffect.createEffect(board, entity, cause, amount)
 
     @handleAllEffects: (effects, opts, callback) ->
       effectsByType = @divideEffectByType(effects)

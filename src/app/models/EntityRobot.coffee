@@ -59,6 +59,7 @@ define (require, exports, module) ->
 
     isMovable: -> true
     isPushable: -> true
+    isTurnable: -> true
     isRobot: -> true
 
     step: (opts, callback) ->
