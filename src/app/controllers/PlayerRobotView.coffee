@@ -42,16 +42,6 @@ define (require, exports, module) ->
       @append @robotView
       for cv in @cardViews
         @append cv
-      @append @$("<button class='PlayerRobotViewButton'>Play cards</button>")
-      @$('.PlayerRobotViewButton').click =>
-        cards = @robot.get 'cards'
-        f = (cardno) =>
-          if cardno < cards.length
-            ml = new MultiLock ( => f(cardno + 1)), 5000
-            unlock = ml.getLock "Card"
-            cards[cardno].playOnRobot @robot, {lock: ml.getLock}
-            unlock()
-        f 0
       @append @$("<button class='PlayerRobotViewButtonPlaceRobot'>Place robot</button>")
       @$('.PlayerRobotViewButtonPlaceRobot').click => @robot.place({}, (->) )
       if @robot.isPlaced()
