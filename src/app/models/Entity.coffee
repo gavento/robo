@@ -30,14 +30,14 @@ define (require, exports, module) ->
       optsC.oldY = @y
       @x = optsC.x
       @y = optsC.y
-      @triggerLockedEvent("move", optsC, callback)
+      @triggerLockedEvent("entity:move", optsC, callback)
 
     # Rotate the entity right, with animation if opts.lock given.
     # Makes sense only for Entities with @dir.
     rotate: (opts, callback) ->
       throw "opts.dir required" unless opts? and opts.dir?
       @dir().turn(opts.dir)
-      @triggerLockedEvent("rotate", opts, callback)
+      @triggerLockedEvent("entity:rotate", opts, callback)
 
     destroy: ->
       super
@@ -49,7 +49,7 @@ define (require, exports, module) ->
       opts ?= {}
       optsC = Object.create opts
       optsC.entity = @
-      @triggerLockedEvent("activate", optsC, callback)
+      @triggerLockedEvent("entity:activate", optsC, callback)
 
     # Helper method that creates lock, locks it, triggers an event and unlocks the
     # lock. 

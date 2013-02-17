@@ -30,14 +30,14 @@ define (require, exports, module) ->
 
       @entity.bind("update", @render)
       @bind "release", (=> @entity.unbind @render)
-      @entity.bind("move", @move)
-      @bind "release", (=> @entity.unbind @move)
-      @entity.bind("rotate", @rotate)
-      @bind "release", (=> @entity.unbind @rotate)
-      @entity.bind("fall", @fall)
-      @bind "release", (=> @entity.unbind @fall)
-      @entity.bind("place", @place)
-      @bind "release", (=> @entity.unbind @place)
+      @entity.bind("entity:move", @onEntityMove)
+      @bind "release", (=> @entity.unbind @onEntityMove)
+      @entity.bind("entity:rotate", @onEntityRotate)
+      @bind "release", (=> @entity.unbind @onEntityRotate)
+      @entity.bind("entity:fall", @onEntityFall)
+      @bind "release", (=> @entity.unbind @onEntityFall)
+      @entity.bind("entity:place", @onEntityPlace)
+      @bind "release", (=> @entity.unbind @onEntityPlace)
 
       #DEBUG# @bind "release", (=> @log "releasing ", @)
       @render()
@@ -56,30 +56,30 @@ define (require, exports, module) ->
     # Animate a rotating Entity. 
     # `opts.lock` is used for board locking, opts is passed to 
     # guessDuration().
-    rotate: (opts, lock) =>
+    onEntityRotate: (opts, lock) =>
       if @passive
         return
       throw "opts.oldDir and opts.dir required" unless opts? and opts.oldDir? and opts.dir?
-      unlock = lock.getLock("EntityView.rotate")
+      unlock = lock.getLock("EntityView.onEntityRotate")
       @animateEntity(opts, unlock)
 
     # Animate a moving Entity. 
     # `opts.lock` is used for board locking, opts is passed to 
     # guessDuration().
-    move: (opts, lock) =>
+    onEntityMove: (opts, lock) =>
       if @passive
         return
 
-      unlock = lock.getLock("EntityView.move")
+      unlock = lock.getLock("EntityView.onEntityMove")
       duration = @guessDuration opts
       @el.animate({left: @boardView.tileW * @entity.x, top: @boardView.tileH * @entity.y},
         duration, 'linear', unlock)
 
     # Animate a falling Entity. 
-    fall: (opts, lock) =>
+    onEntityFall: (opts, lock) =>
       if @passive
         return
-      unlock = lock.getLock("EntityView.fall")
+      unlock = lock.getLock("EntityView.onEntityFall")
       # First animate the entity and then hide it.
       async.series(
         [ ((cb) => @animateEntity(opts, cb)),
@@ -91,7 +91,7 @@ define (require, exports, module) ->
     # Place an entity back on the board.
     # This is called for robots when they are placed back on the board
     # after they fall into a hole.
-    place: (opts, lock) =>
+    onEntityPlace: (opts, lock) =>
       if @passive
         return
       @log "place ", @entity, opts

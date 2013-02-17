@@ -162,10 +162,26 @@ describe 'Board', ->
         robot.dir().dir.should.equal(2)
         turner.dir().dir.should.equal(2)
         done()
-    it 'should not rotate robot that is not on the turner', (done)->
+    it 'should not rotate robot that is not on the turner', (done) ->
       turner = new TurnerL({x: 1, y: 0, type: 'L', dir: 'N'})
       board.entities([robot, turner])
       robot.dir().dir.should.equal(0)
       board.activateBoard {}, ->
         robot.dir().dir.should.equal(0)
         done()
+
+  describe 'should update tile when an entity is moved', ->
+    board = null
+    robot = null
+    beforeEach (done) ->
+      board = new Board({width: 3, height: 3})
+      robot = new Robot({x: 0, y: 0, type: 'Robot'})
+      board.entities([robot])
+      robot.move({x:0, y:1}, done)
+    it 'tile where the robot was should be empty', ->
+      board.tile(0, 0).should.be.empty
+    it 'tile where the robot should be should contain the robot', ->
+      board.tile(0, 1).should.contain(robot)
+    it 'tile where the robot is should contain the robot', ->
+      board.tile(robot.x, robot.y).should.contain(robot)
+

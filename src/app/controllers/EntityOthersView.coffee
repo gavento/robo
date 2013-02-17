@@ -15,11 +15,11 @@ define (require, exports, module) ->
 
     constructor: ->
       super
-      @entity.bind "activate", @animate
+      @entity.bind "entity:activate", @onEntityActivate
       @bind "release", (=> @entity.unbind @animate)
 
-    animate: (opts, lock) =>
-      unlock = lock.getLock("EntityOthersView.animate")
+    onEntityActivate: (opts, lock) =>
+      unlock = lock.getLock("EntityOthersView.onEntityActivate")
       @animateEntity(opts, unlock)
 
 

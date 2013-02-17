@@ -22,12 +22,12 @@ define (require, exports, module) ->
     # * `opts.lock` for board locking.
     # * `opts.duration` to override anim. duration.
     # * `opts.speed` to set relative speed (2 = twice as long).
-    move: (opts, lock) =>
+    onEntityMove: (opts, lock) =>
       #DEBUG# @log "robot moved ", @, opts
       if @passive
         return
       duration = @guessDuration opts
-      unlock = lock.getLock("EntityRobotView.move")
+      unlock = lock.getLock("EntityRobotView.onEntityMove")
       @el.animate({left: @boardView.tileW * @entity.x, top: @boardView.tileH * @entity.y},
         duration, 'linear', unlock)
 

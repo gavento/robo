@@ -31,8 +31,12 @@ define (require, exports, module) ->
         @cardViews.push cv
         @bind "release", (=> cv.release())
 
-      @robot.bind("damage", @render)
-      @bind "release", (=> @robot.unbind @render)
+      @robot.bind("entity:damage", @onEntityDamage)
+      @bind "release", (=> @robot.unbind @onEntityDamage)
+      @robot.bind("entity:fall", @onEntityFall)
+      @bind "release", (=> @robot.unbind @onEntityFall)
+      @robot.bind("entity:place", @onEntityPlace)
+      @bind "release", (=> @robot.unbind @onEntityFall)
       #DEBUG# @bind "release", (=> @log "releasing ", @)
       @render()
 
@@ -42,10 +46,19 @@ define (require, exports, module) ->
       @append @robotView
       for cv in @cardViews
         @append cv
+
+    onEntityDamage: =>
+      @render()
+
+    onEntityFall: =>
+      console.log "onEntityFall"
       @append @$("<button class='PlayerRobotViewButtonPlaceRobot'>Place robot</button>")
-      @$('.PlayerRobotViewButtonPlaceRobot').click => @robot.place({}, (->) )
+      @$('.PlayerRobotViewButtonPlaceRobot').click => @robot.setRespawnDirection('N')
       if @robot.isPlaced()
         @$('.PlayerRobotViewButtonPlaceRobot').attr("disabled", "disabled")
 
+    onEntityPlace: =>
+      @render()
+    
 
   module.exports = PlayerRobotView

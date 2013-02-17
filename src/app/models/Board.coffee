@@ -188,7 +188,7 @@ define (require, exports, module) ->
         e = Entity.createSubType e
       throw "added Entity has @board defined" if e.board
       e.board = @
-      e.bind "move place", @moveEntity
+      e.bind "entity:move entity:place", @moveEntity
       @entities_.push e
       @entityById_[e.get 'id'] = e
       @tiles_[e.x] ?= {}

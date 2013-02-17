@@ -13,13 +13,15 @@ define (require, exports, module) ->
       @cards_ ?= []
       @dir_ ?= new Direction(0)
       @placed = true
+      @respawnX = @x
+      @respawnY = @y
+      @respawnDir = @dir
       super
 
     damage: (opts, callback) ->
       throw "opts.damage required" unless opts? and opts.damage?
       @health -= opts.damage
-      @triggerLockedEvent("damage", opts, callback)
-      #@trigger "update"
+      @triggerLockedEvent("entity:damage", opts, callback)
 
     fall: (opts, callback) ->
       throw "opts.dir required" unless opts?
@@ -29,7 +31,7 @@ define (require, exports, module) ->
       optsC.oldDir = (@get "dir").copy()
       (@get "dir").turnRight optsC.dir
       @placed = false
-      @triggerLockedEvent("fall", optsC, callback)
+      @triggerLockedEvent("entity:fall", optsC, callback)
 
     # Returns true if the robot is currently placed on the board.
     # Returns false if the robot is not on the board. It happens
@@ -53,7 +55,7 @@ define (require, exports, module) ->
           @x = 3
           @y = 2
         @placed = true
-        @triggerLockedEvent("place", optsC, callback)
+        @triggerLockedEvent("entity:place", optsC, callback)
       else
         throw "Placing robot that is already placed."
 
