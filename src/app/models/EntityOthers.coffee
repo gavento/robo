@@ -100,7 +100,7 @@ define (require, exports, module) ->
       super opts, callback
 
   class Wall extends Entity
-    @configure {name:'Wall', subClass:true, registerAs: 'W'}
+    @configure {name:'Wall', subClass:true, registerAs: 'W'}, 'dir'
     @typedProperty 'dir', Direction
 
   module.exports =

@@ -34,10 +34,6 @@ define (require, exports, module) ->
       @bind "release", (=> @entity.unbind @onEntityMove)
       @entity.bind("entity:rotate", @onEntityRotate)
       @bind "release", (=> @entity.unbind @onEntityRotate)
-      @entity.bind("entity:fall", @onEntityFall)
-      @bind "release", (=> @entity.unbind @onEntityFall)
-      @entity.bind("entity:place", @onEntityPlace)
-      @bind "release", (=> @entity.unbind @onEntityPlace)
 
       #DEBUG# @bind "release", (=> @log "releasing ", @)
       @render()
@@ -74,29 +70,6 @@ define (require, exports, module) ->
       duration = @guessDuration opts
       @el.animate({left: @boardView.tileW * @entity.x, top: @boardView.tileH * @entity.y},
         duration, 'linear', unlock)
-
-    # Animate a falling Entity. 
-    onEntityFall: (opts, lock) =>
-      if @passive
-        return
-      unlock = lock.getLock("EntityView.onEntityFall")
-      # First animate the entity and then hide it.
-      async.series(
-        [ ((cb) => @animateEntity(opts, cb)),
-          ((cb) =>
-            @el.hide()
-            cb(null))],
-        unlock)
-
-    # Place an entity back on the board.
-    # This is called for robots when they are placed back on the board
-    # after they fall into a hole.
-    onEntityPlace: (opts, lock) =>
-      if @passive
-        return
-      @log "place ", @entity, opts
-      @el.show()
-      @render()
 
     # Draw the entity as a 1x1 CSS-sprite tile.
     render: =>
