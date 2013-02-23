@@ -128,17 +128,18 @@ define (require, exports, module) ->
 
     constructor: ->
       super
-      @robot.bind("robot:respawn:changed", @onRobotRespawnChanged)
+      @robot.bind("robot:respawn:confirmed", @onRobotRespawnChanged)
       @bind "release", (=> @robot.unbind @onRobotRespawnChanged)
       @render()
 
     render: =>
-      x = @robot.respawnX
-      y = @robot.respawnY
-      dir = @robot.respawnDir.getName()
+      respawn = @robot.respawnPosition()
+      x = respawn.x
+      y = respawn.y
+      dir = respawn.dir().getName()
       @html("Respawn at [x: #{x}, y: #{y}, dir: #{dir}]")
     
-    onRobotRespawnChanged: =>
+    onRobotRespawnConfirmed: =>
       @render()
 
 
@@ -155,7 +156,7 @@ define (require, exports, module) ->
       @html("#{@direction}")
     
     click: ->
-      @robot.setRespawnDirection(@direction)
+      @robot.confirmRespawnDirection(@direction)
 
     onRobotRespawnChanged: ->
       #@render()
