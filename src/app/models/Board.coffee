@@ -229,6 +229,9 @@ define (require, exports, module) ->
     getEntitiesAt: (x, y) ->
       entities = @tile(x, y)
 
+    getPlacedEntities: ->
+      entities = (e for e in @entities_ when e.isPlaced())
+
     getMovableEntitiesAt: (x, y) ->
       entities = (e for e in @getEntitiesAt(x, y) when e.isMovable())
    
@@ -245,10 +248,10 @@ define (require, exports, module) ->
       entities = (e for e in @getEntitiesAt(x, y) when e instanceof type)
     
     getMovableEntities: ->
-      entities = (e for e in @entities_ when e.isMovable())
+      entities = (e for e in @getPlacedEntities() when e.isMovable())
 
     getPushableEntities: ->
-      entities = (e for e in @entities_ when e.isPushable())
+      entities = (e for e in @getPlacedEntities() when e.isPushable())
 
     # Returns true if an entity can move from position 'x', 'y'
     # in direction 'direction'.
