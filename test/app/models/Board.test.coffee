@@ -185,3 +185,16 @@ describe 'Board', ->
     it 'tile where the robot is should contain the robot', ->
       board.tile(robot.x, robot.y).should.contain(robot)
 
+  describe 'should not contain robot that is not placed', ->
+    board = null
+    robot = null
+    beforeEach ->
+      board = new Board({width: 1, height: 1})
+      robot = new Robot({x: 0, y: 0, type: 'Robot'}, health: 8)
+      robot.placed = false
+      board.entities([robot])
+    it 'robot should not be placed', ->
+      robot.isPlaced().should.be.false
+    it 'the tile where the robot stands should be empty', ->
+      board.tile(0, 0).should.be.empty
+

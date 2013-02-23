@@ -214,21 +214,20 @@ define (require, exports, module) ->
     # Return list of entities at `[x][y]`. If the coordinates are outside
     # the board than `hole` entity is always part of the returned list.
     tile: (x, y) ->
+      entities = []
       if @inside(x, y)
         if @tiles_[x]? and @tiles_[x][y]?
-          return @tiles_[x][y]
-        else
-          return []
+          entities = @tiles_[x][y]
       else
-        entities = [@hole_]
+        entities.push(@hole_)
         for e in @entities_
           if e.x == x && e.y == y
             entities.push(e)
-        return entities
+      entities = (e for e in entities when e.isPlaced())
+      return entities
 
     getEntitiesAt: (x, y) ->
       entities = @tile(x, y)
-      return entities
 
     getMovableEntitiesAt: (x, y) ->
       entities = (e for e in @getEntitiesAt(x, y) when e.isMovable())
