@@ -11,7 +11,7 @@ define (require, exports, module) ->
       super
       throw "@x and @y required" unless @x? and @y?
       throw "@dir required" unless @dir?
-      @confirmed ?= true
+      @confirmed ?= false
 
     confirmDirection: (direction) ->
       @dir_ = new Direction(direction)
@@ -20,7 +20,7 @@ define (require, exports, module) ->
     isConfirmed: ->
       return @confirmed
 
-    disconfirm: ->
+    unconfirm: ->
       @confirmed = false
 
   module.exports = RespawnPosition

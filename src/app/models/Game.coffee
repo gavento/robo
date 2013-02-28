@@ -27,7 +27,10 @@ define (require, exports, module) ->
 
     # Run or the game from current state.
     run: ->
-      if not @isUserActionRequired()
+      if @isUserActionRequired()
+        @trigger "game:interrupt"
+      else
+        @trigger "game:continue"
         # Continue only if no user action is required (eg. selecting
         # cards or choosing rotation on a flag).
         @next()
@@ -36,7 +39,7 @@ define (require, exports, module) ->
     continue: ->
       if not @started
         @started = true
-        @run()
+      @run()
 
     getSortedRobots: ->
       # Get all robots of all players.
@@ -80,23 +83,27 @@ define (require, exports, module) ->
 
     isRobotPlaced: ->
       return @getSortedRobots()[@robotIndex].isPlaced()
+    
+    canRobotBePlaced: ->
+      return @getSortedRobots()[@robotIndex].canBePlaced()
 
 
+  class Interface
+    isUserActionRequired: -> return false
+    next: ->
 
   class Game::States
-    isUserActionRequired: ->
-      return false
 
   # Initial game state. This state is active only immediately after the game 
   # is loaded.
-  class Game::States::GameStart
+  class Game::States::GameStart extends Interface
     isUserActionRequired: ->
       return not @started
 
     next: ->
        @state.transition("TurnNext")
 
-  class Game::States::GameOver
+  class Game::States::GameOver extends Interface
     next: ->
       @started = false
       @state.transition("GameStart")
@@ -104,7 +111,7 @@ define (require, exports, module) ->
 
 
   # Deal cards and let player to select some.
-  class Game::States::TurnNext
+  class Game::States::TurnNext extends Interface
     next: ->
       @cardIndex = 0
       @state.transition("TurnPlay")
@@ -112,11 +119,11 @@ define (require, exports, module) ->
   # Cards are selected, play the turn. 
   # Move robots according to their cards and than move the board.  
   # Repeat the process until all cards of all robots have been played.
-  class Game::States::TurnPlay
+  class Game::States::TurnPlay extends Interface
     next: ->
       @state.transition("CardNext")
 
-  class Game::States::TurnOver
+  class Game::States::TurnOver extends Interface
     next: ->
       if @isGameOver
         @state.transition("GameOver")
@@ -125,7 +132,7 @@ define (require, exports, module) ->
 
 
 
-  class Game::States::CardNext
+  class Game::States::CardNext extends Interface
     next: ->
       @robotIndex = 0
       if @isCardOver()
@@ -133,11 +140,11 @@ define (require, exports, module) ->
       else
         @state.transition("CardPlay")
 
-  class Game::States::CardPlay
+  class Game::States::CardPlay extends Interface
     next: ->
       @state.transition("RobotNext")
 
-  class Game::States::CardOver
+  class Game::States::CardOver extends Interface
     next: ->
       @cardIndex++
       if @isTurnOver()
@@ -147,21 +154,22 @@ define (require, exports, module) ->
 
 
 
-  class Game::States::RobotNext
+  class Game::States::RobotNext extends Interface
     next: ->
       if @isRobotPlaced()
         @state.transition("RobotPlay")
       else
         @state.transition("RobotPlace")
   
-  class Game::States::RobotPlace
+  class Game::States::RobotPlace extends Interface
     isUserActionRequired: ->
-      return not @isRobotPlaced()
+      return not @isRobotPlaced() and not @canRobotBePlaced()
 
     next: ->
-      @state.transition("RobotPlay")
+      robot = @getSortedRobots()[@robotIndex]
+      robot.place({}, => @state.transition("RobotPlay"))
 
-  class Game::States::RobotPlay
+  class Game::States::RobotPlay extends Interface
     next: ->
       robots = @getSortedRobots()
       if robots.length <= @robotIndex
@@ -174,7 +182,7 @@ define (require, exports, module) ->
       else
         @state.transition("RobotOver")
 
-  class Game::States::RobotOver
+  class Game::States::RobotOver extends Interface
     next: ->
       @robotIndex++
       if @isCardOver()
@@ -184,15 +192,15 @@ define (require, exports, module) ->
   
 
 
-  class Game::States::BoardStart
+  class Game::States::BoardStart extends Interface
     next: ->
       @state.transition("BoardActive")
   
-  class Game::States::BoardActive
+  class Game::States::BoardActive extends Interface
     next: ->
       @board().activateBoard({}, (=> @state.transition("BoardOver")))
   
-  class Game::States::BoardOver
+  class Game::States::BoardOver extends Interface
     next: ->
       if @isCardOver
         @state.transition("CardOver")

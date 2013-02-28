@@ -4,6 +4,9 @@
 define (require, exports, module) ->
 
   class Stateful
+    # If this is set to true than debugging outputs will be enabled.
+    @debug = false
+
     # Public: Constructor for the State object.
     # 
     # object       - The object that requires state handling.
@@ -22,21 +25,24 @@ define (require, exports, module) ->
       @_enterState(state)
 
     _exitState: (state) =>
-      #console.log "Leaving state:", @current
-      api = @interfaces[@current]
-      for property in api
+      console.log 'Leaving state:', @current if Stateful.debug
+      api = new @interfaces[@current]
+      for property of api
+        continue if property == 'constructor'
+        console.log 'Deleting property:', property if Stateful.debug
         delete @object[property]
 
     _enterState: (state) =>
-      #console.log "Entering state:", state
+      console.log 'Entering state:', state if Stateful.debug
       api = new @interfaces[state]
       throw "Invalid state: " + state unless api
-    
       for property of api
+        continue if property == 'constructor'
+        console.log 'Adding property:', property if Stateful.debug
         @object[property] = api[property]
 
       @current = state
-      @object.trigger "state:entered"
+      @object.trigger 'state:entered'
     
   module.exports = Stateful
 

@@ -11,7 +11,12 @@ define (require, exports, module) ->
           when "S" then return 2
           when "W" then return 3
           else throw "invalid Direction #{ dir }"
-      return ((dir % 4) + 4) % 4
+      else if typeof(dir) == "number"
+        return ((dir % 4) + 4) % 4
+      else if dir instanceof Direction
+        return dir.getNumber()
+      else
+        throw "invalid Direction #{ dir }"
 
     @toName: (dir) ->
       return "NESW"[@toNumber dir]
@@ -30,6 +35,9 @@ define (require, exports, module) ->
 
     tyrnLeft: (amount = 1) ->
       @dir = @constructor.toNumber(@dir - amount)
+
+    set: (dir) ->
+      @dir = @constructor.toNumber(dir)
 
     getNumber: ->
       return @dir

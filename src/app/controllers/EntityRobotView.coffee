@@ -8,20 +8,20 @@ define (require, exports, module) ->
   class RobotView extends EntityView
     @registerTypeName "Robot"
 
-    attributes:
-      class: 'EntityView RobotView'
+    attributes: class: 'EntityView RobotView'
     animFrames: 9
-
-    render: =>
+    constructor: ->
       super
       @entity.bind("robot:fall", @onRobotFall)
       @bind "release", (=> @entity.unbind @onRobotFall)
       @entity.bind("robot:place", @onRobotPlace)
       @bind "release", (=> @entity.unbind @onRobotPlace)
+
+    render: =>
+      super
       if @entity.image
         @el.css 'background-image': "url('img/#{@entity.image}')"
 
-    # Animate a falling robot.
     onRobotFall: (opts, lock) =>
       if @passive
         return
@@ -34,14 +34,10 @@ define (require, exports, module) ->
             cb(null))],
         unlock)
 
-    # Place the robot back on the board.
-    # This is called for robots when they are placed back on the board
-    # after they fall into a hole.
     onRobotPlace: (opts, lock) =>
       if @passive
         return
-      @log "place ", @entity, opts
-      @el.show()
       @render()
+      @el.show()
 
   module.exports = RobotView

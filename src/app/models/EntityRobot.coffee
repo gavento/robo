@@ -15,11 +15,8 @@ define (require, exports, module) ->
       super
       @cards_ ?= []
       @dir_ ?= new Direction(0)
-      @respawnPosition_ ?= new RespawnPosition({x: @x, y: @y, dir: @dir().getName()})
+      @respawnPosition_ ?= new RespawnPosition({x: @x, y: @y, dir: @dir()})
       @placed = true
-      @respawnX = @x
-      @respawnY = @y
-      @respawnDir = @dir().copy()
 
     damage: (opts, callback) ->
       throw 'opts.damage required' unless opts? and opts.damage?
@@ -41,9 +38,14 @@ define (require, exports, module) ->
     # at the begining of the game, when the robot falls into a
     # hole or when it is heavily damaged.
     isPlaced: -> @placed
+    canBePlaced: -> @respawnPosition_.isConfirmed()
 
+    # Place the robot at its respawn point.
+    # Robot must not be already placed.
     place: (opts, callback) ->
       if not @isPlaced()
+        @placed = true
+        @respawnPosition_.unconfirm()
         # Only robot that is not placed can be placed.
         optsC = Object.create opts
         optsC.entity = @
@@ -51,15 +53,14 @@ define (require, exports, module) ->
         optsC.oldY = @y
         @x = @respawnPosition_.x
         @y = @respawnPosition_.y
-        @dir = @respawnPosition_.dir().copy()
-        @placed = true
+        @dir_.set(@respawnPosition_.dir())
         @triggerLockedEvent('robot:place', optsC, callback)
       else
         throw 'Placing robot that is already placed.'
 
     confirmRespawnDirection: (direction) ->
       @respawnPosition_.confirmDirection(direction)
-      @triggerLockedEvent('robot:respawn:changed', {}, -> )
+      @triggerLockedEvent('robot:respawn:confirmed', {}, -> )
 
     isMovable: -> true
     isPushable: -> true

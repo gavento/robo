@@ -47,7 +47,7 @@ define (require, exports, module) ->
       @entityViews = {}
 
     resize: =>
-      @el.css
+      @tilesDiv.css
         width: @tileW * @board.get 'width'
         height: @tileH * @board.get 'height'
 
