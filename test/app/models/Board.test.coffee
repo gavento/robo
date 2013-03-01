@@ -113,15 +113,10 @@ describe 'Board', ->
     it 'should push the robot into a hole', (done) ->
       conveyor = new Conveyor({x: 0, y: 0, type: 'C', dir: 'W'})
       board.entities([robot, conveyor])
-      robot.dir().dir.should.equal(0)
-      robot.x.should.equal(0)
-      robot.y.should.equal(0)
-      robot.isPlaced().should.be.ok
+      robot.isPlaced().should.be.true
       board.activateBoard {}, ->
         robot.dir().dir.should.equal(0)
-        robot.x.should.equal(-1)
-        robot.y.should.equal(0)
-        robot.isPlaced().should.not.be.ok
+        robot.isPlaced().should.be.false
         done()
 
   describe 'with turner and robot', ->

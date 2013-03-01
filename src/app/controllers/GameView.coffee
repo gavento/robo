@@ -18,7 +18,7 @@ define (require, exports, module) ->
       @bind "release", (=> @nameView.release())
       @controlls = new GameControlls game: @game
       @bind "release", (=> @nameView.release())
-      @gameView = new GameBoardAndPlayersView game: @game
+      @gameView = new GameBoardAndPlayersView game: @game, tileW: 68, tileH: 68
       @bind "release", (=> @gameView.release())
       @append @nameView
       @append @controlls
@@ -54,9 +54,9 @@ define (require, exports, module) ->
     attributes: class: 'GameBoardAndPlayersView'
     constructor: ->
       super
-      @boardView = new BoardView board: @game.board(), tileW: 68, tileH: 68
+      @boardView = new BoardView board: @game.board(), tileW: @tileW, tileH: @tileH
       @bind "release", (=> @boardView.release())
-      @playerViews = new GamePlayersView game: @game
+      @playerViews = new GamePlayersView game: @game, tileW: @tileW, tileH: @tileH
       @bind "release", (=> @playerViews.release())
       @append @boardView
       @append @playerViews
@@ -95,7 +95,10 @@ define (require, exports, module) ->
       super
       @playerViews = []
       for player in @game.players()
-        view = new PlayerView player:player
+        view = new PlayerView
+          player: player
+          tileW: @tileW
+          tileH: @tileH
         @bind "release", (=> view.release())
         @playerViews.push view
       for view in @playerViews

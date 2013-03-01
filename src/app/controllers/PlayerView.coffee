@@ -26,12 +26,17 @@ define (require, exports, module) ->
     render: =>
       @el.html("<div class='PlayerViewName'>Player \"#{ @player.get 'name' }\"</div><div class='PlayerViewRobots'></div>")
 
-      if @robotViews? then (rv.release() for rv in @robotViews)
+      if @robotViews? then (view.release() for view in @robotViews)
       @robotViews = []
-      for r in @player.get 'robots'
-        rv = new PlayerRobotView player:@player, playerView:@, robot: r
-        @robotViews.push rv
-        @$('.PlayerViewRobots').append rv.el
+      for robot in @player.get 'robots'
+        view = new PlayerRobotView
+          player:@player
+          playerView:@
+          robot: robot
+          tileW: @tileW
+          tileH: @tileH
+        @robotViews.push view
+        @$('.PlayerViewRobots').append view.el
 
 
   module.exports = PlayerView

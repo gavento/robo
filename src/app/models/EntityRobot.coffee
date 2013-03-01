@@ -27,9 +27,12 @@ define (require, exports, module) ->
       throw "opts.dir required" unless opts?
       optsC = Object.create opts
       optsC.entity = @
-      optsC.dir = 8
+      optsC.oldX = @x
+      optsC.oldY = @y
       optsC.oldDir = (@get "dir").copy()
-      (@get "dir").turnRight optsC.dir
+      @x = @respawnPosition_.x
+      @y = @respawnPosition_.y
+      @dir_.set(@respawnPosition_.dir())
       @placed = false
       @triggerLockedEvent('robot:fall', optsC, callback)
 
@@ -49,18 +52,16 @@ define (require, exports, module) ->
         # Only robot that is not placed can be placed.
         optsC = Object.create opts
         optsC.entity = @
-        optsC.oldX = @x
-        optsC.oldY = @y
-        @x = @respawnPosition_.x
-        @y = @respawnPosition_.y
-        @dir_.set(@respawnPosition_.dir())
         @triggerLockedEvent('robot:place', optsC, callback)
       else
         throw 'Placing robot that is already placed.'
 
     confirmRespawnDirection: (direction) ->
       @respawnPosition_.confirmDirection(direction)
-      @triggerLockedEvent('robot:respawn:confirmed', {}, -> )
+      opts =
+        oldDir: @dir_.copy()
+      @dir_.set(direction)
+      @triggerLockedEvent('robot:respawn:confirmed', opts, -> )
 
     isMovable: -> true
     isPushable: -> true

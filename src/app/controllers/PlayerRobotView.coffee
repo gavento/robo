@@ -18,13 +18,16 @@ define (require, exports, module) ->
       @robotView = EntityView.createSubType
         entity: @robot
         type: @robot.get 'type'
-        tileW: 68
-        tileH: 68
+        tileW: @tileW
+        tileH: @tileH
         passive: true
       @bind "release", (=> @robotView.release())
       @descriptionView = new RobotDescriptionView robot: @robot
       @bind "release", (=> @descriptionView.release())
-      @orientationChooser = new RobotRespawnController( robot: @robot )
+      @orientationChooser = new RobotRespawnController
+        robot: @robot
+        tileW: @tileW
+        tileH: @tileH
       @bind "release", (=> @orientationChooser.release())
       @cardViews = []
       for card in @robot.get 'cards'
@@ -84,23 +87,30 @@ define (require, exports, module) ->
       @bind "release", (=> @robot.unbind @onRobotFall)
       @robot.bind "robot:place", @onRobotPlace
       @bind "release", (=> @robot.unbind @onRobotPlace)
+      @robot.bind "robot:respawn:confirmed", @onRobotRespawnConfirmed
+      @bind "release", (=> @robot.unbind @onRobotRespawnConfirmed)
       @description = new RobotRespawnCoordinatesView robot: @robot
       @bind("release", (=> @description.release()))
       @directionButtons = []
-      for dir in Direction.dirs
-        button = new RobotRespawnDirectionButton robot: @robot, direction: dir
+      for dir in ["W", "N", "E", "S"]
+        button = new RobotRespawnDirectionButton
+          robot: @robot
+          tileW: @tileW
+          tileH: @tileH
+          direction: dir
         @directionButtons.push button
         @bind "release", (=> button.release())
       @append @description
       for button in @directionButtons
         @append button
 
-    onRobotFall: => @el.show(500)
-    onRobotPlace: => @el.hide(500)
+    onRobotFall: => @el.slideDown(400)
+    onRobotPlace: => @el.slideUp(400)
+    onRobotRespawnConfirmed: => @onRobotPlace()
  
 
   class RobotRespawnCoordinatesView extends PlayerRobotController
-    tag: 'span'
+    tag: 'div'
     constructor: ->
       super
       @robot.bind "robot:respawn:confirmed", @onRobotRespawnConfirmed
@@ -112,19 +122,39 @@ define (require, exports, module) ->
       x = respawn.x
       y = respawn.y
       dir = respawn.dir().getName()
-      @html "Respawn at [x: #{x}, y: #{y}, dir: #{dir}]"
+      @html "Choose respawn direction:"
+      #@html "Respawn at [x: #{x}, y: #{y}, dir: #{dir}]"
     
     onRobotRespawnConfirmed: => @render()
 
 
   class RobotRespawnDirectionButton extends PlayerRobotController
-    tag: 'button'
+    tag: 'div'
     constructor: ->
       super
-      @html "#{@direction}"
-    
-    events: "click": "click"
+      @hovering = false
+      y = Direction.toNumber(@direction) * @tileH
+      @el.css
+        'background-image': "url('img/#{@robot.image}')"
+        'background-position': "0 #{-y}px"
+        'left': 0
+        'top': y
+        'width': @tileW
+        'height': @tileH
+        'display': 'inline-block'
+        'opacity': 0.4
+
+    events:
+      "click": "click"
+      "hover": "hover"
+
     click: -> @robot.confirmRespawnDirection(@direction)
+    hover: ->
+      @hovering = not @hovering
+      if @hovering
+        @el.fadeTo(100, 1.0)
+      else
+        @el.fadeTo(100, 0.4)
 
 
   module.exports = PlayerRobotView
