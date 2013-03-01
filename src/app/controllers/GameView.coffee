@@ -17,7 +17,7 @@ define (require, exports, module) ->
       @nameView = new GameNameView game: @game
       @bind "release", (=> @nameView.release())
       @controlls = new GameControlls game: @game
-      @bind "release", (=> @nameView.release())
+      @bind "release", (=> @controlls.release())
       @gameView = new GameBoardAndPlayersView game: @game, tileW: 68, tileH: 68
       @bind "release", (=> @gameView.release())
       @append @nameView
@@ -30,7 +30,7 @@ define (require, exports, module) ->
     constructor: ->
       super
       @game.bind "update:name", @onUpdateName
-      @bind "release", (=> @game.unbind(@onUpdateName))
+      @bind "release", (=> @game.unbind @onUpdateName)
       @render()
 
     render: => @html "Game \"#{ @game.name }\""

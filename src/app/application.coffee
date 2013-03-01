@@ -10,24 +10,30 @@ define (require, exports, module) ->
   class App extends Spine.Controller
     constructor: ->
       super
-      
+      @view = null
       # define routes
+      replaceView = (newView) =>
+        oldView = @view
+        @view = newView
+        @replace @view
+        oldView.release() if oldView?
       @routes
-        "/riddles/:id": (params) ->
+        '/riddles/:id': (params) =>
           # riddle view
-          @log "Displaying riddle view", params.id
-          @replace new RiddleView riddleid:params.id
-        "/edit/": (params) ->
+          @log 'Displaying riddle view', params.id
+          replaceView new RiddleView riddleid:params.id
+        '/edit/': (params) =>
           # editor with an empty board
           board = new Board width:4, height:4
-          @log "Displaying editor for new board", board
-          @replace new EditorView board:board
-        "/*id": (params) ->
+          @log 'Displaying editor for new board', board
+          replaceView new EditorView board:board
+        '/*id': (params) =>
           # default view (currently used for testing)
-          @log "Displaying default view", params.id
-          @replace new TestingView json:"text!app/game_test.json"
+          @log 'Displaying default view', params.id
+          replaceView new TestingView json: 'text!app/game_test.json'
 
       # display current route
-      Spine.Route.setup() 
+      Spine.Route.setup()
+
 
   module.exports = App

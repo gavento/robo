@@ -1,19 +1,12 @@
 define (require, exports, module) ->
 
-  TileView = require 'cs!app/controllers/TileView'
-
   EntityView = require 'cs!app/controllers/EntityView'
   require 'cs!app/controllers/EntityOthersView'
   require 'cs!app/controllers/EntityRobotView'
 
   class BoardView extends Spine.Controller
-
-    tag:
-      'div'
-
-    attributes:
-      class: 'BoardView'
-
+    tag: 'div'
+    attributes: class: 'BoardView'
     constructor: ->
       super
       throw "@board required" unless @board
@@ -36,9 +29,8 @@ define (require, exports, module) ->
       @board.bind("addEntity", @addEntityView)
       @bind "release", (=> @board.unbind @addEntityView)
       @board.bind("removeEntity", @removeEntityView)
-      @bind "release", (=> @board.unbind @addEntityView)
+      @bind "release", (=> @board.unbind @removeEntityView)
 
-      #DEBUG# @bind "release", (=> @log "releasing ", @)
       @render()
 
     releaseEntityViews: ->
@@ -68,6 +60,8 @@ define (require, exports, module) ->
         entity: entity
         type: entity.get 'type'
         boardView: @
+        tileW: @tileW
+        tileH: @tileH
       @tilesDiv.append ev.el
       @entityViews[entity.get 'id'] = ev
       return ev

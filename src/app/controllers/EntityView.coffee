@@ -68,7 +68,7 @@ define (require, exports, module) ->
 
       unlock = lock.getLock("EntityView.onEntityMove")
       duration = @guessDuration opts
-      @el.animate({left: @boardView.tileW * @entity.x, top: @boardView.tileH * @entity.y},
+      @el.animate({left: @tileW * @entity.x, top: @tileH * @entity.y},
         duration, 'linear', unlock)
 
     # Draw the entity as a 1x1 CSS-sprite tile.

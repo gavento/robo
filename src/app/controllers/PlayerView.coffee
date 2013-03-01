@@ -2,41 +2,43 @@ define (require, exports, module) ->
 
   PlayerRobotView = require 'cs!app/controllers/PlayerRobotView'
 
-
-  class PlayerView extends Spine.Controller
-
-    tag: 'div'
-
-    attributes:
-      class: 'PlayerView'
-
+  class PlayerController extends Spine.Controller
     constructor: ->
       super
       throw "@player required" unless @player
 
-      @player.bind("update", @render)
-      @bind "release", (=> @player.unbind @render)
-      for r in @player.robots()
-        r.bind("update", @render)
-        @bind "release", (=> r.unbind @render)
+  class PlayerView extends PlayerController
+    tag: 'div'
+    attributes: class: 'PlayerView'
+    constructor: ->
+      super
+      @name = new PlayerNameView player: @player
+      @bind 'release', (=> @name.release())
+      @robots = new PlayerRobotViews player: @player, tileW: @tileW, tileH: @tileH
+      @bind 'release', (=> @robots.release())
+      @append @name
+      @append @robots
 
-      #DEBUG# @bind "release", (=> @log "releasing ", @)
-      @render()
 
-    render: =>
-      @el.html("<div class='PlayerViewName'>Player \"#{ @player.get 'name' }\"</div><div class='PlayerViewRobots'></div>")
-
-      if @robotViews? then (view.release() for view in @robotViews)
-      @robotViews = []
-      for robot in @player.get 'robots'
+  class PlayerNameView extends PlayerController
+    tag: 'div'
+    attributes: class: 'PlayerNameView'
+    constructor: ->
+      super
+      @html("Player \"#{ @player.get 'name' }\"")
+  
+  
+  class PlayerRobotViews extends PlayerController
+    tag: 'div'
+    constructor: ->
+      super
+      for robot in @player.robots()
         view = new PlayerRobotView
           player:@player
-          playerView:@
           robot: robot
           tileW: @tileW
           tileH: @tileH
-        @robotViews.push view
-        @$('.PlayerViewRobots').append view.el
-
+        @bind 'release', (=> view.release())
+        @append view
 
   module.exports = PlayerView

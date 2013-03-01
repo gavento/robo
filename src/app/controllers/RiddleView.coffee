@@ -20,8 +20,9 @@ define (require, exports, module) ->
         @game = Game.fromJSON gameData
         throw "Game not loaded" unless @game
         @log "loaded Game: ", @game
-  
-        @append new GameView game:@game
+        @gameView = new GameView game:@game
+        @bind "release", (=> @gameView.release())
+        @append @gameView
       )
 
   module.exports = RiddleView
