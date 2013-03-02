@@ -41,7 +41,7 @@ define (require, exports, module) ->
 
         # Play current command of the card.
         playNextCommand = (cb) =>
-          async.series([playNextCommandMovement, playNextCommandTile], cb)
+          async.series([playNextCommandMovement, playNextCommandTiles], cb)
 
         # This function handles the movement.
         playNextCommandMovement = (cb) =>
@@ -67,13 +67,11 @@ define (require, exports, module) ->
               cb(null)
           EffectFactory.handleAllEffects([effect], opts, cb)
 
-        # This function handles the activation of the tile the robot
-        # just entered.
-        playNextCommandTile = (cb) =>
-          optsC = Object.create opts
-          optsC.x = robot.x
-          optsC.y = robot.y
-          robot.board.activateImmediateEffects(optsC, cb)
+        # This function handles the activation of occupied tiles.
+        # It is needed for holes to work properly when the active
+        # robot pushes another robot into a hole.
+        playNextCommandTiles = (cb) =>
+          robot.board.activateOccupiedTiles(opts, cb)
         
         # Play all commands of the card one by one.
         async.whilst(canPlayNextCommand, playNextCommand, callback)
