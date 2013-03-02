@@ -92,4 +92,8 @@ define (require, exports, module) ->
     toString: ->
       "<#{@constructor.className} (#{JSON.stringify(this)})>"
 
+    bindEvent: (event, callback) ->
+      @bind event, callback
+      @bind 'release', (=> @unbind event, callback)
+
   module.exports = SimpleModel

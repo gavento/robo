@@ -1,10 +1,11 @@
 define (require, exports, module) ->
 
+  SimpleController = require 'cs!app/lib/SimpleController'
   EntityView = require 'cs!app/controllers/EntityView'
   CardView = require 'cs!app/controllers/CardView'
   Direction = require 'cs!app/lib/Direction'
 
-  class PlayerRobotController extends Spine.Controller
+  class PlayerRobotController extends SimpleController
     constructor: ->
       super
       throw "@robot required" unless @robot?
@@ -15,46 +16,32 @@ define (require, exports, module) ->
     attributes: class: 'PlayerRobotView'
     constructor: ->
       super
-      @robotView = EntityView.createSubType
+      @appendController new RobotDescriptionView robot: @robot
+      @appendController new RobotRespawnController
+        robot: @robot
+        tileW: @tileW
+        tileH: @tileH
+      @appendController EntityView.createSubType
         entity: @robot
         type: @robot.get 'type'
         tileW: @tileW
         tileH: @tileH
         passive: true
-      @bind "release", (=> @robotView.release())
-      @descriptionView = new RobotDescriptionView robot: @robot
-      @bind "release", (=> @descriptionView.release())
-      @orientationChooser = new RobotRespawnController
-        robot: @robot
-        tileW: @tileW
-        tileH: @tileH
-      @bind "release", (=> @orientationChooser.release())
-      @cardViews = []
       for card in @robot.get 'cards'
         view = CardView.createSubType
           card: card
           type: card.get 'type'
-        @cardViews.push view
-        @bind "release", (=> view.release())
-      @append @descriptionView
-      @append @orientationChooser
-      @append @robotView
-      for view in @cardViews
-        @append view
+        @appendController view
 
 
   class RobotDescriptionView extends PlayerRobotController
     tag: 'div'
     constructor: ->
       super
-      @nameView = new RobotNameView( robot: @robot )
-      @bind "release", (=> @nameView.release())
-      @healthView = new RobotHealthView( robot: @robot )
-      @bind "release", (=> @healthView.release())
       @append "Robot "
-      @append @nameView
+      @appendController new RobotNameView( robot: @robot )
       @append " with "
-      @append @healthView
+      @appendController new RobotHealthView( robot: @robot )
       @append " health"
 
 
@@ -70,8 +57,7 @@ define (require, exports, module) ->
     tag: 'span'
     constructor: ->
       super
-      @robot.bind 'robot:damage', @onRobotDamage
-      @bind 'release', (=> @robot.unbind @onRobotDamage)
+      @bindToModel @robot, 'robot:damage', @onRobotDamage
       @render()
     
     render: => @html("#{ @robot.health }")
@@ -83,26 +69,17 @@ define (require, exports, module) ->
     constructor: ->
       super
       if @robot.isPlaced() then @el.hide()
-      @robot.bind "robot:fall", @onRobotFall
-      @bind "release", (=> @robot.unbind @onRobotFall)
-      @robot.bind "robot:place", @onRobotPlace
-      @bind "release", (=> @robot.unbind @onRobotPlace)
-      @robot.bind "robot:respawn:confirmed", @onRobotRespawnConfirmed
-      @bind "release", (=> @robot.unbind @onRobotRespawnConfirmed)
-      @description = new RobotRespawnCoordinatesView robot: @robot
-      @bind("release", (=> @description.release()))
-      @directionButtons = []
+      @bindToModel @robot, "robot:fall", @onRobotFall
+      @bindToModel @robot, "robot:place", @onRobotPlace
+      @bindToModel @robot, "robot:respawn:confirmed", @onRobotRespawnConfirmed
+      @appendController new RobotRespawnCoordinatesView robot: @robot
       for dir in ["W", "N", "E", "S"]
         button = new RobotRespawnDirectionButton
           robot: @robot
           tileW: @tileW
           tileH: @tileH
           direction: dir
-        @directionButtons.push button
-        @bind "release", (=> button.release())
-      @append @description
-      for button in @directionButtons
-        @append button
+        @appendController button
 
     onRobotFall: => @el.slideDown(400)
     onRobotPlace: => @el.slideUp(400)
@@ -113,19 +90,7 @@ define (require, exports, module) ->
     tag: 'div'
     constructor: ->
       super
-      @robot.bind "robot:respawn:confirmed", @onRobotRespawnConfirmed
-      @bind "release", (=> @robot.unbind @onRobotRespawnConfirmed)
-      @render()
-
-    render: =>
-      respawn = @robot.respawnPosition()
-      x = respawn.x
-      y = respawn.y
-      dir = respawn.dir().getName()
       @html "Choose respawn direction:"
-      #@html "Respawn at [x: #{x}, y: #{y}, dir: #{dir}]"
-    
-    onRobotRespawnConfirmed: => @render()
 
 
   class RobotRespawnDirectionButton extends PlayerRobotController

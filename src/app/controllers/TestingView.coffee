@@ -1,14 +1,13 @@
 define (require, exports, module) ->
 
-#  require "spine"
-
+  SimpleController = require 'cs!app/lib/SimpleController'
   Game = require 'cs!app/models/Game'
   GameView = require 'cs!app/controllers/GameView'
 
   # # App controller #
   # Provisional loader class, used for development.
   #
-  class TestingView extends Spine.Controller
+  class TestingView extends SimpleController
     constructor: ->
       super
       
@@ -24,14 +23,12 @@ define (require, exports, module) ->
         #@log JSON.stringify @game, null, 2
   
         @append "<div class='TestInputBox'><button class='button-activate'>Activate board</button></div>"
-        @append new GameView game:@game
-  
-        @append new TestSizeInput model:@game.board()
-  
-        @append new TestInputBox model:@game, propName:'name'
+        @appendController new GameView game: @game
+        @appendController new TestSizeInput model: @game.board()
+        @appendController new TestInputBox model: @game, propName: 'name'
   
         @append "<div class='TestInputBox'><button class='button-activate'>Activate board</button></div>"
-        @append new GameView game:@game
+        @appendController new GameView game: @game
   
   
         b = @$('.button-activate')
@@ -46,7 +43,7 @@ define (require, exports, module) ->
       board.activateBoard({}, -> buttons.removeAttr "disabled")
     
   # Experimental class for synchronous sync of inputbox contents.
-  class TestInputBox extends Spine.Controller
+  class TestInputBox extends SimpleController
     events:
       'keyup input': 'keyPress'
     tag:
@@ -63,7 +60,7 @@ define (require, exports, module) ->
       @html "Interactive \"@model.#{ @propName }\" <input> (triggers event \"#{ @eventName }\")"
       @input = @$("input")
       @updateValue()
-      @model.bind(@eventName, @updateValue)
+      @bindToModel @model, @eventName, @updateValue
 
     updateValue: =>
       if @input.val() != @model[@propName]
@@ -74,7 +71,7 @@ define (require, exports, module) ->
       @model.trigger(@eventName)
 
   # Experimental class for semi-synchronous updates to board size.
-  class TestSizeInput extends Spine.Controller
+  class TestSizeInput extends SimpleController
     events:
       'click button': 'submit'
     tag:
@@ -91,7 +88,7 @@ define (require, exports, module) ->
       @inWidth = @$ ".width"
       @inHeight = @$ ".height"
       @updateValue()
-      @model.bind("update", @updateValue)
+      @bindToModel @model, "update", @updateValue
 
     updateValue: =>
       w = @model.get 'width'

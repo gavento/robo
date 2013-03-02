@@ -22,8 +22,7 @@ define (require, exports, module) ->
       @robotIndex = 0
       @started = false
       @state = new Stateful(@, "GameStart", new Game::States)
-      @bind "state:entered", @run
-      @bind "release", (=> @unbind "state:entered")
+      @bindEvent "state:entered", @run
 
     # Run or the game from current state.
     run: ->

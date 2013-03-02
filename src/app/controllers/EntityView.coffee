@@ -1,42 +1,42 @@
 define (require, exports, module) ->
 
+  SimpleController = require 'cs!app/lib/SimpleController'
   ST = require "cs!app/lib/SubClassTypes"
   Entity = require "cs!app/models/Entity"
   Card = require "cs!app/models/Card"
   CSSSprite = require "app/lib/CSSSprite"
 
-  class EntityView extends Spine.Controller
+  class EntityView extends SimpleController
     ST.baseClass @
     # typical create call:
-    #   EntityView.createSubType entity:e, type:e.type, boardView:b
-
+    #   EntityView.createSubType entity:e, type:e.type, tileW:w, tileH:h
     tag: 'div'
-
+    attributes: class: 'EntityView'
     animationDuration: ->
       if @animDuration?
         return @animDuration
       return 0
 
-    attributes:
-      class: 'EntityView'
-
     constructor: ->
       super
       throw "@entity required" unless @entity
-      throw "@boardView or @tileW and @tileH required" unless @boardView? or (@tileW? and @tileH?)
-      @tileW ?= @boardView.tileW
-      @tileH ?= @boardView.tileH
+      throw "@tileW and @tileH required" unless @tileW? and @tileH?
       @passive ?= false
-
-      @entity.bind("update", @render)
-      @bind "release", (=> @entity.unbind @render)
-      @entity.bind("entity:move", @onEntityMove)
-      @bind "release", (=> @entity.unbind @onEntityMove)
-      @entity.bind("entity:rotate", @onEntityRotate)
-      @bind "release", (=> @entity.unbind @onEntityRotate)
-
-      #DEBUG# @bind "release", (=> @log "releasing ", @)
+      @bindToModel @entity, "update", @render
+      @bindToModel @entity, "entity:move", @onEntityMove
+      @bindToModel @entity, "entity:rotate", @onEntityRotate
       @render()
+
+    # Draw the entity as a 1x1 CSS-sprite tile.
+    render: =>
+      @el.empty()
+      if @entity.dir and not @passive
+        y = -(@entity.dir().getNumber() * @tileH)
+      else
+        y = 0
+      @el.css width: @tileW, height: @tileH
+      @el.css 'background-position': "0px #{y}px"
+      @setPosition()
 
     # Set entity position, without animation
     # Params x, y default to entity.x, entity.y
@@ -65,22 +65,10 @@ define (require, exports, module) ->
     onEntityMove: (opts, lock) =>
       if @passive
         return
-
       unlock = lock.getLock("EntityView.onEntityMove")
       duration = @guessDuration opts
       @el.animate({left: @tileW * @entity.x, top: @tileH * @entity.y},
         duration, 'linear', unlock)
-
-    # Draw the entity as a 1x1 CSS-sprite tile.
-    render: =>
-      #@log "rendering", @entity
-      @el.empty()
-      @el.css width: @tileW, height: @tileH
-      if @entity.dir and not @passive
-        @el.css 'background-position': "0px #{-(@entity.get('dir').getNumber() * @tileH)}px"
-      else
-        @el.css 'background-position': "0px 0px"
-      @setPosition()
 
     # A helper to compute the proper duration of an animation
     # Currently works well for Entity-induced movement (Conveyors, Turner, ...)
@@ -100,7 +88,7 @@ define (require, exports, module) ->
         if opts.mover?
           # Entity is moved by another entity.
           if opts.mover instanceof Entity
-            moverView = @boardView.entityViews[opts.mover.get 'id']
+            moverView = @entityViews[opts.mover.get 'id']
             return moverView.animationDuration()
           if opts.mover instanceof Card
             return 450 # a random constant for now

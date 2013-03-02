@@ -8,28 +8,24 @@
         "x": -1,
         "y": 2,
         "type": "W",
-        "id": "Wall-1",
         "dir": "E"
       },
       {
         "x": 0,
         "y": 2,
         "type": "W",
-        "id": "Wall-2",
         "dir": "W"
       },
       {
         "x": 4,
         "y": 2,
         "type": "W",
-        "id": "Wall-3",
         "dir": "E"
       },
       {
         "x": 5,
         "y": 2,
         "type": "W",
-        "id": "Wall-4",
         "dir": "W"
       },
       {

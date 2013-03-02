@@ -7,17 +7,13 @@ define (require, exports, module) ->
 
   class RobotView extends EntityView
     @registerTypeName 'Robot'
-
     attributes: class: 'EntityView RobotView'
     animFrames: 9
     constructor: ->
       super
-      @entity.bind('robot:fall', @onRobotFall)
-      @bind 'release', (=> @entity.unbind @onRobotFall)
-      @entity.bind('robot:place', @onRobotPlace)
-      @bind "release", (=> @entity.unbind @onRobotPlace)
-      @entity.bind('robot:respawn:confirmed', @onRobotRespawnConfirmed)
-      @bind 'release', (=> @entity.unbind @onRobotRespawnConfirmed)
+      @bindToModel @entity, 'robot:fall', @onRobotFall
+      @bindToModel @entity, 'robot:place', @onRobotPlace
+      @bindToModel @entity, 'robot:respawn:confirmed', @onRobotRespawnConfirmed
 
     render: =>
       super

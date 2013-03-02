@@ -8,35 +8,30 @@
         "x": 2,
         "y": 0,
         "type": "E",
-        "id": "Entity-1",
         "dir": "N"
       },
       {
         "x": 2,
         "y": 1,
         "type": "E",
-        "id": "Entity-2",
         "dir": "N"
       },
       {
         "x": 0,
         "y": 2,
         "type": "C",
-        "id": "Entity-3",
         "dir": "W"
       },
       {
         "x": 4,
         "y": 2,
         "type": "C",
-        "id": "Entity-4",
         "dir": "E"
       },
       {
         "x": 2,
         "y": 4,
         "type": "C",
-        "id": "Entity-5",
         "dir": "S"
       },
       {

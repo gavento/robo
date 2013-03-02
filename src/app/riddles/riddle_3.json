@@ -7,26 +7,22 @@
       {
         "x": 1,
         "y": 4,
-        "type": "X",
-        "id": "Entity-X1"
+        "type": "X"
       },
       {
         "x": 4,
         "y": 1,
-        "type": "X",
-        "id": "Entity-X1"
+        "type": "X"
       },
       {
         "x": 2,
         "y": 2,
-        "type": "X",
-        "id": "Entity-X1"
+        "type": "X"
       },
       {
         "x": 2,
         "y": 3,
-        "type": "X",
-        "id": "Entity-X1"
+        "type": "X"
       },
       {
         "x": 1,

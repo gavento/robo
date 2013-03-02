@@ -8,21 +8,18 @@
         "x": 1,
         "y": 2,
         "type": "R",
-        "id": "Entity-R1",
         "dir": "N"
       },
       {
         "x": 2,
         "y": 2,
         "type": "L",
-        "id": "Entity-L1",
         "dir": "E"
       },
       {
         "x": 3,
         "y": 2,
         "type": "U",
-        "id": "Entity-U1",
         "dir": "S"
       },
       {
