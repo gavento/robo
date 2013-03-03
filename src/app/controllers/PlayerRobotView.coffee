@@ -97,7 +97,6 @@ define (require, exports, module) ->
     tag: 'div'
     constructor: ->
       super
-      @hovering = false
       y = Direction.toNumber(@direction) * @tileH
       @el.css
         'background-image': "url('img/#{@robot.image}')"
@@ -108,18 +107,12 @@ define (require, exports, module) ->
         'height': @tileH
         'display': 'inline-block'
         'opacity': 0.4
+      @el.hover @hoverIn, @hoverOut
 
-    events:
-      "click": "click"
-      "hover": "hover"
-
+    events: "click": "click"
     click: -> @robot.confirmRespawnDirection(@direction)
-    hover: ->
-      @hovering = not @hovering
-      if @hovering
-        @el.fadeTo(100, 1.0)
-      else
-        @el.fadeTo(100, 0.4)
+    hoverIn: => @el.fadeTo(100, 1.0)
+    hoverOut: => @el.fadeTo(100, 0.4)
 
 
   module.exports = PlayerRobotView
