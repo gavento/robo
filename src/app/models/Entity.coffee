@@ -1,7 +1,6 @@
 define (require, exports, module) ->
 
   SimpleModel = require "cs!app/lib/SimpleModel"
-  MultiLock = require "cs!app/lib/MultiLock"
 
   class Entity extends SimpleModel
     @configure {name: 'Entity', baseClass: true, genId: true}, 'x', 'y', 'type', 'id'
@@ -50,13 +49,5 @@ define (require, exports, module) ->
       optsC = Object.create opts
       optsC.entity = @
       @triggerLockedEvent("entity:activate", optsC, callback)
-
-    # Helper method that creates lock, locks it, triggers an event and unlocks the
-    # lock. 
-    triggerLockedEvent: (name, opts, callback) ->
-      lock = new MultiLock(callback, 10000)
-      unlock = lock.getLock("Entity.#{name}")
-      @trigger(name, opts, lock)
-      unlock()
 
   module.exports = Entity

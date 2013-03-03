@@ -1,9 +1,8 @@
 define (require, exports, module) ->
 
-  # Spine = require "spine"
   ST = require "cs!app/lib/SubClassTypes"
   MP = require 'cs!app/lib/ModelProperties'
-
+  MultiLock = require "cs!app/lib/MultiLock"
 
   class SimpleModel extends Spine.Module
     @include Spine.Events
@@ -91,9 +90,23 @@ define (require, exports, module) ->
 
     toString: ->
       "<#{@constructor.className} (#{JSON.stringify(this)})>"
+    
+    # Helper method that creates lock, locks it, triggers an event and unlocks the
+    # lock. Event handlers can also lock the lock. The callback will be called when
+    # the last unlock has been called.
+    triggerLockedEvent: (event, opts, callback) ->
+      opts ?= {}
+      callback ?= ->
+      lock = new MultiLock(callback, 5000)
+      className = @constructor.className
+      unlock = lock.getLock("#{className}.#{event}")
+      @trigger(event, opts, lock)
+      unlock()
 
-    bindEvent: (event, callback) ->
-      @bind event, callback
-      @bind 'release', (=> @unbind event, callback)
+    # Helper method that binds given events to this model and also binds
+    # removal of these events on release.
+    bindEvent: (events, callback) ->
+      @bind events, callback
+      @bind 'release', (=> @unbind events, callback)
 
   module.exports = SimpleModel

@@ -50,13 +50,13 @@ define (require, exports, module) ->
           switch command
             when "R"
               effect = EffectFactory.createTurnEffectChain(
-                @board, robot, @, 1)
+                robot.board, robot, @, 1)
             when "L"
               effect = EffectFactory.createTurnEffectChain(
-                @board, robot, @, -1)
+                robot.board, robot, @, -1)
             when "U"
               effect = EffectFactory.createTurnEffectChain(
-                @board, robot, @, 2)
+                robot.board, robot, @, 2)
             when "S"
               effect = EffectFactory.createMoveEffectChain(
                 robot.board, robot, @, robot.dir())
