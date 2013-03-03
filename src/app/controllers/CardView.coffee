@@ -16,7 +16,18 @@ define (require, exports, module) ->
 
   class SimpleCardView extends CardView
     @registerTypeName "S"
-    attributes: class: 'CardView SimpleCardView'
+    attributes: class: 'CardView SimpleCardView PasiveCard'
+    constructor: ->
+      super
+      @bindToModel @card, "card:play:start", @onCardPlayStart
+      @bindToModel @card, "card:play:over", @onCardPlayOver
+
+    onCardPlayStart: =>
+      @el.switchClass 'PasiveCard', 'ActiveCard', 400
+    
+    onCardPlayOver: =>
+      @el.switchClass 'ActiveCard', 'PasiveCard', 400
+
 
 
   module.exports = CardView

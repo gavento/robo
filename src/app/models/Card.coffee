@@ -30,55 +30,55 @@ define (require, exports, module) ->
       return @get('commands').join(" ")
 
     playOnRobot: (robot, opts, callback) ->
-      if @selected
-        #console.log "Playing ", @, " on ", robot, " with ", opts
-        commands = (@get 'commands').slice()
+      #console.log "Playing ", @, " on ", robot, " with ", opts
+      commands = (@get 'commands').slice()
 
-        # If this function returns true than there is at least one
-        # more command to be played and the robot is able to play it.
-        canPlayNextCommand = () =>
-          return commands.length > 0 and robot.isPlaced()
+      # If this function returns true than there is at least one
+      # more command to be played and the robot is able to play it.
+      canPlayNextCommand = () =>
+        return commands.length > 0 and robot.isPlaced()
 
-        # Play current command of the card.
-        playNextCommand = (cb) =>
-          async.series([playNextCommandMovement, playNextCommandTiles], cb)
+      # Play current command of the card.
+      playNextCommand = (cb) =>
+        async.series([playNextCommandMovement, playNextCommandTiles], cb)
 
-        # This function handles the movement.
-        playNextCommandMovement = (cb) =>
-          command = commands.shift()
-          effect = null
-          switch command
-            when "R"
-              effect = EffectFactory.createTurnEffectChain(
-                robot.board, robot, @, 1)
-            when "L"
-              effect = EffectFactory.createTurnEffectChain(
-                robot.board, robot, @, -1)
-            when "U"
-              effect = EffectFactory.createTurnEffectChain(
-                robot.board, robot, @, 2)
-            when "S"
-              effect = EffectFactory.createMoveEffectChain(
-                robot.board, robot, @, robot.dir())
-            when "B"
-              effect = EffectFactory.createMoveEffectChain(
-                robot.board, robot, @, robot.dir().opposite())
-            else
-              cb(null)
-          EffectFactory.handleAllEffects([effect], opts, cb)
+      # This function handles the movement.
+      playNextCommandMovement = (cb) =>
+        command = commands.shift()
+        effect = null
+        switch command
+          when "R"
+            effect = EffectFactory.createTurnEffectChain(
+              robot.board, robot, @, 1)
+          when "L"
+            effect = EffectFactory.createTurnEffectChain(
+              robot.board, robot, @, -1)
+          when "U"
+            effect = EffectFactory.createTurnEffectChain(
+              robot.board, robot, @, 2)
+          when "S"
+            effect = EffectFactory.createMoveEffectChain(
+              robot.board, robot, @, robot.dir())
+          when "B"
+            effect = EffectFactory.createMoveEffectChain(
+              robot.board, robot, @, robot.dir().opposite())
+          else
+            cb(null)
+        EffectFactory.handleAllEffects([effect], opts, cb)
+      
+      # This function handles the activation of occupied tiles.
+      # It is needed for holes to work properly when the active
+      # robot pushes another robot into a hole.
+      playNextCommandTiles = (cb) =>
+        robot.board.activateOccupiedTiles(opts, cb)
+      start = (cb) =>
+        @triggerLockedEvent "card:play:start", {}, cb
+      play = (cb) =>
+        async.whilst(canPlayNextCommand, playNextCommand, cb)
+      over = (cb) =>
+        @triggerLockedEvent "card:play:over", {}, cb
 
-        # This function handles the activation of occupied tiles.
-        # It is needed for holes to work properly when the active
-        # robot pushes another robot into a hole.
-        playNextCommandTiles = (cb) =>
-          robot.board.activateOccupiedTiles(opts, cb)
-        
-        # Play all commands of the card one by one.
-        async.whilst(canPlayNextCommand, playNextCommand, callback)
-
-      else
-        console.log "Skipping ", @, " on ", robot
-        callback()
+      async.series [start, play, over], callback
     
     select: ->
       @selected = not @selected

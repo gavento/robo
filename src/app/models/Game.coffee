@@ -40,6 +40,20 @@ define (require, exports, module) ->
         @started = true
       @run()
 
+    getActiveCard: (robot) ->
+      robot ?= @getActiveRobot()
+      if robot
+        cards = robot.get('cards')
+        if cards? and @cardIndex >= 0 and @cardIndex < cards.length
+          return cards[@cardIndex]
+      return null
+
+    getActiveRobot: ->
+      robots = @getSortedRobots()
+      if @robotIndex >= 0 and @robotIndex < robots.length
+        return robots[@robotIndex]
+      return null
+
     getSortedRobots: ->
       # Get all robots of all players.
       robots = []
@@ -170,14 +184,13 @@ define (require, exports, module) ->
 
   class Game::States::RobotPlay extends Interface
     next: ->
-      robots = @getSortedRobots()
-      if robots.length <= @robotIndex
-        @state.transition("RobotOver")
-      robot = @getSortedRobots()[@robotIndex]
-      cards = robot.get('cards')
-      if cards? and cards.length > @cardIndex
-        card = cards[@cardIndex]
-        card.playOnRobot(robot, {}, (=> @state.transition("RobotOver")))
+      robot = @getActiveRobot()
+      if robot
+        card = @getActiveCard(robot)
+        if card
+          card.playOnRobot(robot, {}, => @state.transition("RobotOver"))
+        else
+          @state.transition("RobotOver")
       else
         @state.transition("RobotOver")
 
