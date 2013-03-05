@@ -28,7 +28,7 @@
         "id": "Robot-2",
         "name": "Modracek",
         "dir": "W",
-        "image": "roombo-m.png",
+        "image": "roombo-b.png",
         "health": 7,
         "cards": 
           [
