@@ -1,19 +1,33 @@
 define (require, exports, module) ->
 
-  SimpleModel = require "cs!app/lib/SimpleModel"
-  Board = require "cs!app/models/Board"
-  Player = require "cs!app/models/Player"
-  Stateful = require "cs!app/lib/Stateful"
+  SimpleModel = require 'cs!app/lib/SimpleModel'
+  Board = require 'cs!app/models/Board'
+  Deck = require 'cs!app/models/Deck'
+  Player = require 'cs!app/models/Player'
+  Stateful = require 'cs!app/lib/Stateful'
 
   class Game extends SimpleModel
     @configure {name: 'Game'}, 'name', 'board', 'players'
     @typedProperty 'board', Board
+    @typedProperty 'deck', Deck
     @typedPropertyArrayEx 'players',
       (v) -> v instanceof Player,
       (v) -> v.game = @; new Player v
 
     constructor: ->
       super
+      if not @deck_
+        # if no deck is specified, load the default deck
+        json = 'text!app/default_deck.json'
+        require [json], =>
+          data = arguments[0]
+          throw "Default deck could not be read" unless data
+          @deck_ = Deck.fromJSON data
+          throw "Default deck not loaded" unless @deck_
+          # TODO: make sure that the game can not start before the deck
+          #       is loaded
+          @trigger 'game:loaded'
+
       # Current turn of the game.
       @turnIndex = 0
       # Index of currently played card.
@@ -21,17 +35,15 @@ define (require, exports, module) ->
       # Index of currently active robot.
       @robotIndex = 0
       @started = false
-      @state = new Stateful(@, "GameStart", new Game::States)
-      @bindEvent "state:entered", @run
+      @state = new Stateful(@, 'GameStart', new Game::States)
+      @bindEvent 'state:entered', @run
 
     # Run or the game from current state.
     run: ->
       if @isUserActionRequired()
-        @trigger "game:interrupt"
+        @trigger 'game:interrupt'
       else
-        @trigger "game:continue"
-        # Continue only if no user action is required (eg. selecting
-        # cards or choosing rotation on a flag).
+        @trigger 'game:continue'
         @next()
 
     # Continue the game after user interaction.
@@ -56,10 +68,7 @@ define (require, exports, module) ->
 
     getSortedRobots: ->
       # Get all robots of all players.
-      robots = []
-      for player in @get 'players'
-        for robot in player.get 'robots'
-          robots.push robot
+      robots = @getPlayerRobots()
       getPriority = (robot, cardIndex) ->
         cards = robot.get('cards')
         if cards? and cards.length > cardIndex
@@ -79,6 +88,16 @@ define (require, exports, module) ->
           return 0 # TODO: What to do if the priorities are equal?
       )
       # Return sorted array of robots.
+      return robots
+    
+    getRobotsWithDynamicCards: ->
+      return (r for r in @getPlayerRobots() when not r.hasFixedCards())
+
+    getPlayerRobots: ->
+      robots = []
+      for player in @get 'players'
+        for robot in player.get 'robots'
+          robots.push robot
       return robots
 
     isGameOver: ->
@@ -123,14 +142,29 @@ define (require, exports, module) ->
 
 
 
-  # Deal cards and let player to select some.
+  # Discard old cards and draw new cards.
   class Game::States::TurnNext extends Interface
     next: ->
       @cardIndex = 0
-      @state.transition("TurnPlay")
-  
-  # Cards are selected, play the turn. 
-  # Move robots according to their cards and than move the board.  
+      robots = @getRobotsWithDynamicCards()
+      if robots.length > 0
+        discardCards = (robot, cb) =>
+          robot.discardCards @deck_, {}, cb
+        drawCards = (robot, cb) =>
+          robot.drawCards @deck_, {}, cb
+        discardAllCards = (cb) =>
+          async.forEach robots, discardCards, cb
+        drawAllCards = (cb) =>
+          async.forEach robots, drawCards, cb
+        shuffle = (cb) =>
+          @deck_.shuffle()
+          cb()
+        async.series [discardAllCards, shuffle, drawAllCards],
+          => @state.transition("TurnPlay")
+      else
+        @state.transition("TurnPlay")
+
+  # Let user to select cards. 
   # Repeat the process until all cards of all robots have been played.
   class Game::States::TurnPlay extends Interface
     next: ->

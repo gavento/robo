@@ -6,13 +6,15 @@ define (require, exports, module) ->
   Card = require "cs!app/models/Card"
 
   class Robot extends Entity
-    @configure {name:'Robot', subClass: true, registerAs: 'Robot'}, 'name', 'dir', 'image', 'cards', 'health'
+    @configure {name:'Robot', subClass: true, registerAs: 'Robot'},
+      'name', 'dir', 'image', 'cards', 'health', 'fixedCards'
     @typedProperty 'dir', Direction, 'dir_'
     @typedProperty 'respawnPosition', RespawnPosition, 'respawnPosition_'
     @typedPropertyArray 'cards', Card, 'cards_'
 
     constructor: ->
       super
+      @fixedCards ?= @cards_?
       @cards_ ?= []
       @dir_ ?= new Direction(0)
       @respawnPosition_ ?= new RespawnPosition({x: @x, y: @y, dir: @dir()})
@@ -89,5 +91,19 @@ define (require, exports, module) ->
       optsC = Object.create opts
       optsC.dir = -opts.dir
       @turn optsC, callback
+
+    hasFixedCards: ->
+      return @fixedCards
+
+    drawCards: (deck, opts, callback) ->
+      cards = deck.drawCards 4
+      @cards_.push cards...
+      @triggerLockedEvent 'robot:cards:drawn', opts, callback
+
+    discardCards: (deck, opts, callback) ->
+      cards = @cards_
+      @cards_ = []
+      deck.discardCards cards
+      @triggerLockedEvent 'robot:cards:discarded', opts, callback
 
   module.exports = Robot

@@ -27,11 +27,7 @@ define (require, exports, module) ->
         tileW: @tileW
         tileH: @tileH
         passive: true
-      for card in @robot.get 'cards'
-        view = CardView.createSubType
-          card: card
-          type: card.get 'type'
-        @appendController view
+      @appendController new RobotCardViews robot: @robot
 
 
   class RobotDescriptionView extends PlayerRobotController
@@ -43,25 +39,6 @@ define (require, exports, module) ->
       @append " with "
       @appendController new RobotHealthView( robot: @robot )
       @append " health"
-
-
-  class RobotNameView extends PlayerRobotController
-    tag: 'span'
-    attributes: class: 'RobotNameView'
-    constructor: ->
-      super
-      @html "\"#{ @robot.name }\""
-  
-  
-  class RobotHealthView extends PlayerRobotController
-    tag: 'span'
-    constructor: ->
-      super
-      @bindToModel @robot, 'robot:damage', @onRobotDamage
-      @render()
-    
-    render: => @html("#{ @robot.health }")
-    onRobotDamage: => @render()
 
 
   class RobotRespawnController extends PlayerRobotController
@@ -84,7 +61,54 @@ define (require, exports, module) ->
     onRobotFall: => @el.slideDown(400)
     onRobotPlace: => @el.slideUp(400)
     onRobotRespawnConfirmed: => @onRobotPlace()
+
+  
+  class RobotCardViews extends PlayerRobotController
+    tag: 'span'
+    attributes: class: 'RobotCardViews'
+    constructor: ->
+      super
+      @bindToModel @robot, "robot:cards:drawn", @onRobotCardsDrawn
+      @bindToModel @robot, "robot:cards:discarded", @onRobotCardsDiscarded
+      @cardViews = []
+      @render()
+
+    render: =>
+      @releaseCardViews()
+      for card in @robot.get 'cards'
+        view = CardView.createSubType
+          card: card
+          type: card.get 'type'
+        @cardViews.push view
+        @appendController view
+
+    releaseCardViews: =>
+      for view in @cardViews
+        view.release()
+      @cardViews = []
+
+    onRobotCardsDrawn: => @render()
+    onRobotCardsDiscarded: => @render()
  
+
+  class RobotNameView extends PlayerRobotController
+    tag: 'span'
+    attributes: class: 'RobotNameView'
+    constructor: ->
+      super
+      @html "\"#{ @robot.name }\""
+  
+  
+  class RobotHealthView extends PlayerRobotController
+    tag: 'span'
+    constructor: ->
+      super
+      @bindToModel @robot, 'robot:damage', @onRobotDamage
+      @render()
+    
+    render: => @html("#{ @robot.health }")
+    onRobotDamage: => @render()
+
 
   class RobotRespawnCoordinatesView extends PlayerRobotController
     tag: 'div'
@@ -114,5 +138,5 @@ define (require, exports, module) ->
     hoverIn: => @el.fadeTo(100, 1.0)
     hoverOut: => @el.fadeTo(100, 0.4)
 
-
+  
   module.exports = PlayerRobotView
