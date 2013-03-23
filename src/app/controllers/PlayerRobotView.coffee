@@ -64,14 +64,25 @@ define (require, exports, module) ->
 
   
   class RobotCardViews extends PlayerRobotController
-    tag: 'span'
+    tag: 'ul'
     attributes: class: 'RobotCardViews'
     constructor: ->
       super
       @bindToModel @robot, "robot:cards:drawn", @onRobotCardsDrawn
       @bindToModel @robot, "robot:cards:discarded", @onRobotCardsDiscarded
       @cardViews = []
+      # Sortable must be initialized before render so that it can be
+      # destroyed in render(). Uninitialized sortable can not be destroyed.
+      # We need to reinitialize the sortable when new cards are appended
+      # because if the sortable is empty when it is initialized, the sortable
+      # thinks that it is vertical and the sorting is not very smooth.
+      @initSortable()
+      @recreateSortable()
+
+    recreateSortable: =>
       @render()
+      @destroySortable()
+      @initSortable()
 
     render: =>
       @releaseCardViews()
@@ -82,13 +93,22 @@ define (require, exports, module) ->
         @cardViews.push view
         @appendController view
 
+    initSortable: =>
+      @el.sortable
+        tolerance: 'pointer'
+        containment: 'parent'
+      @el.disableSelection()
+
+    destroySortable: =>
+      @el.sortable 'destroy'
+
     releaseCardViews: =>
       for view in @cardViews
         view.release()
       @cardViews = []
 
-    onRobotCardsDrawn: => @render()
-    onRobotCardsDiscarded: => @render()
+    onRobotCardsDrawn: => @recreateSortable()
+    onRobotCardsDiscarded: => @recreateSortable()
  
 
   class RobotNameView extends PlayerRobotController

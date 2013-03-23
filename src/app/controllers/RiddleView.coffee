@@ -8,7 +8,7 @@ define (require, exports, module) ->
     constructor: ->
       super
       # allowed riddles
-      riddles = ["1", "2", "3", "4", "5", "6", "7", "8"]
+      riddles = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
       @riddleid = riddles[0] unless @riddleid in riddles
       json = "text!app/riddles/riddle_#{ @riddleid }.json"
       displayGame = =>

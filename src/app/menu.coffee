@@ -17,6 +17,7 @@ define (require, exports, module) ->
           new Submenu(2, "6", (-> @navigate("/riddles/6")), [])
           new Submenu(2, "7", (-> @navigate("/riddles/7")), [])
           new Submenu(2, "8", (-> @navigate("/riddles/8")), [])
+          new Submenu(2, "9", (-> @navigate("/riddles/9")), [])
           ])
         ]
       for s in @submenus
