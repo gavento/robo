@@ -8,6 +8,7 @@ describe 'EffectFactory', ->
   MoveEffect = null
   TurnEffect = null
   CrushEffect = null
+  FallEffect = null
   before (done) ->
     require [
       'cs!app/models/Board'
@@ -17,8 +18,9 @@ describe 'EffectFactory', ->
       'cs!app/models/effects/MoveEffect'
       'cs!app/models/effects/TurnEffect'
       'cs!app/models/effects/CrushEffect'
+      'cs!app/models/effects/FallEffect'
       ], (board, robot, entities, effectFactory,
-          moveEffect, turnEffect, crushEffect) ->
+          moveEffect, turnEffect, crushEffect, fallEffect) ->
         Board = board
         Robot = robot
         Conveyor = entities.Conveyor
@@ -28,6 +30,7 @@ describe 'EffectFactory', ->
         MoveEffect = moveEffect
         TurnEffect = turnEffect
         CrushEffect = crushEffect
+        FallEffect = fallEffect
         done()
   
 
@@ -102,6 +105,23 @@ describe 'EffectFactory', ->
       effect1.cause.should.equal(crusher)
     it 'should affect the robot', ->
       effect1.entity.should.equal(robot)
+  
+  describe 'createFallEffectChain', ->
+    robot = null
+    hole = null
+    effect = null
+    before ->
+      board = new Board({width: 3, height: 3})
+      robot = new Robot({x: 0, y: 0, type: 'Robot', dir: 'W'})
+      hole = new Crusher({x: 0, y: 0, type: 'H'})
+      board.entities([robot, hole])
+      effect = EffectFactory.createFallEffectChain(board, robot, hole)
+    it 'should create a FallEffect', ->
+      effect.should.be.instanceof(FallEffect)
+    it 'should be caused by the hole', ->
+      effect.cause.should.equal(hole)
+    it 'should affect the robot', ->
+      effect.entity.should.equal(robot)
 
   describe 'splitEffects', ->
     it 'should split chained effect to single effects', ->

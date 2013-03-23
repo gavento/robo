@@ -78,19 +78,9 @@ define (require, exports, module) ->
     hasImmediateEffect: -> true
 
     activate: (opts, callback) ->
-      x = opts.x
-      y = opts.y
-      entities = @board.getMovableEntitiesAt(x, y)
-      fallEntities = (cb) =>
-        async.forEach(entities, fallEntity, cb)
-      fallEntity = (entity, cb) =>
-        optsC = Object.create opts
-        optsC.duration = 500
-        async.parallel([
-          (cb2) => entity.fall(optsC, cb2),
-          (cb2) => entity.damage({damage:1, source: @}, cb2)],
-          cb)
-      opts.afterHooks.push(fallEntities)
+      for entity in @board.getMovableEntitiesAt(opts.x, opts.y)
+        effect = EffectFactory.createFallEffectChain(@board, entity, @)
+        opts.effects.push(effect)
       super opts, callback
 
   class Wall extends Entity
