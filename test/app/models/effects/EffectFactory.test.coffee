@@ -3,9 +3,11 @@ describe 'EffectFactory', ->
   Robot = null
   Conveyor = null
   TurnerL = null
+  Crusher = null
   EffectFactory = null
   MoveEffect = null
   TurnEffect = null
+  CrushEffect = null
   before (done) ->
     require [
       'cs!app/models/Board'
@@ -14,14 +16,18 @@ describe 'EffectFactory', ->
       'cs!app/models/effects/EffectFactory'
       'cs!app/models/effects/MoveEffect'
       'cs!app/models/effects/TurnEffect'
-      ], (board, robot, entities, effectFactory, moveEffect, turnEffect) ->
+      'cs!app/models/effects/CrushEffect'
+      ], (board, robot, entities, effectFactory,
+          moveEffect, turnEffect, crushEffect) ->
         Board = board
         Robot = robot
         Conveyor = entities.Conveyor
         TurnerL = entities.TurnerL
+        Crusher = entities.Crusher
         EffectFactory = effectFactory
         MoveEffect = moveEffect
         TurnEffect = turnEffect
+        CrushEffect = crushEffect
         done()
   
 
@@ -72,6 +78,28 @@ describe 'EffectFactory', ->
       effect3.amount.should.equal(2)
     it 'should be caused by the turner', ->
       effect1.cause.should.equal(turner)
+    it 'should affect the robot', ->
+      effect1.entity.should.equal(robot)
+
+  describe 'createCrushEffectChain', ->
+    robot = null
+    crusher = null
+    effect1 = null
+    effect2 = null
+    before ->
+      board = new Board({width: 3, height: 3})
+      robot = new Robot({x: 0, y: 0, type: 'Robot', dir: 'W'})
+      crusher = new Crusher({x: 0, y: 0, type: 'X'})
+      board.entities([robot, crusher])
+      effect1 = EffectFactory.createCrushEffectChain(board, robot, crusher, 1)
+      effect2 = EffectFactory.createCrushEffectChain(board, robot, crusher, 2)
+    it 'should create a CrushEffect', ->
+      effect1.should.be.instanceof(CrushEffect)
+    it 'should contain a specified damage', ->
+      effect1.damage.should.equal(1)
+      effect2.damage.should.equal(2)
+    it 'should be caused by the crusher', ->
+      effect1.cause.should.equal(crusher)
     it 'should affect the robot', ->
       effect1.entity.should.equal(robot)
 

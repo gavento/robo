@@ -30,15 +30,9 @@ define (require, exports, module) ->
     getPhases: -> [50]
 
     activate: (opts, callback) ->
-      entities = @board.getRobotEntitiesAt(@x, @y)
-      crushEntities = (cb) =>
-        async.forEach(entities, crushEntity, cb)
-      crushEntity = (entity, cb) =>
-        optsC = Object.create opts
-        optsC.damage = 1
-        optsC.source = @
-        entity.damage(optsC, cb)
-      opts.afterHooks.push(crushEntities)
+      for entity in @board.getCrushableEntitiesAt(@x, @y)
+        effect = EffectFactory.createCrushEffectChain(@board, entity, @, 1)
+        opts.effects.push(effect)
       super opts, callback
 
 

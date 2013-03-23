@@ -238,6 +238,9 @@ define (require, exports, module) ->
     getPushableEntitiesAt: (x, y) ->
       entities = (e for e in @getEntitiesAt(x, y) when e.isPushable())
 
+    getCrushableEntitiesAt: (x, y) ->
+      @getPushableEntitiesAt(x, y)
+
     getTurnableEntitiesAt: (x, y) ->
       entities = (e for e in @getEntitiesAt(x, y) when e.isTurnable())
      
