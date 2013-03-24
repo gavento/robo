@@ -11,11 +11,12 @@ define (require, exports, module) ->
 
     getPhases: -> [20]
 
-    activate: (opts, callback) ->
+    effects: ->
+      effects = []
       for entity in @board.getMovableEntitiesAt(@x, @y)
         effect = EffectFactory.createMoveEffectChain(@board, entity, @, @dir())
-        opts.effects.push(effect)
-      super opts, callback
+        effects.push(effect)
+      return effects
 
 
   class ExpressConveyor extends Conveyor
@@ -29,11 +30,12 @@ define (require, exports, module) ->
 
     getPhases: -> [50]
 
-    activate: (opts, callback) ->
+    effects: ->
+      effects = []
       for entity in @board.getCrushableEntitiesAt(@x, @y)
         effect = EffectFactory.createCrushEffectChain(@board, entity, @, 1)
-        opts.effects.push(effect)
-      super opts, callback
+        effects.push(effect)
+      return effects
 
 
   class Turner extends Entity
@@ -43,12 +45,15 @@ define (require, exports, module) ->
     getPhases: -> [40]
     turnDirection: 0
 
-    activate: (opts, callback) ->
+    effects: ->
+      effects = []
       for entity in @board.getTurnableEntitiesAt(@x, @y)
         effect = EffectFactory.createTurnEffectChain(
           @board, entity, @, @turnDirection)
-        opts.effects.push(effect)
-      # Rotate the turner itself.
+        effects.push(effect)
+      return effects
+    
+    activate: (opts, callback) ->
       optsCopy = Object.create opts
       optsCopy.oldDir = @dir().copy()
       optsCopy.dir = @turnDirection
@@ -77,15 +82,18 @@ define (require, exports, module) ->
 
     hasImmediateEffect: -> true
 
-    activate: (opts, callback) ->
-      for entity in @board.getMovableEntitiesAt(opts.x, opts.y)
+    effects: ->
+      effects = []
+      for entity in @board.getMovableEntitiesAt(@x, @y)
         effect = EffectFactory.createFallEffectChain(@board, entity, @)
-        opts.effects.push(effect)
-      super opts, callback
+        effects.push(effect)
+      return effects
 
+  
   class Wall extends Entity
     @configure {name:'Wall', subClass:true, registerAs: 'W'}, 'dir'
     @typedProperty 'dir', Direction
+
 
   module.exports =
     Conveyor: Conveyor

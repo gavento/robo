@@ -9,6 +9,7 @@ define (require, exports, module) ->
   require 'cs!app/models/EntityRobot'
   EO = require 'cs!app/models/EntityOthers'
   Wall = EO.Wall
+  Hole = EO.Hole
 
 
   # # class Board #
@@ -29,19 +30,14 @@ define (require, exports, module) ->
 
   class Board extends SimpleModel
     @configure {name: 'Board'}, 'width', 'height', 'entities', 'entitiesOutside', 'hole'
-    @typedProperty 'hole', EO.Hole
-
 
     constructor: (atts) ->
       @width_ = 0
       @height_ = 0
       @entities_ = []
       @tiles_ = {}
-      @hole_ ?= new EO.Hole({x: -1, y: -1, type: 'H'})
-      @hole_.board = @
       @entityById_ = {}
       super atts
-
 
     # ### Board.activateBoard ###
     #
@@ -61,7 +57,6 @@ define (require, exports, module) ->
         @activateOnePhase(entitiesByPhase[phase], opts, cb)
       async.forEachSeries(phases, activateOnePhase, callback)
 
-
     # ### Board.activateOnePhase ###
     #
     # Activate given entities.  
@@ -70,12 +65,11 @@ define (require, exports, module) ->
     # * `opts` Object containing all options for the tile activation.
     # * `callback` Callback that is called when the phase is finished.
     activateOnePhase: (entities, opts, callback) ->
-      activateEntitiesAndHooks = (cb) =>
-        @activateEntitiesAndHooks(entities, opts, cb)
+      activateEntitiesAndEffects = (cb) =>
+        @activateEntitiesAndEffects(entities, opts, cb)
       activateOccupiedTiles = (cb) =>
         @activateOccupiedTiles(opts, cb)
-      async.series([activateEntitiesAndHooks, activateOccupiedTiles], callback)
-
+      async.series([activateEntitiesAndEffects, activateOccupiedTiles], callback)
 
     # ### Board.activateOccupiedTiles ###
     #
@@ -90,13 +84,9 @@ define (require, exports, module) ->
     #   activated.
     activateOccupiedTiles: (opts, callback) ->
       activateTileWithEntity = (entity, cb) =>
-        optsCopy = Object.create opts
-        optsCopy.x = entity.x
-        optsCopy.y = entity.y
-        @activateImmediateEffects(optsCopy, cb)
+        @activateImmediateEffects(entity.x, entity.y, opts, cb)
       movableEntities = @getMovableEntities()
       async.forEach(movableEntities, activateTileWithEntity, callback)
-
 
     # ### Board.activateImmediateEffects ###
     #
@@ -107,44 +97,41 @@ define (require, exports, module) ->
     # be called on tiles entered by a movable entity and on tiles occupied by
     # by a movable entity after each board phase. 
     #
-    # * `opts` Object containing all options for the tile activation. Must
-    #   contain attributes `x` and `y` (coordinates of activated tile).
-    # * `callback` Callback that is called after all entitnies effect on given 
-    #   that have an immediate effect have been activated.
-    activateImmediateEffects: (opts, callback) ->
-      throw "opts.x and opts.y required" unless opts? and opts.x? and opts.y?
-      entities = (e for e in @tile(opts.x, opts.y) when e.hasImmediateEffect())
-      @activateEntitiesAndHooks(entities, opts, callback)
+    # * `x y` Position of the tile that will be activated.  
+    # * `opts` Object containing all options for the tile activation. 
+    # * `callback` Callback that is called after all entities on given tile
+    #   and their effects have been activated.
+    activateImmediateEffects: (x, y, opts, callback) ->
+      entities = @getEntitiesWithImmediateEffectAt(x, y)
+      @activateEntitiesAndEffects(entities, opts, callback)
 
-
-    # ### Board.activateEntitiesAndHooks ###
+    # ### Board.activateEntitiesAndEffects ###
     #
-    # Activate given entities and perform hooks.
+    # Activate given entities and perform effects caused by activated entities.
     #
     # * `entities` List of entities that will be activated in parallel.
     # * `opts` Object containing all options for the tile activation.
-    # * `callback` Callback that is called when all entities have been activated
-    #   and all hooks finished.
-    activateEntitiesAndHooks: (entities, opts, callback) ->
-      optsCopy = Object.create opts
-      optsCopy.afterHooks = []
-      optsCopy.effects = []
+    # * `callback` Callback that is called when all entities and their
+    #   effects have been activated.
+    activateEntitiesAndEffects: (entities, opts, callback) ->
+      effects = @getEffectsOfEntities(entities)
+      activateEffects = (cb) =>
+        EffectFactory.handleAllEffects(effects, opts, cb)
       activateEntities = (cb) =>
         async.forEach(entities, activateEntity, cb)
       activateEntity = (entity, cb) =>
-        entity.activate(optsCopy, cb)
-      performHooks = (cb) =>
-        if optsCopy.effects.length > 0
-          EffectFactory.handleAllEffects(optsCopy.effects, opts, cb)
-        else
-          async.parallel(optsCopy.afterHooks, cb)
-      async.parallel([activateEntities, performHooks], callback)
+        entity.activate(opts, cb)
+      async.parallel([activateEffects, activateEntities], callback)
 
+    getEffectsOfEntities: (entities) ->
+      effects = []
+      for entity in entities
+        effects.push entity.effects()...
+      return effects
 
     destroy: ->
       @set 'entities', [] # properly call destoy for all Entities
       super
-
 
     # Setters/getters for attributes
 
@@ -152,11 +139,9 @@ define (require, exports, module) ->
       if val? and val != @width_ then @resize val, @height_
       return @width_
 
-
     height: (val) ->
       if val? and val != @height then @resize @width_, val
       return @height_
-
 
     entities: (val) ->
       if val?
@@ -166,7 +151,6 @@ define (require, exports, module) ->
         for e in val
           @addEntity e
       return @entities_
-
 
     # Resize board, destroying those outside the new size.
     # Triggers `"resize"` event.
@@ -180,7 +164,6 @@ define (require, exports, module) ->
       @height_ = h
       @trigger "resize"
 
-
     # Add the Entity, triggers `"addEntity", e`. If `e` is not Entity, it is
     # loaded from JSON.
     addEntity: (e) ->
@@ -191,38 +174,42 @@ define (require, exports, module) ->
       e.bindEvent "entity:move robot:fall", @moveEntity
       @entities_.push e
       @entityById_[e.get 'id'] = e
-      @tiles_[e.x] ?= {}
-      @tiles_[e.x][e.y] ?= []
-      @tiles_[e.x][e.y].push e
+      @addEntityToTile e, e.x, e.y
       @trigger "addEntity", e
-
 
     # Remove and destroy the given Entity. Triggers `"removeEntity", e`.
     removeEntity: (e) ->
       @trigger "removeEntity", e
-      @tiles_[e.x][e.y] = @tiles_[e.x][e.y].filter (v) -> not (v is e)
+      @removeEntityFromTile(e, e.x, e.y)
       @entities_ = @entities_.filter (v) -> not (v is e)
       delete @entityById_[e.get 'id']
       e.destroy()
-
 
     # Is the given point inside the Board?
     inside: (x, y) ->
       return x >= 0 and y >= 0 and x < @get('width') and y < @get('height')
 
-
     # Return list of entities at `[x][y]`. If the coordinates are outside
     # the board than `hole` entity is always part of the returned list.
     tile: (x, y) ->
-      entities = []
-      if @inside(x, y)
-        if @tiles_[x]? and @tiles_[x][y]?
-          entities = @tiles_[x][y]
+      if @tiles_[x]? and @tiles_[x][y]?
+        entities = @tiles_[x][y]
       else
-        entities.push(@hole_)
-        for e in @entities_
-          if e.x == x && e.y == y
-            entities.push(e)
+        entities = []
+      if not @inside(x, y)
+        # There are holes all around the board. We create them only when thery
+        # are needed.
+        holeFound = false
+        for entity in entities
+          if entity instanceof Hole
+            # If there already is a hole at this position than there is no 
+            # need to create another one.
+            holeFound = true
+        if not holeFound
+          # There is no hole at this position yet, create new one. 
+          hole = new Hole({x: x, y: y, type: 'H'})
+          @addEntity hole
+          entities.push(hole)
       entities = (e for e in entities when e.isPlaced())
       return entities
 
@@ -250,6 +237,9 @@ define (require, exports, module) ->
     getEntitiesOfTypeAt: (x, y, type) ->
       entities = (e for e in @getEntitiesAt(x, y) when e instanceof type)
     
+    getEntitiesWithImmediateEffectAt: (x, y) ->
+      entities = (e for e in @getEntitiesAt(x, y) when e.hasImmediateEffect())
+    
     getMovableEntities: ->
       entities = (e for e in @getPlacedEntities() when e.isMovable())
 
@@ -269,11 +259,16 @@ define (require, exports, module) ->
       unless opts.oldX? and opts.oldY? and opts.entity?
         throw "opts.oldX, opts.oldY and opts.entity required"
       e = opts.entity
-      @tiles_[opts.oldX][opts.oldY] = @tiles_[opts.oldX][opts.oldY].filter (v) -> not (v is e)
-      @tiles_[e.x] ?= {}
-      @tiles_[e.x][e.y] ?= []
-      @tiles_[e.x][e.y].push e
+      @removeEntityFromTile(e, opts.oldX, opts.oldY)
+      @addEntityToTile(e, e.x, e.y)
 
+    addEntityToTile: (entity, x, y) =>
+      @tiles_[x] ?= {}
+      @tiles_[x][y] ?= []
+      @tiles_[x][y].push(entity)
+
+    removeEntityFromTile: (entity, x, y) =>
+      @tiles_[x][y] = @tiles_[x][y].filter (v) -> not (v is entity)
 
     entityById: (id) ->
       e = @entityById_[id]

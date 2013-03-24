@@ -41,6 +41,11 @@ define (require, exports, module) ->
     destroy: ->
       super
 
+    # Get effects that will be caused by activation of this entity.
+    # These effects will be performed in parallel with activation.
+    effects: ->
+      return []
+
     # Activate the Entity in a board activation phase. The phase is
     # in opts.phase.
     activate: (opts, callback) ->
