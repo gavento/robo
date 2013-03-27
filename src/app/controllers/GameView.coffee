@@ -18,6 +18,7 @@ define (require, exports, module) ->
       @appendController new GameNameView game: @game
       @appendController new GameControlls game: @game
       @appendController new GameBoardAndPlayersView game: @game, tileW: 68, tileH: 68
+      @appendController new GameStateView game: @game
 
 
   class GameNameView extends GameController
@@ -29,6 +30,18 @@ define (require, exports, module) ->
 
     render: => @html "Game \"#{ @game.name }\""
     onUpdateName: => @render()
+
+
+  class GameStateView extends GameController
+    tag: 'div'
+    attributes: class: 'GameStateView'
+    constructor: ->
+      super
+      @bindToModel @game, "state:entered", @onStateEntered
+      @render()
+
+    render: => @html "#{ @game.state.current }"
+    onStateEntered: => @render()
 
 
   class GameControlls extends GameController
