@@ -100,11 +100,13 @@ define (require, exports, module) ->
     onRobotCardsDrawn: =>
       @render()
       @initSortable()
+      @el.addClass 'SortableRobotCardViews', 400
 
     onRobotCardsDiscarded: =>
       @render()
 
     onRobotCardsConfirmed: =>
+      @el.removeClass 'SortableRobotCardViews', 400
       @destroySortable()
       @render()
  
