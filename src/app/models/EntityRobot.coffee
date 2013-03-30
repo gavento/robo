@@ -39,7 +39,6 @@ define (require, exports, module) ->
       optsC.oldDir = (@get "dir").copy()
       @x = @respawnPosition_.x
       @y = @respawnPosition_.y
-      @dir_.set(@respawnPosition_.dir())
       @placed = false
       @triggerLockedEvent('robot:fall', optsC, callback)
 
@@ -64,9 +63,9 @@ define (require, exports, module) ->
         throw 'Placing robot that is already placed.'
 
     confirmRespawnDirection: (direction) ->
+      direction ?= @dir_
       @respawnPosition_.confirmDirection(direction)
-      opts =
-        oldDir: @dir_.copy()
+      opts = {oldDir: @dir_.copy()}
       @dir_.set(direction)
       @triggerLockedEvent('robot:respawn:confirmed', opts, -> )
 

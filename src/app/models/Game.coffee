@@ -48,8 +48,12 @@ define (require, exports, module) ->
     continue: ->
       if not @started
         @started = true
-      if @state.current == 'ChooseCards'
+      else if @state.current == 'ChooseCards'
         @confirmOrderOfCards()
+      else if @state.current == 'PlaceRobot'
+        robot = @getActiveRobot()
+        if not robot.canBePlaced()
+          robot.confirmRespawnDirection()
       @run()
 
     getActiveCard: (robot) ->
