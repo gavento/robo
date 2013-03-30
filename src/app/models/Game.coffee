@@ -42,7 +42,7 @@ define (require, exports, module) ->
         @trigger 'game:interrupt'
       else
         @trigger 'game:continue'
-        @next()
+        async.nextTick => @next()
 
     # Continue the game after user interaction.
     continue: ->
