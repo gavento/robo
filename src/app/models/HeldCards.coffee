@@ -9,9 +9,7 @@ define (require, exports, module) ->
     @typedPropertyArray 'drawn', Card, 'drawn_'
 
     constructor: (atts) ->
-      console.log "1", atts, @
       super
-      console.log "2", @
       @limit ?= 8
       @fixed_ ?= [] # cards that are never discarded
       @drawn_ ?= [] # cards that will be discarded
@@ -19,7 +17,6 @@ define (require, exports, module) ->
       @allCards.push @fixed_...
       @allCards.push @drawn_...
       @nextCardIndex = 0
-      console.log "3", @
 
     nextCard: ->
       if @nextCardIndex >= @allCards.length
@@ -61,8 +58,13 @@ define (require, exports, module) ->
       return @allCards
     
     reorderCards: (order) ->
-      # TODO: update cards from UI
-      @triggerLockedEvent 'robot:cards:reordered', {}, =>
+      newOrder = []
+      for id in order
+        for card in @allCards
+          if card.id == id
+            newOrder.push card
+            break
+      @allCards = newOrder
 
     confirmOrder: ->
       @confirmed = true

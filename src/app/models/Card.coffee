@@ -4,7 +4,7 @@ define (require, exports, module) ->
   EffectFactory = require 'cs!app/models/effects/EffectFactory'
 
   class Card extends SimpleModel
-    @configure {name: 'Card', baseClass: true}, 'type', 'priority'
+    @configure {name: 'Card', baseClass: true, genId: true}, 'type', 'priority'
 
     constructor: ->
       super

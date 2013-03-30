@@ -7,7 +7,7 @@ define (require, exports, module) ->
     # If this is greater than 0 than debugging outputs will be enabled.
     # If set to 1, only state transitions will be logged.
     # If set to 2, added and removed properties will be logged as well.
-    @debug = 1
+    @debug = 0
 
     # Public: Constructor for the State object.
     # 

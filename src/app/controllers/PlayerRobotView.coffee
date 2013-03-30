@@ -73,20 +73,24 @@ define (require, exports, module) ->
       @bindToModel @cards, "robot:cards:confirmed", @onRobotCardsConfirmed
       @cardViews = []
       @render()
-    
+   
     render: =>
       @releaseCardViews()
+      index = 0
       for card in @cards.getAllCards()
         view = CardView.createSubType
           card: card
           type: card.get 'type'
+          index: index++
         @cardViews.push view
         @appendController view
+        
 
     initSortable: =>
       @el.sortable
         tolerance: 'pointer'
         containment: 'parent'
+        stop: @onSortableStop
       @el.disableSelection()
 
     destroySortable: =>
@@ -109,6 +113,10 @@ define (require, exports, module) ->
       @el.removeClass 'SortableRobotCardViews', 400
       @destroySortable()
       @render()
+
+    onSortableStop: (event, ui) =>
+      order = @el.sortable 'toArray', {attribute: 'order'}
+      @cards.reorderCards order
  
 
   class RobotNameView extends PlayerRobotController

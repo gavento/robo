@@ -33,6 +33,7 @@ define (require, exports, module) ->
       super
       @bindToModel @card, "card:play:start", @onCardPlayStart
       @bindToModel @card, "card:play:over", @onCardPlayOver
+      @el.attr "order", @card.id
 
     onCardPlayStart: =>
       @el.switchClass 'PasiveCard', 'ActiveCard', 400
