@@ -33,13 +33,15 @@
         "dir": "E",
         "image": "roombo-r.png",
         "health": 7,
-        "cards": 
-          [
+        "cards": {
+          "limit": 4,
+          "fixed": [
             {"type": "S", "priority": 230, "commands": "S S S" },
             {"type": "S", "priority": 80, "commands": "U" },
             {"type": "S", "priority": 220, "commands": "S S" },
             {"type": "S", "priority": 103, "commands": "L S" }
           ]
+        }
       },
       {
         "x": 3,
@@ -50,13 +52,15 @@
         "dir": "W",
         "image": "roombo-b.png",
         "health": 7,
-        "cards": 
-          [
+        "cards": {
+          "limit": 4,
+          "fixed": [
             {"type": "S", "priority": 200, "commands": "S" },
             {"type": "S", "priority": 48, "commands": "L" },
             {"type": "S", "priority": 190, "commands": "B" },
             {"type": "S", "priority": 221, "commands": "S S" }
           ]
+        }
       }
     ]
   },

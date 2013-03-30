@@ -43,12 +43,15 @@
         "dir": "W",
         "image": "roombo-r.png",
         "health": 7,
-        "cards": [
-  	      {"type": "S", "priority": 10, "commands": "S" },
-          {"type": "S", "priority": 10, "commands": "S" },
-          {"type": "S", "priority": 10, "commands": "S" },
-          {"type": "S", "priority": 10, "commands": "S" }
-      	]
+        "cards": {
+          "limit": 4,
+          "fixed": [
+  	        {"type": "S", "priority": 10, "commands": "S" },
+            {"type": "S", "priority": 10, "commands": "S" },
+            {"type": "S", "priority": 10, "commands": "S" },
+            {"type": "S", "priority": 10, "commands": "S" }
+        	]
+        }
       },
       {
         "x": 2,
@@ -59,12 +62,15 @@
         "dir": "S",
         "image": "roombo-g.png",
         "health": 7,
-        "cards": [
-  	      {"type": "S", "priority": 10, "commands": "S" },
-          {"type": "S", "priority": 10, "commands": "S" },
-          {"type": "S", "priority": 10, "commands": "S" },
-          {"type": "S", "priority": 10, "commands": "S" }
-      	]
+        "cards": {
+          "limit": 4,
+          "fixed": [
+  	        {"type": "S", "priority": 10, "commands": "S" },
+            {"type": "S", "priority": 10, "commands": "S" },
+            {"type": "S", "priority": 10, "commands": "S" },
+            {"type": "S", "priority": 10, "commands": "S" }
+        	]
+        }
       },
       {
         "x": 3,
@@ -75,12 +81,15 @@
         "dir": "E",
         "image": "roombo-b.png",
         "health": 7,
-        "cards": [
-  	      {"type": "S", "priority": 10, "commands": "S" },
-          {"type": "S", "priority": 10, "commands": "S" },
-          {"type": "S", "priority": 10, "commands": "S" },
-          {"type": "S", "priority": 10, "commands": "S" }
-      	]
+        "cards": {
+          "limit": 4,
+          "fixed": [
+  	        {"type": "S", "priority": 10, "commands": "S" },
+            {"type": "S", "priority": 10, "commands": "S" },
+            {"type": "S", "priority": 10, "commands": "S" },
+            {"type": "S", "priority": 10, "commands": "S" }
+        	]
+        }
       },
       {
         "x": 2,
@@ -91,12 +100,15 @@
         "dir": "N",
         "image": "roombo-y.png",
         "health": 7,
-        "cards": [
-  	      {"type": "S", "priority": 10, "commands": "S" },
-          {"type": "S", "priority": 10, "commands": "S" },
-          {"type": "S", "priority": 10, "commands": "S" },
-          {"type": "S", "priority": 10, "commands": "S" }
-      	]
+        "cards": {
+          "limit": 4,
+          "fixed": [
+  	        {"type": "S", "priority": 10, "commands": "S" },
+            {"type": "S", "priority": 10, "commands": "S" },
+            {"type": "S", "priority": 10, "commands": "S" },
+            {"type": "S", "priority": 10, "commands": "S" }
+        	]
+        }
       }
     ]
   },

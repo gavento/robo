@@ -4,8 +4,10 @@
 define (require, exports, module) ->
 
   class Stateful
-    # If this is set to true than debugging outputs will be enabled.
-    @debug = false
+    # If this is greater than 0 than debugging outputs will be enabled.
+    # If set to 1, only state transitions will be logged.
+    # If set to 2, added and removed properties will be logged as well.
+    @debug = 1
 
     # Public: Constructor for the State object.
     # 
@@ -25,20 +27,20 @@ define (require, exports, module) ->
       @_enterState(state)
 
     _exitState: (state) =>
-      console.log 'Leaving state:', @current if Stateful.debug
+      console.log 'Leaving state:', @current if Stateful.debug >= 1
       api = new @interfaces[@current]
       for property of api
         continue if property == 'constructor'
-        console.log 'Deleting property:', property if Stateful.debug
+        console.log 'Deleting property:', property if Stateful.debug >= 2
         delete @object[property]
 
     _enterState: (state) =>
-      console.log 'Entering state:', state if Stateful.debug
+      console.log 'Entering state:', state if Stateful.debug >= 1
+      throw "Invalid state: " + state unless @interfaces[state]
       api = new @interfaces[state]
-      throw "Invalid state: " + state unless api
       for property of api
         continue if property == 'constructor'
-        console.log 'Adding property:', property if Stateful.debug
+        console.log 'Adding property:', property if Stateful.debug >= 2
         @object[property] = api[property]
 
       @current = state

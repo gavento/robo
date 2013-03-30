@@ -479,9 +479,12 @@
         "dir": "W",
         "image": "roombo-r.png",
         "health": 7,
-	"cards": [
-	  {"type": "S", "priority": 220, "commands": "L L R S U" }
-	]
+        "cards": {
+          "limit": 1,
+          "fixed": [
+	          {"type": "S", "priority": 220, "commands": "L L R S U" }
+      	  ]
+        }
       },
       {
         "x": 2,

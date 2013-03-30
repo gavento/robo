@@ -12,7 +12,10 @@
         "name": "Sandrobot",
         "dir": "S",
         "image": "roombo-r.png",
-        "health": 7
+        "health": 8,
+        "cards": {
+          "limit": 8
+        }
       }
     ]
   },

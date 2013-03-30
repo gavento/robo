@@ -3,27 +3,32 @@ define (require, exports, module) ->
   Entity = require "cs!app/models/Entity"
   Direction = require "cs!app/lib/Direction"
   RespawnPosition = require "cs!app/models/RespawnPosition"
-  Card = require "cs!app/models/Card"
+  HeldCards = require "cs!app/models/HeldCards"
 
   class Robot extends Entity
     @configure {name:'Robot', subClass: true, registerAs: 'Robot'},
-      'name', 'dir', 'image', 'cards', 'health', 'fixedCards'
+      'name', 'dir', 'image', 'cards', 'health', 'maxHealth'
     @typedProperty 'dir', Direction, 'dir_'
     @typedProperty 'respawnPosition', RespawnPosition, 'respawnPosition_'
-    @typedPropertyArray 'cards', Card, 'cards_'
+    @typedProperty 'cards', HeldCards, 'cards_'
 
     constructor: ->
       super
-      @fixedCards ?= @cards_?
-      @cards_ ?= []
+      @cards_ ?= new HeldCards({})
       @dir_ ?= new Direction(0)
+      @health_ ?= 8
+      @maxHealth_ ?= @health_
       @respawnPosition_ ?= new RespawnPosition({x: @x, y: @y, dir: @dir()})
       @placed = true
 
     damage: (opts, callback) ->
       throw 'opts.damage required' unless opts? and opts.damage?
       @health -= opts.damage
+      @cards_.decreaseLimit(opts.damage)
       @triggerLockedEvent('robot:damage', opts, callback)
+
+    getDamage: ->
+      return @maxHealth_ - @health
 
     fall: (opts, callback) ->
       throw "opts.dir required" unless opts?
@@ -91,19 +96,5 @@ define (require, exports, module) ->
       optsC = Object.create opts
       optsC.dir = -opts.dir
       @turn optsC, callback
-
-    hasFixedCards: ->
-      return @fixedCards
-
-    drawCards: (deck, opts, callback) ->
-      cards = deck.drawCards 4
-      @cards_.push cards...
-      @triggerLockedEvent 'robot:cards:drawn', opts, callback
-
-    discardCards: (deck, opts, callback) ->
-      cards = @cards_
-      @cards_ = []
-      deck.discardCards cards
-      @triggerLockedEvent 'robot:cards:discarded', opts, callback
 
   module.exports = Robot

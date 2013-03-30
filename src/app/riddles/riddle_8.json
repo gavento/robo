@@ -150,7 +150,17 @@
         "type": "Robot",
         "dir": "N",
         "image": "roombo-r.png",
-        "health": 7
+        "health": 7,
+        "id": "controled",
+        "cards": {
+          "limit": 4,
+          "fixed": [
+    	      {"type": "S", "priority": 10, "commands": "B" },
+            {"type": "S", "priority": 11, "commands": "B" },
+            {"type": "S", "priority": 12, "commands": "B" },
+            {"type": "S", "priority": 13, "commands": "B" }
+      	  ]
+        }
       },
       {
         "x": 2,
@@ -269,7 +279,9 @@
   "players": [
     {
       "name": "Spectator",
-      "robotIds": []
+      "robotIds": [
+        "controled"
+      ]
     }
   ]
 }

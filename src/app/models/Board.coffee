@@ -29,15 +29,15 @@ define (require, exports, module) ->
   # * `entityById_` - map of entities by their id.
 
   class Board extends SimpleModel
-    @configure {name: 'Board'}, 'width', 'height', 'entities', 'entitiesOutside', 'hole'
+    @configure {name: 'Board'}, 'width', 'height', 'entities', 'entitiesOutside'
 
-    constructor: (atts) ->
+    constructor: ->
       @width_ = 0
       @height_ = 0
       @entities_ = []
       @tiles_ = {}
       @entityById_ = {}
-      super atts
+      super
 
     # ### Board.activateBoard ###
     #
@@ -226,7 +226,7 @@ define (require, exports, module) ->
       entities = (e for e in @getEntitiesAt(x, y) when e.isPushable())
 
     getCrushableEntitiesAt: (x, y) ->
-      @getPushableEntitiesAt(x, y)
+      entities = @getPushableEntitiesAt(x, y)
 
     getTurnableEntitiesAt: (x, y) ->
       entities = (e for e in @getEntitiesAt(x, y) when e.isTurnable())

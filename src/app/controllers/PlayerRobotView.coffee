@@ -27,7 +27,7 @@ define (require, exports, module) ->
         tileW: @tileW
         tileH: @tileH
         passive: true
-      @appendController new RobotCardViews robot: @robot
+      @appendController new RobotCardViews cards: @robot.cards()
 
 
   class RobotDescriptionView extends PlayerRobotController
@@ -63,30 +63,20 @@ define (require, exports, module) ->
     onRobotRespawnConfirmed: => @onRobotPlace()
 
   
-  class RobotCardViews extends PlayerRobotController
+  class RobotCardViews extends SimpleController
     tag: 'ul'
     attributes: class: 'RobotCardViews'
     constructor: ->
       super
-      @bindToModel @robot, "robot:cards:drawn", @onRobotCardsDrawn
-      @bindToModel @robot, "robot:cards:discarded", @onRobotCardsDiscarded
+      @bindToModel @cards, "robot:cards:drawn", @onRobotCardsDrawn
+      @bindToModel @cards, "robot:cards:discarded", @onRobotCardsDiscarded
+      @bindToModel @cards, "robot:cards:confirmed", @onRobotCardsConfirmed
       @cardViews = []
-      # Sortable must be initialized before render so that it can be
-      # destroyed in render(). Uninitialized sortable can not be destroyed.
-      # We need to reinitialize the sortable when new cards are appended
-      # because if the sortable is empty when it is initialized, the sortable
-      # thinks that it is vertical and the sorting is not very smooth.
-      @initSortable()
-      @recreateSortable()
-
-    recreateSortable: =>
       @render()
-      @destroySortable()
-      @initSortable()
-
+    
     render: =>
       @releaseCardViews()
-      for card in @robot.get 'cards'
+      for card in @cards.getAllCards()
         view = CardView.createSubType
           card: card
           type: card.get 'type'
@@ -107,8 +97,16 @@ define (require, exports, module) ->
         view.release()
       @cardViews = []
 
-    onRobotCardsDrawn: => @recreateSortable()
-    onRobotCardsDiscarded: => @recreateSortable()
+    onRobotCardsDrawn: =>
+      @render()
+      @initSortable()
+
+    onRobotCardsDiscarded: =>
+      @render()
+
+    onRobotCardsConfirmed: =>
+      @destroySortable()
+      @render()
  
 
   class RobotNameView extends PlayerRobotController

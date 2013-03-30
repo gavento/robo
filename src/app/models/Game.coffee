@@ -21,19 +21,17 @@ define (require, exports, module) ->
         json = 'text!app/default_deck.json'
         require [json], =>
           data = arguments[0]
-          throw "Default deck could not be read" unless data
+          throw 'Default deck could not be read' unless data
           @deck_ = Deck.fromJSON data
-          throw "Default deck not loaded" unless @deck_
+          throw 'Default deck not loaded' unless @deck_
           # TODO: make sure that the game can not start before the deck
           #       is loaded
           @trigger 'game:loaded'
 
       # Current turn of the game.
       @turnIndex = 0
-      # Index of currently played card.
-      @cardIndex = 0
-      # Index of currently active robot.
-      @robotIndex = 0
+      # Robots sorted by priorities of currently active cards.
+      @sortedRobots = []
       @started = false
       @state = new Stateful(@, 'GameStart', new Game::States)
       @bindEvent 'state:entered', @run
@@ -50,33 +48,39 @@ define (require, exports, module) ->
     continue: ->
       if not @started
         @started = true
+      if @state.current == 'ChooseCards'
+        @confirmOrderOfCards()
       @run()
 
     getActiveCard: (robot) ->
       robot ?= @getActiveRobot()
       if robot
-        cards = robot.get('cards')
+        cards = robot.cards
         if cards? and @cardIndex >= 0 and @cardIndex < cards.length
-          return cards[@cardIndex]
+          return cards.at @cardIndex
       return null
 
     getActiveRobot: ->
-      robots = @getSortedRobots()
-      if @robotIndex >= 0 and @robotIndex < robots.length
-        return robots[@robotIndex]
-      return null
+      @sortedRobots[0]
+      if @sortedRobots.length > 0
+        return @sortedRobots[0]
+      else
+        return null
 
-    getSortedRobots: ->
-      # Get all robots of all players.
-      robots = @getPlayerRobots()
+    nextRobot: ->
+      robot = @sortedRobots[0]
+      @sortedRobots = @sortedRobots[1..]
+      return robot
+
+    sortRobots: ->
       getPriority = (robot, cardIndex) ->
-        cards = robot.get('cards')
-        if cards? and cards.length > cardIndex
-          return cards[cardIndex].get('priority')
+        cards = robot.cards()
+        card = cards.nextCard()
+        if card
+          return card.priority
         else
           return 0
-      # Sort robots according to priority of current card.
-      robots.sort( (robot1, robot2) =>
+      sortByPriority = (robot1, robot2) =>
         priority1 = getPriority(robot1, @cardIndex)
         priority2 = getPriority(robot2, @cardIndex)
         # Robot whose card has higher priority will play first.
@@ -86,12 +90,15 @@ define (require, exports, module) ->
           return -1
         else
           return 0 # TODO: What to do if the priorities are equal?
-      )
-      # Return sorted array of robots.
-      return robots
+      # Get all robots that have at least one unplayed card
+      # and sort them by priority of the first card.
+      robots = @getRobotsWithNextCard()
+      robots.sort(sortByPriority)
+      @sortedRobots = robots
     
-    getRobotsWithDynamicCards: ->
-      return (r for r in @getPlayerRobots() when not r.hasFixedCards())
+    getRobotsWithNextCard: ->
+      robots = (r for r in @getPlayerRobots() when r.cards().nextCard())
+      return robots
 
     getPlayerRobots: ->
       robots = []
@@ -101,23 +108,35 @@ define (require, exports, module) ->
       return robots
 
     isGameOver: ->
-      return true
+      livingRobots = (r for r in @getPlayerRobots() when r.health > 0)
+      return livingRobots.length <= 0
 
     isTurnOver: ->
-      robots = @getSortedRobots()
-      lengths = (robot.get('cards').length for robot in robots)
-      lengths.push(0) # to ensure that the array is not empty
-      maximum = Math.max(lengths...)
-      return @cardIndex >= maximum # number of selected cards
+      robots = @getRobotsWithNextCard()
+      return robots.length <= 0
 
-    isCardOver: ->
-      return @robotIndex >= @getSortedRobots().length
+    isRoundOver: ->
+      return @sortedRobots.length <= 0
 
     isRobotPlaced: ->
-      return @getSortedRobots()[@robotIndex].isPlaced()
+      return @sortedRobots[0].isPlaced()
     
     canRobotBePlaced: ->
-      return @getSortedRobots()[@robotIndex].canBePlaced()
+      return @sortedRobots[0].canBePlaced()
+    
+    confirmOrderOfCards: ->
+      robots = @getPlayerRobots()
+      for robot in robots
+        cards = robot.cards()
+        cards.confirmOrder()
+
+    isOrderOfCardsConfirmed: ->
+      robots = @getPlayerRobots()
+      for robot in robots
+        cards = robot.cards()
+        if not cards.isOrderConfirmed()
+          return false
+      return true
 
 
   class Interface
@@ -133,124 +152,88 @@ define (require, exports, module) ->
       return not @started
 
     next: ->
-       @state.transition("TurnNext")
+       @state.transition('NextTurn')
 
   class Game::States::GameOver extends Interface
     next: ->
       @started = false
-      @state.transition("GameStart")
+      @state.transition('GameStart')
 
 
+
+  class Game::States::NextTurn extends Interface
+    next: ->
+      if @isGameOver()
+        @state.transition('GameOver')
+      else
+        @state.transition('DrawCards')
 
   # Discard old cards and draw new cards.
-  class Game::States::TurnNext extends Interface
+  class Game::States::DrawCards extends Interface
     next: ->
-      @cardIndex = 0
-      robots = @getRobotsWithDynamicCards()
-      if robots.length > 0
-        discardCards = (robot, cb) =>
-          robot.discardCards @deck_, {}, cb
-        drawCards = (robot, cb) =>
-          robot.drawCards @deck_, {}, cb
-        discardAllCards = (cb) =>
-          async.forEach robots, discardCards, cb
-        drawAllCards = (cb) =>
-          async.forEach robots, drawCards, cb
-        shuffle = (cb) =>
-          @deck_.shuffle()
-          cb()
-        async.series [discardAllCards, shuffle, drawAllCards],
-          => @state.transition("TurnPlay")
-      else
-        @state.transition("TurnPlay")
+      robots = @getPlayerRobots()
+      discardCards = (robot, cb) =>
+        robot.cards().discardDrawnCards @deck_, {}, cb
+      discardAllCards = (cb) =>
+        async.forEach robots, discardCards, cb
+      shuffle = (cb) =>
+        @deck_.shuffle()
+        cb()
+      drawCards = (robot, cb) =>
+        robot.cards().drawCards @deck_, {}, cb
+      drawAllCards = (cb) =>
+        async.forEach robots, drawCards, cb
+      async.series [discardAllCards, shuffle, drawAllCards],
+        => @state.transition('ChooseCards')
 
-  # Let user to select cards. 
-  # Repeat the process until all cards of all robots have been played.
-  class Game::States::TurnPlay extends Interface
+  # Let user to select some cards. Than discard the rest.
+  class Game::States::ChooseCards extends Interface
+    isUserActionRequired: ->
+      return not @isOrderOfCardsConfirmed()
+    
     next: ->
-      @state.transition("CardNext")
+      robots = @getPlayerRobots()
+      discardCards = (robot, cb) =>
+        robot.cards().discardUnplannedCards @deck_, {}, cb
+      async.forEach robots, discardCards, => @state.transition('NextRound')
 
-  class Game::States::TurnOver extends Interface
+
+
+  class Game::States::NextRound extends Interface
     next: ->
-      if @isGameOver
-        @state.transition("GameOver")
-      else
-        @state.transition("TurnNext")
-
-
-
-  class Game::States::CardNext extends Interface
-    next: ->
-      @robotIndex = 0
-      if @isCardOver()
-        @state.transition("BoardStart")
-      else
-        @state.transition("CardPlay")
-
-  class Game::States::CardPlay extends Interface
-    next: ->
-      @state.transition("RobotNext")
-
-  class Game::States::CardOver extends Interface
-    next: ->
-      @cardIndex++
+      @sortRobots()
       if @isTurnOver()
-        @state.transition("TurnOver")
+        @state.transition('NextTurn')
       else
-        @state.transition("CardNext")
+        @state.transition('NextRobot')
 
 
-
-  class Game::States::RobotNext extends Interface
+  class Game::States::NextRobot extends Interface
     next: ->
-      if @isRobotPlaced()
-        @state.transition("RobotPlay")
+      if @isRoundOver()
+        @state.transition('ActivateBoard')
+      else if @isRobotPlaced()
+        @state.transition('PlayRobot')
       else
-        @state.transition("RobotPlace")
+        @state.transition('PlaceRobot')
   
-  class Game::States::RobotPlace extends Interface
+  class Game::States::PlaceRobot extends Interface
     isUserActionRequired: ->
       return not @isRobotPlaced() and not @canRobotBePlaced()
 
     next: ->
-      robot = @getSortedRobots()[@robotIndex]
-      robot.place({}, => @state.transition("RobotPlay"))
-
-  class Game::States::RobotPlay extends Interface
-    next: ->
       robot = @getActiveRobot()
-      if robot
-        card = @getActiveCard(robot)
-        if card
-          card.playOnRobot(robot, {}, => @state.transition("RobotOver"))
-        else
-          @state.transition("RobotOver")
-      else
-        @state.transition("RobotOver")
+      robot.place {}, => @state.transition('PlayRobot')
 
-  class Game::States::RobotOver extends Interface
+  class Game::States::PlayRobot extends Interface
     next: ->
-      @robotIndex++
-      if @isCardOver()
-        @state.transition("BoardStart")
-      else
-        @state.transition("RobotNext")
-  
+      robot = @nextRobot()
+      cards = robot.cards()
+      cards.playNextCard(robot, {}, => @state.transition('NextRobot'))
 
+  class Game::States::ActivateBoard extends Interface
+    next: ->
+      @board().activateBoard {}, => @state.transition('NextRound')
 
-  class Game::States::BoardStart extends Interface
-    next: ->
-      @state.transition("BoardActive")
-  
-  class Game::States::BoardActive extends Interface
-    next: ->
-      @board().activateBoard({}, (=> @state.transition("BoardOver")))
-  
-  class Game::States::BoardOver extends Interface
-    next: ->
-      if @isCardOver
-        @state.transition("CardOver")
-      else
-        @state.transition("CardNext")
 
   module.exports = Game

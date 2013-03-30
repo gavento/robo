@@ -31,12 +31,15 @@
         "dir": "E",
         "image": "roombo-r.png",
         "health": 7,
-        "cards": [
-  	      {"type": "S", "priority": 220, "commands": "S L" },
-          {"type": "S", "priority": 107, "commands": "S R" },
-          {"type": "S", "priority":  42, "commands": "S U" },
-          {"type": "S", "priority": 278, "commands": "S U" }
-      	]
+        "cards": {
+          "limit": 4,
+          "fixed": [
+    	      {"type": "S", "priority": 220, "commands": "S L" },
+            {"type": "S", "priority": 107, "commands": "S R" },
+            {"type": "S", "priority":  42, "commands": "S U" },
+            {"type": "S", "priority": 278, "commands": "S U" }
+      	  ]
+        }
       }
     ]
   },
