@@ -17,16 +17,16 @@ define (require, exports, module) ->
     constructor: ->
       super
       @appendController new RobotDescriptionView robot: @robot
-      @appendController new RobotRespawnController
-        robot: @robot
-        tileW: @tileW
-        tileH: @tileH
       @appendController EntityView.createSubType
         entity: @robot
         type: @robot.get 'type'
         tileW: @tileW
         tileH: @tileH
         passive: true
+      @appendController new RobotRespawnController
+        robot: @robot
+        tileW: @tileW
+        tileH: @tileH
       @appendController new RobotCardViews cards: @robot.cards()
 
 
