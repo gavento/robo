@@ -34,6 +34,12 @@ define (require, exports, module) ->
 
       # display current route
       Spine.Route.setup()
+      
+      # socket.io tests  
+      socket = io.connect('http://localhost:4242')
+      socket.on('news', (data) =>
+        console.log(data)
+        socket.emit('my other event', { my: 'data' }))
 
 
   module.exports = App

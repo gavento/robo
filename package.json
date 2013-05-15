@@ -10,7 +10,9 @@
   "dependencies": {
     "coffee-script": ">= 1.4.0",
     "http-server": ">= 0.5",
+    "express": ">= 3.0.0",
     "requirejs": ">= 2.0",
+    "socket.io": ">= 0.9",
     "stylus": ">= 0.28",
     "docker": ">= 0.1.6",
     "async": ">= 0.0.1"
