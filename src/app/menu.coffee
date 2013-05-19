@@ -1,7 +1,9 @@
 define (require, exports, module) ->
+  
+  SimpleController = require 'cs!app/lib/SimpleController'
 
   # # Menu controller #
-  class Menu extends Spine.Controller
+  class Menu extends SimpleController
     constructor: ->
       super
       
@@ -23,7 +25,7 @@ define (require, exports, module) ->
       for s in @submenus
         @el.append s.el
 
-  class Submenu extends Spine.Controller
+  class Submenu extends SimpleController
     constructor: (@level, @name, @call, @submenus) ->
       super
       m = @$("<div class='MenuLevel#{ @level }'>#{ @name }</div>")

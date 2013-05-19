@@ -3,6 +3,7 @@ define (require, exports, module) ->
   SimpleModel = require 'cs!app/lib/SimpleModel'
   Card = require 'cs!app/models/Card'
   Robot = require 'cs!app/models/EntityRobot'
+  _ = require 'underscore'
 
   class Deck extends SimpleModel
     @configure {name: 'Deck'}

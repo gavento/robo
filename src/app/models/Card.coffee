@@ -2,6 +2,8 @@ define (require, exports, module) ->
 
   SimpleModel = require 'cs!app/lib/SimpleModel'
   EffectFactory = require 'cs!app/models/effects/EffectFactory'
+  async = require 'async'
+  _ = require 'underscore'
 
   class Card extends SimpleModel
     @configure {name: 'Card', baseClass: true, genId: true}, 'type', 'priority'
@@ -17,7 +19,7 @@ define (require, exports, module) ->
   class SimpleCard extends Card
     @configure {name: 'SimpleCard', subClass: true, registerAs: "S"}, 'commands'
     @typedPropertyEx('commands',
-      (v) -> Spine.isArray v,
+      (v) -> _.isArray v,
       (v) -> (c for c in v.split(" ") when c),
       '@commands_')
 

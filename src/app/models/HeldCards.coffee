@@ -2,6 +2,7 @@ define (require, exports, module) ->
 
   SimpleModel = require 'cs!app/lib/SimpleModel'
   Card = require 'cs!app/models/Card'
+  _ = require 'underscore'
 
   class HeldCards extends SimpleModel
     @configure {name: 'HeldCards'}, 'fixed', 'drawn', 'limit'

@@ -1,5 +1,7 @@
 define (require, exports, module) ->
 
+  _ = require 'underscore'
+
   # Spine.Model attribute helpers 
 
   # Create a accessor for an attribute, automatically converting

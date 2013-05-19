@@ -4,6 +4,9 @@ var config = {
     'cs' :'lib/cs',
     'text' :'lib/text',
     'coffee-script': 'lib/coffee-script',
+		'spine' : 'spine-shim',
+		'async' : 'async-shim',
+		'underscore' : 'underscore-shim',
   },
   shims: {
   }

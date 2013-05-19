@@ -10,7 +10,8 @@ define (require, exports, module) ->
   EO = require 'cs!app/models/EntityOthers'
   Wall = EO.Wall
   Hole = EO.Hole
-
+  async = require 'async'
+  _ = require 'underscore'
 
   # # class Board #
   #

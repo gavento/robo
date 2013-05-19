@@ -5,6 +5,7 @@ define (require, exports, module) ->
   Deck = require 'cs!app/models/Deck'
   Player = require 'cs!app/models/Player'
   Stateful = require 'cs!app/lib/Stateful'
+  async = require 'async'
 
   class Game extends SimpleModel
     @configure {name: 'Game'}, 'name', 'board', 'players'

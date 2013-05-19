@@ -1,8 +1,9 @@
 define (require, exports, module) ->
 
-  ST = require "cs!app/lib/SubClassTypes"
+  ST = require 'cs!app/lib/SubClassTypes'
   MP = require 'cs!app/lib/ModelProperties'
-  MultiLock = require "cs!app/lib/MultiLock"
+  MultiLock = require 'cs!app/lib/MultiLock'
+  Spine = require 'spine'
 
   class SimpleModel extends Spine.Module
     @include Spine.Events
