@@ -1,4 +1,5 @@
 @import 'mixin'
+@import 'entities'
 
 body
   background: #000
@@ -28,6 +29,33 @@ header()
 
 #header div
   display: inline-block
+
+button
+  border: 1px solid #bbbbbb;
+  font-weight: bold;
+  text-shadow: 0 1px 1px #ffffff;
+  font-family: Helvetica, Arial, "MS Trebuchet", sans-serif;
+  font-size: 14px;
+  color: #363636;
+  padding: 6px 10px;
+  margin: 1px 1px 1px 0;
+  outline: none;
+  background: #f9f9f9;
+  vbg-gradient(#f9f9f9, #e3e3e3)
+  border-radius(3px)
+  box-shadow(0, 1px, 1px, #ffffff)
+
+  &:active
+    vbg-gradient(#e3e3e3, #f9f9f9)
+
+  &.default
+    color: #ffffff;
+    border: 1px solid #3f68a5;
+    text-shadow: 0 -1px 1px #46677f;
+    vbg-gradient( #7bb5db, #4775b8)
+
+  &.default:active
+    vbg-gradient(#4775b8, #7bb5db)
 
 .MenuLevel1
   header()
@@ -94,52 +122,8 @@ header()
   left: 0
   top: 0
 
-
-
-.EntityView
-  width: 0px
-  height: 0px
-  background-attachment: fixed
-
 .BoardViewTiles .EntityView
   position: absolute
-
-
-
-.ConveyorView
-  z-index: 10
-  background url('img/conveyor.png')
-
-.CrusherView
-  z-index: 80
-  background url('img/crusher.png')
-
-.ExpressConveyorView
-  z-index: 10
-  background url('img/conveyor-express.png')
-
-.RobotView
-  z-index: 50
-  background url('img/roombo.png')
-
-.TurnerLView .TurnerRView .TurnerUView
-  z-index: 15
-
-.TurnerLView
-  background url('img/turnL.png')
-
-.TurnerRView
-  background url('img/turnR.png')
-
-.TurnerUView
-  background url('img/turnU.png')
-
-.HoleView
-  background url('img/hole.png')
-
-.WallView
-  background url('img/wall.png')
-
 
 .PlayerRobotView .RobotView
   display: inline-block
