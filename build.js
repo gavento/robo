@@ -1,8 +1,9 @@
 ({
     appDir: 'src',
     baseUrl: '.',
-
-    //Uncomment to turn off uglify minification.
+    mainConfigFile: './src/main.js',
+    
+	//Uncomment to turn off uglify minification.
     optimize: 'none',
     dir: 'build/',
 
@@ -10,13 +11,13 @@
     //it will not be needed.
     stubModules: ['cs'],
 
-    paths: {
-        'cs' :'lib/cs',
-        'coffee-script': 'lib/coffee-script',
-	'text': 'lib/text',
+//    paths: {
+//        'cs' :'lib/cs',
+//        'coffee-script': 'lib/coffee-script',
+//        'text': 'lib/text',
 //	'jquery': 'lib/jquery-1.7.2',
 //	'spine': 'lib/spine',
-    },
+//    },
 
 /*    shims: {
       'spine': {

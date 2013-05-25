@@ -24,9 +24,8 @@ clean:
 build:
 	$(R_JS) -o build.js
 	rm -f $(BUILD_DIR)/style/*.styl
-	rm -fr $(BUILD_DIR)/app
-	rm -f $(BUILD_DIR)/lib/[c]*.js
-	rm -fr $(BUILD_DIR)/lib/spinelib/
+	rm -f $(BUILD_DIR)/lib/cs.js
+	rm -f $(BUILD_DIR)/lib/coffee-script.js
 	mv $(BUILD_DIR)/build.txt .
 
 style:
