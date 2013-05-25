@@ -10,7 +10,7 @@ HTTP_PORT = 4242
 BUILD_DIR=./build
 INSTALL_URL=gavento@jabberwock.ucw.cz:/home/gavento/www/view/robo/
 
-all: style build docs
+all: build docs
 .PHONY: all build start clean stylus docs tests
 
 start:
@@ -29,9 +29,6 @@ build:
 	rm -f $(BUILD_DIR)/lib/cs.js
 	rm -f $(BUILD_DIR)/lib/coffee-script.js
 	mv $(BUILD_DIR)/build.txt .
-
-style:
-	$(STYLUS) -I src/style < src/style/main.styl > src/style/main.css
 
 docs:
 	$(DOCKER) --input_dir src/ --exclude lib --output_dir $(BUILD_DIR)/docs
