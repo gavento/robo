@@ -15,7 +15,7 @@ all: style build docs
 
 start:
 	@echo '***  Serving at  http://0.0.0.0:$(HTTP_PORT)/  ***'
-	$(COFFEE) ./src/server.coffee $(HTTP_PORT)
+	$(COFFEE) ./src/server/server.coffee $(HTTP_PORT)
 
 clean:
 	rm -rf $(BUILD_DIR)
@@ -23,7 +23,9 @@ clean:
 
 build:
 	$(R_JS) -o build.js
-	rm -f $(BUILD_DIR)/style/*.styl
+	rm -fr $(BUILD_DIR)/style/
+	rm -fr $(BUILD_DIR)/app/
+	rm -fr $(BUILD_DIR)/server/
 	rm -f $(BUILD_DIR)/lib/cs.js
 	rm -f $(BUILD_DIR)/lib/coffee-script.js
 	mv $(BUILD_DIR)/build.txt .

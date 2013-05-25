@@ -1,7 +1,7 @@
 ({
     appDir: 'src',
     baseUrl: '.',
-    mainConfigFile: './src/main.js',
+    mainConfigFile: './src/public/main.js',
     
 	//Uncomment to turn off uglify minification.
     optimize: 'none',
@@ -32,7 +32,7 @@
 
     modules: [
         {
-            name: 'main',
+            name: 'public/main',
             //The optimization will load CoffeeScript to convert
             //the CoffeeScript files to plain JS. Use the exclude
             //directive so that the coffee-script module is not included

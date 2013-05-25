@@ -4,9 +4,9 @@ require.config({
     'cs' :'lib/cs',
     'text' :'lib/text',
     'coffee-script': 'lib/coffee-script',
-    'spine' : 'spine-shim',
-    'async' : 'async-shim',
-    'underscore' : 'underscore-shim',
+    'spine' : 'lib/spine-shim',
+    'async' : 'lib/async-shim',
+    'underscore' : 'lib/underscore-shim',
   },
   shims: {
   }

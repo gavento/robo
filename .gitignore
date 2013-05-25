@@ -1,7 +1,7 @@
 /node_modules/
 /misc/
 /build/
-/src/style/main.css
+/src/public/main.css
 /build.txt
 
 *.swp
