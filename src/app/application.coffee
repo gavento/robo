@@ -30,7 +30,7 @@ define (require, exports, module) ->
         '/*id': (params) =>
           # default view (currently used for testing)
           @log 'Displaying default view', params.id
-          replaceView new TestingView json: 'text!json/game_test.json'
+          replaceView new TestingView json: 'text!json/game-test.json'
 
       # display current route
       Spine.Route.setup()

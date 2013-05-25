@@ -19,7 +19,7 @@ define (require, exports, module) ->
       super
       if not @deck_
         # if no deck is specified, load the default deck
-        json = 'text!json/default_deck.json'
+        json = 'text!json/default-deck.json'
         require [json], =>
           data = arguments[0]
           throw 'Default deck could not be read' unless data
