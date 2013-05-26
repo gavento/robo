@@ -1,10 +1,10 @@
 define (require, exports, module) ->
 
 
-  TestingView = require 'cs!app/controllers/TestingView'
-  RiddleView = require 'cs!app/controllers/RiddleView'
-  EditorView = require 'cs!app/controllers/EditorView'
-  Board = require 'cs!app/models/Board'
+  TestingView = require 'cs!app/controllers/testing-view'
+  RiddleView = require 'cs!app/controllers/riddle-view'
+  EditorView = require 'cs!app/controllers/editor-view'
+  Board = require 'cs!app/models/board'
 
   # # App controller #
   class App extends Spine.Controller

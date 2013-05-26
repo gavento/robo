@@ -1,6 +1,6 @@
 define (require, exports, module) ->
   
-  SimpleController = require 'cs!app/lib/SimpleController'
+  SimpleController = require 'cs!app/lib/simple-controller'
 
   # # Menu controller #
   class Menu extends SimpleController
