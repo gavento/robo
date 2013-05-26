@@ -2,7 +2,7 @@ express = require 'express'
 http = require 'http'
 app = express()
 server = http.createServer(app)
-io = require('socket.io').listen(server)
+io = require('socket.io').listen(server, {'log level': 1})
 stylus = require('stylus')
 
 # Read the port number from the commandline.
