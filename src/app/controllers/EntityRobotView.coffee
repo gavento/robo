@@ -18,7 +18,7 @@ define (require, exports, module) ->
     render: =>
       super
       if @entity.image
-        @el.css 'background-image': "url('img/#{@entity.image}')"
+        @el.css 'background-image': "url('img/robots/#{@entity.image}')"
 
     onRobotFall: (opts, lock) =>
       if @passive

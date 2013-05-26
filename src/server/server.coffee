@@ -36,7 +36,7 @@ app.use '/test', express.static(__dirname + '/../../test')
 # Create new Game. This is just a proof of concept.
 # It shows that the game can run on server.
 Game = requirejs 'cs!app/models/Game'
-g = requirejs 'text!json/riddles/riddle_1.json'
+g = requirejs 'text!json/riddles/riddle-1.json'
 game = Game.fromJSON(g)
 game.bindEvent 'game:loaded', -> game.continue()
 game.bindEvent 'state:entered', -> console.log game.state.current
