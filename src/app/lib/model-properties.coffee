@@ -2,7 +2,7 @@ define (require, exports, module) ->
 
   _ = require 'underscore'
 
-  # Spine.Model attribute helpers 
+  # Spine.Model attribute helpers
 
   # Create a accessor for an attribute, automatically converting
   # a JSON-type representation. This makes load()ing very easy.

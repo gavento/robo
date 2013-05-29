@@ -18,9 +18,9 @@ describe 'EffectFactory', ->
       'cs!app/lib/effects/move-effect'
       'cs!app/lib/effects/turn-effect'
       'cs!app/lib/effects/crush-effect'
-      'cs!app/lib/effects/fall-effect'
-      ], (board, robot, entities, effectFactory,
-          moveEffect, turnEffect, crushEffect, fallEffect) ->
+      'cs!app/lib/effects/fall-effect'],
+      (board, robot, entities, effectFactory,
+        moveEffect, turnEffect, crushEffect, fallEffect) ->
         Board = board
         Robot = robot
         Conveyor = entities.Conveyor
@@ -43,7 +43,8 @@ describe 'EffectFactory', ->
       robot = new Robot({x: 0, y: 0, type: 'Robot'})
       conveyor = new Conveyor({x: 0, y: 0, type: 'C', dir: 'E'})
       board.entities([robot, conveyor])
-      effect = EffectFactory.createMoveEffectChain(board, robot, conveyor, conveyor.dir())
+      effect = EffectFactory.createMoveEffectChain(
+        board, robot, conveyor, conveyor.dir())
     it 'should create a MoveEffect', ->
       effect.should.be.instanceof(MoveEffect)
     it 'should have direction of the conveyor', ->
@@ -131,6 +132,7 @@ describe 'EffectFactory', ->
       robot3 = new Robot({x: 1, y: 0, type: 'Robot'})
       conveyor = new Conveyor({x: 0, y: 0, type: 'C', dir: 'E'})
       board.entities([conveyor, robot1, robot2, robot3])
-      effect = EffectFactory.createMoveEffectChain(board, robot1, conveyor, conveyor.dir())
+      effect = EffectFactory.createMoveEffectChain(
+        board, robot1, conveyor, conveyor.dir())
       effects = EffectFactory.splitEffects([effect])
       effects.length.should.equal(3)

@@ -38,7 +38,7 @@ tests:
 	$(COFFEE) -c test/
 
 lint:
-	$(COFFEELINT) -r ./src ./test
+	$(COFFEELINT) -f coffeelint.json -r ./src ./test
 
 install: clean style build
 	rsync --rsh=ssh -rlvvzuO --exclude='*\~' "$(BUILD_DIR)/" "${INSTALL_URL}/" 

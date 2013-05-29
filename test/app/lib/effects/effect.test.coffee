@@ -6,8 +6,8 @@ describe 'Effect', ->
     require [
       'cs!app/models/entity-robot'
       'cs!app/models/entity-others'
-      'cs!app/lib/effects/effect'
-      ], (robot, entities, effect) ->
+      'cs!app/lib/effects/effect'],
+      (robot, entities, effect) ->
         Robot = robot
         Conveyor = entities.Conveyor
         Effect = effect

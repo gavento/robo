@@ -150,14 +150,14 @@ define (require, exports, module) ->
 
   class Game::States
 
-  # Initial game state. This state is active only immediately after the game 
+  # Initial game state. This state is active only immediately after the game
   # is loaded.
   class Game::States::GameStart extends Interface
     isUserActionRequired: ->
       return not @started
 
     next: ->
-       @state.transition('NextTurn')
+      @state.transition('NextTurn')
 
   class Game::States::GameOver extends Interface
     next: ->

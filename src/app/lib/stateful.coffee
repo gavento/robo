@@ -10,7 +10,7 @@ define (require, exports, module) ->
     @debug = 0
 
     # Public: Constructor for the State object.
-    # 
+    #
     # object       - The object that requires state handling.
     # initialState - The initial state.
     # interfaces   - An object with the API extensions provided by each state.
@@ -20,7 +20,7 @@ define (require, exports, module) ->
       @transition(initialState)
 
     # Public: Switch to a new state.
-    # 
+    #
     # state       - The name of the new state.
     transition: (state) =>
       @_exitState(state) if @current

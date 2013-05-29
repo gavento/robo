@@ -4,7 +4,8 @@ define (require, exports, module) ->
   EntityView = require "cs!app/controllers/entity-view"
 
 
-  # A base for EntityViews with simple sprite-based animation, optionally with direction.
+  # A base for EntityViews with simple sprite-based animation,
+  # optionally with direction.
   # Specify `animFrames` and `animDuration` in children.
   class SimplyAnimatedEntityView extends EntityView
     animFrames: 0

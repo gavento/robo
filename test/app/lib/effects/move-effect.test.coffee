@@ -11,8 +11,8 @@ describe 'MoveEffect', ->
       'cs!app/models/entity-robot'
       'cs!app/models/entity-others'
       'cs!app/lib/effects/effect'
-      'cs!app/lib/effects/move-effect'
-      ], (board, robot, entities, effect, moveEffect) ->
+      'cs!app/lib/effects/move-effect'],
+      (board, robot, entities, effect, moveEffect) ->
         Board = board
         Robot = robot
         Conveyor = entities.Conveyor

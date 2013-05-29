@@ -49,18 +49,19 @@ define (require, exports, module) ->
           'left': x * @tileW
           'top': y * @tileH
 
-    # Animate a rotating Entity. 
-    # `opts.lock` is used for board locking, opts is passed to 
+    # Animate a rotating Entity.
+    # `opts.lock` is used for board locking, opts is passed to
     # guessDuration().
     onEntityRotate: (opts, lock) =>
       if @passive
         return
-      throw "opts.oldDir and opts.dir required" unless opts? and opts.oldDir? and opts.dir?
+      throw "opts.oldDir and opts.dir required" unless (
+        opts? and opts.oldDir? and opts.dir?)
       unlock = lock.getLock("EntityView.onEntityRotate")
       @animateEntity(opts, unlock)
 
-    # Animate a moving Entity. 
-    # `opts.lock` is used for board locking, opts is passed to 
+    # Animate a moving Entity.
+    # `opts.lock` is used for board locking, opts is passed to
     # guessDuration().
     onEntityMove: (opts, lock) =>
       if @passive

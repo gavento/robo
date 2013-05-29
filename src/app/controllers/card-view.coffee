@@ -24,7 +24,8 @@ define (require, exports, module) ->
       # https://bugs.webkit.org/show_bug.cgi?id=14563 and
       # http://bugs.jquery.com/ticket/9338
       @el.css "float": "left"
-      @el.html "<div class='CardViewPriority'>#{ @card.get 'priority' }</div><div class='CardViewText'>#{ @card.get 'text' }</div>"
+      @el.html "<div class='CardViewPriority'>#{ @card.get 'priority' }</div>
+        <div class='CardViewText'>#{ @card.get 'text' }</div>"
 
   class SimpleCardView extends CardView
     @registerTypeName "S"

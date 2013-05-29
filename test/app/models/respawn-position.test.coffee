@@ -4,8 +4,8 @@ describe 'RespawnPosition', ->
   before (done) ->
     require [
       'cs!app/models/respawn-position'
-      'cs!app/lib/direction'
-      ], (respawnPosition, direction) ->
+      'cs!app/lib/direction'],
+      (respawnPosition, direction) ->
         RespawnPosition = respawnPosition
         Direction = direction
         done()
@@ -21,7 +21,8 @@ describe 'RespawnPosition', ->
       respawnPosition = new RespawnPosition({x: 0, y: 0, dir: 'W'})
       respawnPosition.isConfirmed().should.be.false
     it 'should allow to construct confirmed respawn point', ->
-      respawnPosition = new RespawnPosition({x: 0, y: 0, dir: 'W', confirmed: true})
+      respawnPosition = new RespawnPositioni(
+        {x: 0, y: 0, dir: 'W', confirmed: true})
       respawnPosition.isConfirmed().should.be.true
   
   describe 'confirmDirection', ->

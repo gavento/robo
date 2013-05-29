@@ -13,8 +13,8 @@ describe 'Board', ->
     require [
       'cs!app/models/board'
       'cs!app/models/entity-robot'
-      'cs!app/models/entity-others'
-      ], (board, robot, entities) ->
+      'cs!app/models/entity-others'],
+      (board, robot, entities) ->
         Board = board
         Robot = robot
         Conveyor = entities.Conveyor
@@ -185,7 +185,7 @@ describe 'Board', ->
     robot = null
     beforeEach ->
       board = new Board({width: 1, height: 1})
-      robot = new Robot({x: 0, y: 0, type: 'Robot'}, health: 8)
+      robot = new Robot({x: 0, y: 0, type: 'Robot', health: 8})
       robot.placed = false
       board.entities([robot])
     it 'robot should not be placed', ->

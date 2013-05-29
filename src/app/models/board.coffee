@@ -22,7 +22,7 @@ define (require, exports, module) ->
   # * `entities: [Entity]` - list of Entities, in no particular order.
   # * `width, height` - board size, coordinates are in ranges `0..(width-1)`.
   # * `name` - board or map name, just informative.
-  # 
+  #
   # ### Internal ###
   #
   # * `tiles_: map x -> map y -> [Entity ids]` - list of Entity id for every
@@ -42,11 +42,11 @@ define (require, exports, module) ->
 
     # ### Board.activateBoard ###
     #
-    # Activate the board synchronously.  
+    # Activate the board synchronously.
     # All phases of the board are activated one after another. Tiles
     # within one phase are activated simultaneously.
     #
-    # * `opts` Object containing all options for board 
+    # * `opts` Object containing all options for board
     #   activation. It is passed to  `Board.activateOnePhase` and subsequently
     #   to `Entity.activate`.
     # * `callback` Callback that is called after all phases have finished.
@@ -60,9 +60,9 @@ define (require, exports, module) ->
 
     # ### Board.activateOnePhase ###
     #
-    # Activate given entities.  
+    # Activate given entities.
     # After that activate entities with immediate effect on all occupied tiles.
-    # * `entities` List of entities that will be activated in parallel. 
+    # * `entities` List of entities that will be activated in parallel.
     # * `opts` Object containing all options for the tile activation.
     # * `callback` Callback that is called when the phase is finished.
     activateOnePhase: (entities, opts, callback) ->
@@ -74,11 +74,11 @@ define (require, exports, module) ->
 
     # ### Board.activateOccupiedTiles ###
     #
-    # Activate tiles that are occupied by a movable entity.  
-    # Only some entities are activated when occupied (hole, water, etc.). 
+    # Activate tiles that are occupied by a movable entity.
+    # Only some entities are activated when occupied (hole, water, etc.).
     # This is called after each phase.
     #
-    # * `opts` Object containing all options for the tile activation. 
+    # * `opts` Object containing all options for the tile activation.
     #   It is passed to  `Board.activateOnEnter` and subsequently
     #   to `Entity.activate`.
     # * `callback` Callback that is called after all occupied tiles have been
@@ -91,15 +91,15 @@ define (require, exports, module) ->
 
     # ### Board.activateImmediateEffects ###
     #
-    # Activate immediate effects of a tile.  
+    # Activate immediate effects of a tile.
     #
     # Some entities (eg. Hole or Water) have immediate effect on robot
     # standing on them. This funcition activates those effects. It should
     # be called on tiles entered by a movable entity and on tiles occupied by
-    # by a movable entity after each board phase. 
+    # by a movable entity after each board phase.
     #
-    # * `x y` Position of the tile that will be activated.  
-    # * `opts` Object containing all options for the tile activation. 
+    # * `x y` Position of the tile that will be activated.
+    # * `opts` Object containing all options for the tile activation.
     # * `callback` Callback that is called after all entities on given tile
     #   and their effects have been activated.
     activateImmediateEffects: (x, y, opts, callback) ->
@@ -203,11 +203,11 @@ define (require, exports, module) ->
         holeFound = false
         for entity in entities
           if entity instanceof Hole
-            # If there already is a hole at this position than there is no 
+            # If there already is a hole at this position than there is no
             # need to create another one.
             holeFound = true
         if not holeFound
-          # There is no hole at this position yet, create new one. 
+          # There is no hole at this position yet, create new one.
           hole = new Hole({x: x, y: y, type: 'H'})
           @addEntity hole
           entities.push(hole)

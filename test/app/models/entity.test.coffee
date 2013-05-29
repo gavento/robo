@@ -6,8 +6,8 @@ describe 'Entity', ->
       'cs!app/models/board'
       'cs!app/models/entity'
       'cs!app/models/entity-robot'
-      'cs!app/models/entity-others'
-      ], (board, entity, robot, entities) ->
+      'cs!app/models/entity-others'],
+      (board, entity, robot, entities) ->
         Board = board
         Robot = robot
         done()
