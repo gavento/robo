@@ -4,6 +4,7 @@ STYLUS=$(NODE_BIN)/stylus
 R_JS=$(NODE_BIN)/r.js
 DOCKER=$(NODE_BIN)/docker
 COFFEE=$(NODE_BIN)/coffee
+COFFEELINT=$(NODE_BIN)/coffeelint
 HTTP_SERVER=$(NODE_BIN)/http-server
 
 HTTP_PORT = 4242
@@ -35,6 +36,9 @@ docs:
 
 tests:
 	$(COFFEE) -c test/
+
+lint:
+	$(COFFEELINT) -r ./src ./test
 
 install: clean style build
 	rsync --rsh=ssh -rlvvzuO --exclude='*\~' "$(BUILD_DIR)/" "${INSTALL_URL}/" 

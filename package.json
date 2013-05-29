@@ -8,14 +8,17 @@
     "node": ">= 0.6"
   },
   "dependencies": {
-    "coffee-script": ">= 1.4.0",
-    "http-server": ">= 0.5",
-    "express": ">= 3.0.0",
-    "requirejs": ">= 2.1.0",
-    "socket.io": ">= 0.9",
-    "stylus": ">= 0.28",
-    "docker": ">= 0.1.6",
-    "underscore": ">= *",
-    "async": ">= 0.0.1"
+    "async": "0.1.22",
+    "coffee-script": "1.4.0",
+    "express": "3.2.4",
+    "requirejs": "2.1.6",
+    "socket.io": "0.9.11",
+    "spine": "1.1.0",
+    "stylus": "0.31.0",
+    "underscore": "1.4.4"
+  },
+  "devDependencies": {
+    "coffeelint": "0.5.4",
+    "docker": "0.2.3"
   }
 }
