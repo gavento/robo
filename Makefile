@@ -7,7 +7,8 @@ COFFEE=$(NODE_BIN)/coffee
 COFFEELINT=$(NODE_BIN)/coffeelint
 HTTP_SERVER=$(NODE_BIN)/http-server
 
-HTTP_PORT = 4242
+HTTP_PORT=4242
+IP=0.0.0.0
 BUILD_DIR=./build
 INSTALL_URL=gavento@jabberwock.ucw.cz:/home/gavento/www/view/robo/
 
@@ -15,7 +16,7 @@ all: build docs
 .PHONY: all build start clean stylus docs tests
 
 start:
-	@echo '***  Serving at  http://0.0.0.0:$(HTTP_PORT)/  ***'
+	@echo '***  Serving at  http:$(IP):$(HTTP_PORT)/  ***'
 	$(COFFEE) ./src/server/server.coffee $(HTTP_PORT)
 
 clean:

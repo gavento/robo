@@ -7,7 +7,8 @@ stylus = require('stylus')
 
 # Read the port number from the commandline.
 port = if process.argv.length > 2 then process.argv[2] else 80
-server.listen(port)
+ip = if process.argv.length > 3 then process.argv[3] else '0.0.0.0'
+server.listen(port, ip)
 
 # Configure the requirejs
 requirejs = require 'requirejs'
