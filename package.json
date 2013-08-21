@@ -12,7 +12,7 @@
     "coffee-script": "1.4.0",
     "express": "3.2.4",
     "requirejs": "2.1.6",
-    "socket.io": "0.9.11",
+    "socket.io": "0.9.16",
     "spine": "1.1.0",
     "stylus": "0.31.0",
     "underscore": "1.4.4"
