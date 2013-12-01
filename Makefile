@@ -8,6 +8,8 @@ COFFEELINT=$(NODE_BIN)/coffeelint
 HTTP_SERVER=$(NODE_BIN)/http-server
 
 HTTP_PORT=4242
+#HTTP_PORT=80
+#IP=77.93.202.43
 IP=0.0.0.0
 BUILD_DIR=./build
 INSTALL_URL=gavento@jabberwock.ucw.cz:/home/gavento/www/view/robo/
@@ -30,6 +32,7 @@ build:
 	rm -fr $(BUILD_DIR)/server/
 	rm -f $(BUILD_DIR)/lib/cs.js
 	rm -f $(BUILD_DIR)/lib/coffee-script.js
+	$(COFFEE) --compile --output $(BUILD_DIR)/server/ src/server/
 	mv $(BUILD_DIR)/build.txt .
 
 docs:
